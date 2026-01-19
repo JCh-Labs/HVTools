@@ -143,8 +143,6 @@ The project is actively developed and updated.
 
 # Support
 
-Commercial support
-
 This project is open-source and I invite everybody who can and will to contribute, but I cannot provide any support because I only created this as a "hobby project" ofc. with tbe best in mind. For commercial support, please contact me on LinkedIn so we can discuss the possibilities. It’s my choice to work on this project in my spare time, so if you have commercial gain from this project you should considering sponsoring me.
 
 <a href="https://www.buymeacoffee.com/sonnes" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 117px !important;"></a>
@@ -176,6 +174,10 @@ Special thanks to:
 - **xxx Community** for excellent modules and documentation
 - **Contributors** who help improve this project
 
+## ⭐ Star This Project
+
+If this tool helps you, please consider giving it a star! ⭐
+
 # Sponsors
 ## Advanced Installer
 The installer is created from a Free Advanced Installer License for Open-Source from <a href="https://www.advancedinstaller.com/" target="_blank">https://www.advancedinstaller.com/</a> - this allowed me to create a feature complete installer in a user friendly environment with minimal effort - check it out!
@@ -184,8 +186,5 @@ The installer is created from a Free Advanced Installer License for Open-Source 
 ## JetBrains
 JetBrains specialises in intelligent, productivity-enabling tools to help you write clean, quality code across . NET, Java, Ruby, Python, PHP, JavaScript, C# and C++ platforms throughout all stages of development. <a href="https://www.jetbrains.com/" target="_blank">https://www.jetbrains.com/</a> - check it out!
 
-## ⭐ Star This Project
-
-If this tool helps you xxxxx, please consider giving it a star! ⭐
 ## SAST Tools
 [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
