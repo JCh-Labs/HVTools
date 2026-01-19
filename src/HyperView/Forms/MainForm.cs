@@ -2896,7 +2896,7 @@ Management:
                 Message($"Updating hvHosts DataGridView with {hostDetails.Count} host(s)",
                     EventType.Information, 4017);
 
-                // Create DataTable
+                // Create DataTable with ALL host detail fields
                 var dataTable = new DataTable();
                 dataTable.Columns.Add("Host Name", typeof(string));
                 dataTable.Columns.Add("Cluster Name", typeof(string));
@@ -2904,12 +2904,26 @@ Management:
                 dataTable.Columns.Add("Domain", typeof(string));
                 dataTable.Columns.Add("OS", typeof(string));
                 dataTable.Columns.Add("Version", typeof(string));
+                dataTable.Columns.Add("Build", typeof(string));
+                dataTable.Columns.Add("Boot Time", typeof(string));
                 dataTable.Columns.Add("Uptime", typeof(string));
+                dataTable.Columns.Add("Time Zone", typeof(string));
+                dataTable.Columns.Add("NTP Servers", typeof(string));
+                dataTable.Columns.Add("NTP Status", typeof(string));
+                dataTable.Columns.Add("License Status", typeof(string));
+                dataTable.Columns.Add("License Type", typeof(string));
+                dataTable.Columns.Add("Product Key", typeof(string));
+                dataTable.Columns.Add("Grace Period", typeof(string));
+                dataTable.Columns.Add("License Description", typeof(string));
+                dataTable.Columns.Add("Manufacturer", typeof(string));
+                dataTable.Columns.Add("Model", typeof(string));
+                dataTable.Columns.Add("Serial Number", typeof(string));
                 dataTable.Columns.Add("Processor", typeof(string));
                 dataTable.Columns.Add("Sockets", typeof(string));
                 dataTable.Columns.Add("Cores", typeof(string));
                 dataTable.Columns.Add("Logical CPUs", typeof(string));
                 dataTable.Columns.Add("Hyper-Threading", typeof(string));
+                dataTable.Columns.Add("SLAT Support", typeof(string));
                 dataTable.Columns.Add("Total RAM (GB)", typeof(string));
                 dataTable.Columns.Add("Used RAM (GB)", typeof(string));
                 dataTable.Columns.Add("Free RAM (GB)", typeof(string));
@@ -2918,17 +2932,15 @@ Management:
                 dataTable.Columns.Add("Running VMs", typeof(string));
                 dataTable.Columns.Add("Stopped VMs", typeof(string));
                 dataTable.Columns.Add("Virtual Switches", typeof(string));
+                dataTable.Columns.Add("External Switches", typeof(string));
+                dataTable.Columns.Add("IP Addresses", typeof(string));
                 dataTable.Columns.Add("Live Migration", typeof(string));
                 dataTable.Columns.Add("Enhanced Session", typeof(string));
                 dataTable.Columns.Add("NUMA Spanning", typeof(string));
-                dataTable.Columns.Add("IP Addresses", typeof(string));
-                dataTable.Columns.Add("Manufacturer", typeof(string));
-                dataTable.Columns.Add("Model", typeof(string));
-                dataTable.Columns.Add("Serial Number", typeof(string));
-                dataTable.Columns.Add("License Status", typeof(string));
-                dataTable.Columns.Add("License Type", typeof(string));
+                dataTable.Columns.Add("VHD Path", typeof(string));
+                dataTable.Columns.Add("VM Config Path", typeof(string));
 
-                // Add rows
+                // Add rows with ALL data
                 foreach (var host in hostDetails)
                 {
                     var row = dataTable.NewRow();
@@ -2938,12 +2950,26 @@ Management:
                     row["Domain"] = host.Domain;
                     row["OS"] = host.OperatingSystem;
                     row["Version"] = host.OSVersion;
+                    row["Build"] = host.BuildNumber;
+                    row["Boot Time"] = host.BootTime;
                     row["Uptime"] = host.Uptime;
+                    row["Time Zone"] = host.TimeZone;
+                    row["NTP Servers"] = host.NtpServers;
+                    row["NTP Status"] = host.NtpStatus;
+                    row["License Status"] = host.LicenseStatus;
+                    row["License Type"] = host.LicenseType;
+                    row["Product Key"] = host.ProductKey;
+                    row["Grace Period"] = host.GracePeriod;
+                    row["License Description"] = host.LicenseDescription;
+                    row["Manufacturer"] = host.Manufacturer;
+                    row["Model"] = host.Model;
+                    row["Serial Number"] = host.SerialNumber;
                     row["Processor"] = host.Processor;
                     row["Sockets"] = host.Sockets.ToString();
                     row["Cores"] = host.Cores.ToString();
                     row["Logical CPUs"] = host.LogicalCPUs.ToString();
                     row["Hyper-Threading"] = host.HyperThreading;
+                    row["SLAT Support"] = host.SLATSupport;
                     row["Total RAM (GB)"] = host.TotalMemoryGB.ToString("F2");
                     row["Used RAM (GB)"] = host.UsedMemoryGB.ToString("F2");
                     row["Free RAM (GB)"] = host.FreeMemoryGB.ToString("F2");
@@ -2952,15 +2978,13 @@ Management:
                     row["Running VMs"] = host.RunningVMs.ToString();
                     row["Stopped VMs"] = host.StoppedVMs.ToString();
                     row["Virtual Switches"] = host.VirtualSwitches.ToString();
+                    row["External Switches"] = host.ExternalSwitches.ToString();
+                    row["IP Addresses"] = host.IPAddresses;
                     row["Live Migration"] = host.LiveMigration;
                     row["Enhanced Session"] = host.EnhancedSession;
                     row["NUMA Spanning"] = host.NUMASpanning;
-                    row["IP Addresses"] = host.IPAddresses;
-                    row["Manufacturer"] = host.Manufacturer;
-                    row["Model"] = host.Model;
-                    row["Serial Number"] = host.SerialNumber;
-                    row["License Status"] = host.LicenseStatus;
-                    row["License Type"] = host.LicenseType;
+                    row["VHD Path"] = host.VHDPath;
+                    row["VM Config Path"] = host.VMConfigPath;
 
                     dataTable.Rows.Add(row);
                 }
