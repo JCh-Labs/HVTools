@@ -596,9 +596,15 @@ namespace HyperView.Forms
                     // Handle connection failures
                     if (connectionResult.RequiresElevation && connectionResult.CanAutoElevate)
                     {
-                        var elevationPrompt = "Administrator privileges or member of the group 'Hyper-V Administrators' " +
-                            "are required for local Hyper-V management.\n\n" +
-                            "Would you like to restart this application as administrator to continue?";
+                        // Show detailed permission error with restart option
+                        var elevationPrompt = "🔒 Administrator Privileges Required\n\n" +
+                            "To manage local Hyper-V, you need ONE of the following:\n\n" +
+                            "  • Run this application as Administrator\n" +
+                            "  • Be a member of the 'Hyper-V Administrators' group\n\n" +
+                            "Would you like to restart this application as Administrator now?";
+
+                        FileLogger.Message("Prompting user for elevation due to permission error",
+                            FileLogger.EventType.Information, 1096);
 
                         var result = MessageBox.Show(elevationPrompt, "Elevation Required",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -616,14 +622,25 @@ namespace HyperView.Forms
                             {
                                 FileLogger.Message($"Failed to start as admin: {ex.Message}",
                                     FileLogger.EventType.Error, 1001);
-                                MessageBox.Show($"Failed to restart as administrator: {ex.Message}",
+                                MessageBox.Show($"Failed to restart as administrator:\n\n{ex.Message}\n\n" +
+                                    "Please close this application and manually run it as Administrator.",
                                     "Elevation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
                         else
                         {
-                            MessageBox.Show(connectionResult.Error, "Connection Failed",
-                                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            FileLogger.Message("User declined elevation, showing error details",
+                                FileLogger.EventType.Information, 1097);
+
+                            // Show alternative if user declines elevation
+                            MessageBox.Show(
+                                "Unable to connect without proper permissions.\n\n" +
+                                "Alternative solutions:\n" +
+                                "  • Right-click the application and select 'Run as administrator'\n" +
+                                "  • Ask your administrator to add you to the 'Hyper-V Administrators' group\n" +
+                                "  • Connect to a remote Hyper-V host instead of localhost",
+                                "Connection Failed",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
                     else
@@ -1056,10 +1073,39 @@ namespace HyperView.Forms
                 FileLogger.Message($"Stack trace: {ex.StackTrace}",
                     FileLogger.EventType.Error, 1006);
 
+                // Check if it's a permission/elevation issue
+                string errorMessage = ex.Message;
+                string exceptionType = ex.GetType().Name;
+
+                // ActionPreferenceStopException is thrown when -ErrorAction Stop is used
+                // and a non-terminating error occurs (like permission denied)
+                if (exceptionType == "ActionPreferenceStopException" ||
+                    errorMessage.Contains("required permission") ||
+                    errorMessage.Contains("Access is denied") ||
+                    errorMessage.Contains("Administrator") ||
+                    errorMessage.Contains("authorization policy") ||
+                    errorMessage.Contains("Hyper-V Administrators") ||
+                    errorMessage.Contains("elevation"))
+                {
+                    FileLogger.Message("Permission error detected - Administrator privileges or Hyper-V Administrators group membership required",
+                        FileLogger.EventType.Warning, 1095);
+
+                    return new ConnectionTestResult
+                    {
+                        Success = false,
+                        Error = "Access denied. To manage local Hyper-V, you must:\n\n" +
+                                "• Run this application as Administrator, OR\n" +
+                                "• Be a member of the 'Hyper-V Administrators' group\n\n" +
+                                "Would you like to restart the application as Administrator?",
+                        RequiresElevation = true,
+                        CanAutoElevate = true
+                    };
+                }
+
                 return new ConnectionTestResult
                 {
                     Success = false,
-                    Error = ex.Message
+                    Error = $"Failed to connect to local Hyper-V: {errorMessage}"
                 };
             }
         }
