@@ -103,6 +103,10 @@
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             groupBoxMainFormServerDetails = new GroupBox();
             toolstripstatuslabelMain_CreatedBy = new Label();
+            buttonSummaryvDiskView = new Button();
+            buttonLoadvDiskrefresh = new Button();
+            labelvDiskOverviewText = new Label();
+            datagridviewvDiskOverView = new DataGridView();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -116,9 +120,11 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterVMs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterNodes).BeginInit();
             groupBoxClusterInfo.SuspendLayout();
+            tabPagehvDisks.SuspendLayout();
             menuStripTopMainForm.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).BeginInit();
             statusStripMainForm.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).BeginInit();
             SuspendLayout();
             // 
             // datagridviewVMOverView
@@ -585,6 +591,10 @@
             // 
             // tabPagehvDisks
             // 
+            tabPagehvDisks.Controls.Add(buttonSummaryvDiskView);
+            tabPagehvDisks.Controls.Add(buttonLoadvDiskrefresh);
+            tabPagehvDisks.Controls.Add(labelvDiskOverviewText);
+            tabPagehvDisks.Controls.Add(datagridviewvDiskOverView);
             tabPagehvDisks.Location = new Point(4, 24);
             tabPagehvDisks.Name = "tabPagehvDisks";
             tabPagehvDisks.Size = new Size(1613, 844);
@@ -852,6 +862,44 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
+            // buttonSummaryvDiskView
+            // 
+            buttonSummaryvDiskView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryvDiskView.Location = new Point(1410, 6);
+            buttonSummaryvDiskView.Name = "buttonSummaryvDiskView";
+            buttonSummaryvDiskView.Size = new Size(75, 23);
+            buttonSummaryvDiskView.TabIndex = 7;
+            buttonSummaryvDiskView.Text = "Summary";
+            buttonSummaryvDiskView.UseVisualStyleBackColor = true;
+            // 
+            // buttonLoadvDiskrefresh
+            // 
+            buttonLoadvDiskrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonLoadvDiskrefresh.Location = new Point(1491, 6);
+            buttonLoadvDiskrefresh.Name = "buttonLoadvDiskrefresh";
+            buttonLoadvDiskrefresh.Size = new Size(116, 23);
+            buttonLoadvDiskrefresh.TabIndex = 6;
+            buttonLoadvDiskrefresh.Text = "&Load vDisk/refresh";
+            buttonLoadvDiskrefresh.UseVisualStyleBackColor = true;
+            // 
+            // labelvDiskOverviewText
+            // 
+            labelvDiskOverviewText.AutoSize = true;
+            labelvDiskOverviewText.Location = new Point(6, 3);
+            labelvDiskOverviewText.Name = "labelvDiskOverviewText";
+            labelvDiskOverviewText.Size = new Size(705, 30);
+            labelvDiskOverviewText.TabIndex = 5;
+            labelvDiskOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VMs and other data that\r\nextends that functionality over multiple servers.";
+            // 
+            // datagridviewvDiskOverView
+            // 
+            datagridviewvDiskOverView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            datagridviewvDiskOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            datagridviewvDiskOverView.Location = new Point(6, 35);
+            datagridviewvDiskOverView.Name = "datagridviewvDiskOverView";
+            datagridviewvDiskOverView.Size = new Size(1601, 803);
+            datagridviewvDiskOverView.TabIndex = 4;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -887,11 +935,14 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterNodes).EndInit();
             groupBoxClusterInfo.ResumeLayout(false);
             groupBoxClusterInfo.PerformLayout();
+            tabPagehvDisks.ResumeLayout(false);
+            tabPagehvDisks.PerformLayout();
             menuStripTopMainForm.ResumeLayout(false);
             menuStripTopMainForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).EndInit();
             statusStripMainForm.ResumeLayout(false);
             statusStripMainForm.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -972,5 +1023,9 @@
         private Label labelClusterVMs;
         private DataGridView datagridviewClusterVMs;
         private TabPage tabPagehvDisks;
+        private Button buttonSummaryvDiskView;
+        private Button buttonLoadvDiskrefresh;
+        private Label labelvDiskOverviewText;
+        private DataGridView datagridviewvDiskOverView;
     }
 }
