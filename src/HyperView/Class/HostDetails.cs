@@ -296,9 +296,11 @@ namespace HyperView.Class
                 string tempScriptPath = Path.Combine(Path.GetTempPath(), $"HyperView_HostDetails_{Guid.NewGuid():N}.ps1");
                 File.WriteAllText(tempScriptPath, script);
                 
-                FileLogger.Message($"Created temp script: {tempScriptPath}",
+                FileLogger.Message($"Created temp script: '{tempScriptPath}'",
                     FileLogger.EventType.Information, 4050);
                 
+                FileLogger.Message("Executing Windows PowerShell process to get host details...",
+                    FileLogger.EventType.Information, 4057);
                 try
                 {
                     // Execute via Windows PowerShell process

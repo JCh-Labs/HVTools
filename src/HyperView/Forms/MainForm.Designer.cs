@@ -70,10 +70,11 @@
             labelClustersHelpText = new Label();
             buttonSummaryClustersOverviewView = new Button();
             tabpagehvStorage = new TabPage();
-            tabpagehvNetworking = new TabPage();
+            tabPagehvDisks = new TabPage();
             tabpagehvCheckpoints = new TabPage();
             tabpagehvReplica = new TabPage();
             tabpagehvResources = new TabPage();
+            tabpagehvNetworking = new TabPage();
             tabpagehvSecurity = new TabPage();
             tabpagehvPerformance = new TabPage();
             tabpagehvCompliance = new TabPage();
@@ -102,7 +103,6 @@
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             groupBoxMainFormServerDetails = new GroupBox();
             toolstripstatuslabelMain_CreatedBy = new Label();
-            tabPagehvDisks = new TabPage();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -219,6 +219,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox2.Controls.Add(buttonManageServerMembers);
             groupBox2.Location = new Point(1407, 211);
             groupBox2.Name = "groupBox2";
@@ -239,6 +240,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox1.Controls.Add(buttonRenameSelectedVMGrou);
             groupBox1.Controls.Add(buttonDeleteSelectedVMGrou);
             groupBox1.Controls.Add(buttonCreateANewVMGroup);
@@ -283,6 +285,7 @@
             // 
             // buttonLoadGroupsrefresh
             // 
+            buttonLoadGroupsrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             buttonLoadGroupsrefresh.Location = new Point(1475, 6);
             buttonLoadGroupsrefresh.Name = "buttonLoadGroupsrefresh";
             buttonLoadGroupsrefresh.Size = new Size(132, 23);
@@ -302,6 +305,7 @@
             // 
             // datagridviewVMGroups
             // 
+            datagridviewVMGroups.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             datagridviewVMGroups.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             datagridviewVMGroups.Location = new Point(6, 35);
             datagridviewVMGroups.Name = "datagridviewVMGroups";
@@ -579,14 +583,14 @@
             tabpagehvStorage.Text = "hvStorage";
             tabpagehvStorage.UseVisualStyleBackColor = true;
             // 
-            // tabpagehvNetworking
+            // tabPagehvDisks
             // 
-            tabpagehvNetworking.Location = new Point(4, 24);
-            tabpagehvNetworking.Name = "tabpagehvNetworking";
-            tabpagehvNetworking.Size = new Size(1613, 844);
-            tabpagehvNetworking.TabIndex = 6;
-            tabpagehvNetworking.Text = "hvNetworking";
-            tabpagehvNetworking.UseVisualStyleBackColor = true;
+            tabPagehvDisks.Location = new Point(4, 24);
+            tabPagehvDisks.Name = "tabPagehvDisks";
+            tabPagehvDisks.Size = new Size(1613, 844);
+            tabPagehvDisks.TabIndex = 16;
+            tabPagehvDisks.Text = "hvDisks";
+            tabPagehvDisks.UseVisualStyleBackColor = true;
             // 
             // tabpagehvCheckpoints
             // 
@@ -614,6 +618,15 @@
             tabpagehvResources.TabIndex = 9;
             tabpagehvResources.Text = "hvResources";
             tabpagehvResources.UseVisualStyleBackColor = true;
+            // 
+            // tabpagehvNetworking
+            // 
+            tabpagehvNetworking.Location = new Point(4, 24);
+            tabpagehvNetworking.Name = "tabpagehvNetworking";
+            tabpagehvNetworking.Size = new Size(1613, 844);
+            tabpagehvNetworking.TabIndex = 6;
+            tabpagehvNetworking.Text = "hvNetworking";
+            tabpagehvNetworking.UseVisualStyleBackColor = true;
             // 
             // tabpagehvSecurity
             // 
@@ -838,15 +851,6 @@
             toolstripstatuslabelMain_CreatedBy.Size = new Size(190, 15);
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
-            // 
-            // tabPagehvDisks
-            // 
-            tabPagehvDisks.Location = new Point(4, 24);
-            tabPagehvDisks.Name = "tabPagehvDisks";
-            tabPagehvDisks.Size = new Size(1613, 844);
-            tabPagehvDisks.TabIndex = 16;
-            tabPagehvDisks.Text = "hvDisks";
-            tabPagehvDisks.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
