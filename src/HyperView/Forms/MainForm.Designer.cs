@@ -406,7 +406,7 @@
             // 
             datagridviewClusterNodes.AllowUserToAddRows = false;
             datagridviewClusterNodes.AllowUserToDeleteRows = false;
-            datagridviewClusterNodes.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            datagridviewClusterNodes.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             datagridviewClusterNodes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             datagridviewClusterNodes.Location = new Point(6, 308);
             datagridviewClusterNodes.Name = "datagridviewClusterNodes";
