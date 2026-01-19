@@ -602,6 +602,7 @@
             buttonSummaryvDiskView.TabIndex = 7;
             buttonSummaryvDiskView.Text = "Summary";
             buttonSummaryvDiskView.UseVisualStyleBackColor = true;
+            buttonSummaryvDiskView.Click += buttonSummaryvDiskView_Click;
             // 
             // buttonLoadvDiskrefresh
             // 

@@ -3642,5 +3642,313 @@ Management:
                     MessageBoxIcon.Error);
             }
         }
+
+        private void buttonSummaryvDiskView_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Message("User requested virtual disk summary",
+                    EventType.Information, 5043);
+
+                // Check if there's an active Hyper-V connection
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                        "Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Check if we have disk data
+                if (datagridviewvDiskOverView == null || datagridviewvDiskOverView.Rows.Count == 0)
+                {
+                    MessageBox.Show("No virtual disk data available. Please load disks first.",
+                        "No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                this.Cursor = Cursors.WaitCursor;
+
+                // Calculate disk statistics
+                int totalDisks = datagridviewvDiskOverView.Rows.Count;
+                double totalMaxSizeGB = 0;
+                double totalFileSizeGB = 0;
+                double totalUsedSpaceGB = 0;
+                
+                // Disk type breakdown
+                int dynamicDisks = 0;
+                int fixedDisks = 0;
+                int differencingDisks = 0;
+                int passThroughDisks = 0;
+                
+                // Disk format breakdown
+                int vhdDisks = 0;
+                int vhdxDisks = 0;
+                int physicalDisks = 0;
+                
+                // Controller breakdown
+                int scsiDisks = 0;
+                int ideDisks = 0;
+                
+                // Advanced features
+                int sharedDisks = 0;
+                int readOnlyDisks = 0;
+                int disksWithQoS = 0;
+                int clusteredDisks = 0;
+                
+                // VM state breakdown
+                int disksOnRunningVMs = 0;
+                int disksOnStoppedVMs = 0;
+                
+                // Fragmentation tracking
+                var fragmentationValues = new List<double>();
+                
+                // Unique VMs with disks
+                var uniqueVMs = new HashSet<string>();
+                var uniqueHosts = new HashSet<string>();
+
+                foreach (DataGridViewRow row in datagridviewvDiskOverView.Rows)
+                {
+                    // VM tracking
+                    var vmName = row.Cells["VM Name"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(vmName))
+                    {
+                        uniqueVMs.Add(vmName);
+                    }
+
+                    // Host tracking
+                    var hostName = row.Cells["Current Host"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(hostName))
+                    {
+                        uniqueHosts.Add(hostName);
+                    }
+
+                    // VM State
+                    var vmState = row.Cells["VM State"].Value?.ToString();
+                    if (vmState == "Running")
+                        disksOnRunningVMs++;
+                    else if (vmState == "Off")
+                        disksOnStoppedVMs++;
+
+                    // Disk sizes
+                    var maxSize = row.Cells["Max Size (GB)"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(maxSize) && double.TryParse(maxSize, out double maxGB))
+                        totalMaxSizeGB += maxGB;
+
+                    var fileSize = row.Cells["File Size (GB)"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(fileSize) && double.TryParse(fileSize, out double filGB))
+                        totalFileSizeGB += filGB;
+
+                    var usedSpace = row.Cells["Used Space (GB)"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(usedSpace) && double.TryParse(usedSpace, out double usedGB))
+                        totalUsedSpaceGB += usedGB;
+
+                    // Disk Type
+                    var diskType = row.Cells["Disk Type"].Value?.ToString();
+                    switch (diskType)
+                    {
+                        case "Dynamic":
+                            dynamicDisks++;
+                            break;
+                        case "Fixed":
+                            fixedDisks++;
+                            break;
+                        case "Differencing":
+                            differencingDisks++;
+                            break;
+                        case "PassThrough":
+                            passThroughDisks++;
+                            break;
+                    }
+
+                    // Disk Format
+                    var diskFormat = row.Cells["Disk Format"].Value?.ToString();
+                    switch (diskFormat)
+                    {
+                        case "VHD":
+                            vhdDisks++;
+                            break;
+                        case "VHDX":
+                            vhdxDisks++;
+                            break;
+                        case "Physical":
+                            physicalDisks++;
+                            break;
+                    }
+
+                    // Controller Type
+                    var controllerType = row.Cells["Controller Type"].Value?.ToString();
+                    if (controllerType == "SCSI")
+                        scsiDisks++;
+                    else if (controllerType == "IDE")
+                        ideDisks++;
+
+                    // Advanced features
+                    var shared = row.Cells["Shared"].Value?.ToString();
+                    if (shared == "Yes")
+                        sharedDisks++;
+
+                    var readOnly = row.Cells["Read Only"].Value?.ToString();
+                    if (readOnly == "Yes")
+                        readOnlyDisks++;
+
+                    var clustered = row.Cells["Clustered"].Value?.ToString();
+                    if (clustered == "Yes")
+                        clusteredDisks++;
+
+                    var qosMin = row.Cells["QoS Min IOPS"].Value?.ToString();
+                    var qosMax = row.Cells["QoS Max IOPS"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(qosMin) || !string.IsNullOrEmpty(qosMax))
+                        disksWithQoS++;
+
+                    // Fragmentation
+                    var fragmentation = row.Cells["Fragmentation %"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(fragmentation) && fragmentation != "N/A")
+                    {
+                        var fragStr = fragmentation.Replace("%", "").Trim();
+                        if (double.TryParse(fragStr, out double fragValue))
+                        {
+                            fragmentationValues.Add(fragValue);
+                        }
+                    }
+                }
+
+                // Calculate averages and percentages
+                double avgFragmentation = fragmentationValues.Count > 0 
+                    ? Math.Round(fragmentationValues.Average(), 1) 
+                    : 0;
+
+                double spaceEfficiency = totalMaxSizeGB > 0 
+                    ? Math.Round((totalFileSizeGB / totalMaxSizeGB) * 100, 1) 
+                    : 0;
+
+                // Get cluster information if available
+                string clusterSection = "";
+                string clusterName = "N/A";
+                
+                // Get cluster name from first row if available
+                if (datagridviewvDiskOverView.Rows.Count > 0)
+                {
+                    var firstRow = datagridviewvDiskOverView.Rows[0];
+                    var clusterNameValue = firstRow.Cells["Cluster Name"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(clusterNameValue) && clusterNameValue != "N/A")
+                    {
+                        clusterName = clusterNameValue;
+                    }
+                }
+
+                if (SessionContext.IsCluster && uniqueHosts.Count > 1)
+                {
+                    clusterSection = $@"
+
+🖥️ Environment:
+• Cluster Name: {clusterName}
+• Hosts with Disks: {uniqueHosts.Count}
+• Clustered Disks: {clusteredDisks}";
+                }
+
+                this.Cursor = Cursors.Default;
+
+                // Create summary message
+                string summaryText = $@"Virtual Disk Overview Summary - {SessionContext.ServerName}
+
+📊 Disk Statistics:
+• Total Virtual Disks: {totalDisks}
+• Unique VMs: {uniqueVMs.Count}
+• Disks on Running VMs: {disksOnRunningVMs}
+• Disks on Stopped VMs: {disksOnStoppedVMs}
+
+💾 Storage Capacity:
+• Total Allocated Space: {Math.Round(totalMaxSizeGB, 1):N1} GB
+• Actual File Size: {Math.Round(totalFileSizeGB, 1):N1} GB
+• Space Efficiency: {spaceEfficiency}%
+• Potential Savings: {Math.Round(totalMaxSizeGB - totalFileSizeGB, 1):N1} GB
+
+📁 Disk Type Breakdown:
+• Dynamic: {dynamicDisks}
+• Fixed: {fixedDisks}
+• Differencing: {differencingDisks}
+• PassThrough/Physical: {passThroughDisks}
+
+💿 Disk Format:
+• VHDX: {vhdxDisks}
+• VHD: {vhdDisks}
+• Physical: {physicalDisks}
+
+🔌 Controller Type:
+• SCSI: {scsiDisks}
+• IDE: {ideDisks}
+
+⚙️ Advanced Features:
+• Shared Disks: {sharedDisks}
+• Read-Only Disks: {readOnlyDisks}
+• Disks with QoS: {disksWithQoS}
+• Avg Fragmentation: {avgFragmentation}%{clusterSection}
+
+💡 Recommendations:
+{GetDiskRecommendations(dynamicDisks, fixedDisks, spaceEfficiency, avgFragmentation, vhdDisks)}";
+
+                Message($"Virtual disk summary generated - Total Disks: {totalDisks}, Total Size: {totalMaxSizeGB:F1} GB",
+                    EventType.Information, 5044);
+
+                // Show summary message
+                MessageBox.Show(summaryText,
+                    "Virtual Disk Overview Summary",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                this.Cursor = Cursors.Default;
+
+                string errorMsg = $"Error generating virtual disk summary: {ex.Message}";
+                Message(errorMsg, EventType.Error, 5045);
+
+                MessageBox.Show(errorMsg,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Generates recommendations based on disk statistics
+        /// </summary>
+        private string GetDiskRecommendations(int dynamicDisks, int fixedDisks, double spaceEfficiency, 
+            double avgFragmentation, int vhdDisks)
+        {
+            var recommendations = new List<string>();
+
+            // Dynamic vs Fixed recommendation
+            if (dynamicDisks > fixedDisks * 3)
+            {
+                recommendations.Add("• Consider using Fixed disks for production VMs for better performance");
+            }
+
+            // Space efficiency
+            if (spaceEfficiency < 50)
+            {
+                recommendations.Add($"• Low space efficiency ({spaceEfficiency}%) - consider compacting dynamic disks");
+            }
+
+            // Fragmentation
+            if (avgFragmentation > 15)
+            {
+                recommendations.Add($"• High fragmentation detected ({avgFragmentation}%) - consider defragmenting disks");
+            }
+
+            // VHD vs VHDX
+            if (vhdDisks > 0)
+            {
+                recommendations.Add($"• {vhdDisks} VHD disk(s) detected - consider migrating to VHDX format");
+            }
+
+            return recommendations.Count > 0 
+                ? string.Join("\n", recommendations) 
+                : "• Disk configuration looks optimal";
+        }
     }
 }
