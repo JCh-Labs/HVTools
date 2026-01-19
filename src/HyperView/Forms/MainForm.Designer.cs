@@ -102,6 +102,7 @@
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             groupBoxMainFormServerDetails = new GroupBox();
             toolstripstatuslabelMain_CreatedBy = new Label();
+            tabPagehvDisks = new TabPage();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -139,10 +140,11 @@
             tabcontrolMainForm.Controls.Add(tabpagehvHosts);
             tabcontrolMainForm.Controls.Add(tabpagehvClusters);
             tabcontrolMainForm.Controls.Add(tabpagehvStorage);
-            tabcontrolMainForm.Controls.Add(tabpagehvNetworking);
+            tabcontrolMainForm.Controls.Add(tabPagehvDisks);
             tabcontrolMainForm.Controls.Add(tabpagehvCheckpoints);
             tabcontrolMainForm.Controls.Add(tabpagehvReplica);
             tabcontrolMainForm.Controls.Add(tabpagehvResources);
+            tabcontrolMainForm.Controls.Add(tabpagehvNetworking);
             tabcontrolMainForm.Controls.Add(tabpagehvSecurity);
             tabcontrolMainForm.Controls.Add(tabpagehvPerformance);
             tabcontrolMainForm.Controls.Add(tabpagehvCompliance);
@@ -837,6 +839,15 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
+            // tabPagehvDisks
+            // 
+            tabPagehvDisks.Location = new Point(4, 24);
+            tabPagehvDisks.Name = "tabPagehvDisks";
+            tabPagehvDisks.Size = new Size(1613, 844);
+            tabPagehvDisks.TabIndex = 16;
+            tabPagehvDisks.Text = "hvDisks";
+            tabPagehvDisks.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -956,5 +967,6 @@
         private DataGridView datagridviewClusterNodes;
         private Label labelClusterVMs;
         private DataGridView datagridviewClusterVMs;
+        private TabPage tabPagehvDisks;
     }
 }
