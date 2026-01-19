@@ -20,6 +20,19 @@ namespace HyperView
             LoadVMOverview();
         }
 
+        /// <summary>
+        /// Handles the DataBindingComplete event to apply color coding after data is fully bound
+        /// </summary>
+        private void DatagridviewVMOverView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Only apply color coding if binding was successful
+            if (e.ListChangedType == System.ComponentModel.ListChangedType.Reset)
+            {
+                ApplyColorCoding();
+            }
+        }
+
+
         private void InitializeSession()
         {
             try
@@ -387,8 +400,7 @@ namespace HyperView
                 datagridviewVMOverView.AllowUserToDeleteRows = false;
                 datagridviewVMOverView.RowHeadersVisible = false;
 
-                // Apply color coding
-                ApplyColorCoding();
+                // Color coding will be applied automatically via DataBindingComplete event
 
                 Message($"VM overview loaded successfully with {results.Count} VMs",
                     EventType.Information, 2173);
