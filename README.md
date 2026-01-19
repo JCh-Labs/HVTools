@@ -1,14 +1,14 @@
-# TEMPLATE
+# HyperView
 
 <p align="center">
   <a href="https://www.linkedin.com/in/michaelmsonne/"><img alt="Made by" src="https://img.shields.io/static/v1?label=made%20by&message=Michael%20Morten%20Sonne&color=04D361"></a>
-  <a href="https://github.com/michaelmsonne/TEMPLATE"><img src="https://img.shields.io/github/languages/top/TEMPLATE/GitHubBackupTool.svg"></a>
-  <a href="https://github.com/michaelmsonne/TEMPLATE"><img src="https://img.shields.io/github/languages/code-size/TEMPLATE/GitHubBackupTool.svg"></a>
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=michaelmsonne.TEMPLATE.README" alt="Visitors">
-  <img src="https://img.shields.io/badge/PowerShell-5.1%2B-blue" alt="PowerShell"></a>
+  <a href="https://github.com/michaelmsonne/HyperView"><img src="https://img.shields.io/github/languages/top/HyperView/GitHubBackupTool.svg"></a>
+  <a href="https://github.com/michaelmsonne/HyperView"><img src="https://img.shields.io/github/languages/code-size/HyperView/GitHubBackupTool.svg"></a>
+  <img src="https://img.shields.io/badge/C%23-239120?logo=csharp&logoColor=white" alt="C#"></a>
+  <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet" alt=".NET 10"></a>
   <img src="https://img.shields.io/badge/Platform-Windows-0078D7" alt="Platform"></a>
-  <a href="https://github.com/michaelmsonne/TEMPLATE/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://github.com/michaelmsonne/TEMPLATE"><img src="https://img.shields.io/github/downloads/michaelmsonne/TEMPLATE/total.svg"></a><br>
+  <a href="https://github.com/michaelmsonne/HyperView/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://github.com/michaelmsonne/HyperView"><img src="https://img.shields.io/github/downloads/michaelmsonne/HyperView/total.svg"></a><br>
   <a href="https://www.buymeacoffee.com/sonnes" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 117px !important;"></a>
   
 </p>
@@ -17,15 +17,17 @@
 [//]: #https://img.shields.io/badge/PowerShell-5.1%2B-blue
 
 <div align="center">
-  <a href="https://github.com/michaelmsonne/TEMPLATE/issues/new?assignees=&labels=bug&template=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
+  <a href="https://github.com/michaelmsonne/HyperView/issues/new?assignees=&labels=bug&HyperView=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
   ·
-  <a href="https://github.com/michaelmsonne/TEMPLATE/issues/new?assignees=&labels=enhancement&template=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
+  <a href="https://github.com/michaelmsonne/HyperView/issues/new?assignees=&labels=enhancement&HyperView=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
   .
-  <a href="https://github.com/michaelmsonne/TEMPLATE/discussions">Ask a Question</a>
+  <a href="https://github.com/michaelmsonne/HyperView/discussions">Ask a Question</a>
 </div>
 
 <div align="center">
 <br />
+
+**The RVTools for Hyper-V Environments**
 
 </div>
 
@@ -46,7 +48,19 @@
 - [Credits](#credit)
 
 # Introduction
-This tool.....
+**HyperView** is a comprehensive inventory, documentation, and management tool for Microsoft Hyper-V environments - the equivalent of RVTools for VMware environments. 
+
+Just as RVTools helps VMware administrators document and inventory their vSphere infrastructure, HyperView provides detailed information about your Hyper-V hosts, virtual machines, clusters, and configurations, with powerful export capabilities for reporting and documentation purposes.
+
+### Why HyperView?
+
+- **Complete Inventory** - Document your entire Hyper-V infrastructure
+- **Cluster-Aware** - Full support for Failover Clusters and standalone hosts
+- **Export Everything** - Export to Excel-ready CSV, JSON, XML, or formatted text
+- **Detailed Insights** - Hardware specs, VM configurations, cluster status, and more
+- **Remote Management** - Connect to both local and remote Hyper-V hosts
+- **Visual Status Indicators** - Color-coded states for quick health assessment
+- **Secure Credentials** - Encrypted credential storage for repeated connections
 
 ## Contents
 
@@ -57,23 +71,22 @@ Outline the file contents of the repository. It helps users navigate the codebas
 | `src`             | Source code.                                |
 | `.gitignore`      | Define what to ignore at commit time.       |
 | `CHANGELOG.md`    | List of changes to the sample.              |
-| `CONTRIBUTING.md` | Guidelines for contributing to the TEMPLATE.|
+| `CONTRIBUTING.md` | Guidelines for contributing to the HyperView.|
 | `README.md`       | This README file.                           |
 | `SECURITY.md`     | This README file.                           |
-| `LICENSE`         | The license for the TEMPLATE.               |
+| `LICENSE`         | The license for the HyperView.               |
 
 ## 🚀 Features
 
 ### Overall:
-- Asynchronous resolution for improved performance and responsiveness.
-- Simple and easy-to-use.
+- 
 
 ### List:
 - Lookup Functionality:
-    The tool provides the ability to
+    
 
 - User Interface:
-    The tool includes a user-friendly graphical interface.
+    
 
 ## Download
 
@@ -87,51 +100,16 @@ Outline the file contents of the repository. It helps users navigate the codebas
 
 ### Access
 
-### Installation
-You can either clone this repository and build the project yourself or use the provided installer.
-
-## Usage
-
-```bash
-Tool token-based <token> [<destination>]
-```
-
-etc.: 
-```bash
-Tool token-based <token> [<destination>]
-```
 # 🔧 How to Use
 
-1. **Launch the Tool** as Administrator.
-2. ..
-
-Paramenters:
-
-- ACCESS_TOKEN: Replace this with your personal access token.
-- -all:
-
-# Final thoughts
-This is not an exhaustive method to retrieve every artifact...
+1. Download and install HyperView
+2. Run as Administrator (for local Hyper-V) or with appropriate credentials
+3. Connect to your Hyper-V host or cluster
+4. Explore VMs, Hosts, and Clusters tabs´and much more comming
+5. Export data for reporting
 
 # 📸 Screenshots
 
-# Email report sample:
-
-**Full layout:**
-
-![Screenshot](docs/email-report-full.png)
-
-**Simpel layout:**
-
-![Screenshot](docs/email-report-simpel.png)
-
-# Console use:
-
-**Help and info menu:**
-
-Main menu:
-
-![Screenshot](docs/pictures/help-menu.png)
 
 # 🧪 Testing
 
@@ -140,13 +118,9 @@ Main menu:
 
 ## Building
 
-```bash
-$ dotnet publish -r win10-x64 -c release
-```
-
-So far I tested the application only for win10-x64 systems, but it might also work on other platforms.
-
 ## Used 3rd party libraries for the tool:
+- [Newtonsoft.Json](https://www.newtonsoft.com/json) - for JSON serialization and deserialization
+- 
 
 # Contributing
 If you want to contribute to this project, please open an issue or submit a pull request. I welcome contributions :)
@@ -179,7 +153,7 @@ Thanks.
 
 Reach out to the maintainer at one of the following places:
 
-- [GitHub discussions](https://github.com/michaelmsonne/TEMPLATE/discussions)
+- [GitHub discussions](https://github.com/michaelmsonne/HyperView/discussions)
 - The email which is located [in GitHub profile](https://github.com/michaelmsonne)
 
 # 📄 License
@@ -191,6 +165,10 @@ See [LICENSE](LICENSE) for more information.
 
 Made with ❤️ **Michael Morten Sonne**
 - LinkedIn: [Connect with me](https://linkedin.com/in/michaelmsonne)
+
+## Star This Project
+
+If **HyperView** helps you document and manage your Hyper-V environment, please consider giving it a star!
 
 # 🙏 Credits / Acknowledgments
 
