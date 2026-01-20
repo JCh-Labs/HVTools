@@ -3835,37 +3835,83 @@ Management:
                     return;
                 }
 
-                // Execute with progress form
-                ExecuteWithProgressForm(() =>
-                {
-                    // Load virtual disk overview (runs in background thread)
-                    LoadVirtualDiskOverview();
+                // Update status label on UI thread before starting
+                toolStripStatusLabelTextMainForm.Text = "Loading virtual disk information...";
 
-                    // Show success message if disks were loaded
-                    if (datagridviewvDiskOverView.InvokeRequired)
+                // Execute with progress form
+                ExecuteWithProgressForm<List<VirtualDiskInfo>>(() =>
+                {
+                    // Get virtual disk details (runs in background thread)
+                    Message("Retrieving virtual disk details...",
+                        EventType.Information, 5031);
+
+                    List<VirtualDiskInfo> diskDetails;
+
+                    if (SessionContext.IsCluster && !SessionContext.IsLocal)
                     {
-                        datagridviewvDiskOverView.Invoke((Action)(() =>
-                        {
-                            if (datagridviewvDiskOverView != null && datagridviewvDiskOverView.Rows.Count > 0)
-                            {
-                                int diskCount = datagridviewvDiskOverView.Rows.Count;
-                                MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
-                                    "Refresh Complete",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                            }
-                        }));
+                        // Cluster environment - get disks from all nodes
+                        diskDetails = VirtualDisks.GetVirtualDiskDetails(
+                            cmd => ExecutePowerShellCommand(cmd),
+                            (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd));
                     }
                     else
                     {
-                        if (datagridviewvDiskOverView != null && datagridviewvDiskOverView.Rows.Count > 0)
+                        // Single host or local
+                        diskDetails = VirtualDisks.GetVirtualDiskDetails(
+                            cmd => ExecutePowerShellCommand(cmd));
+                    }
+
+                    return diskDetails;
+
+                }, (diskDetails) =>
+                {
+                    // Handle result on UI thread
+                    try
+                    {
+                        if (diskDetails != null && diskDetails.Count > 0)
                         {
-                            int diskCount = datagridviewvDiskOverView.Rows.Count;
+                            Message($"Retrieved {diskDetails.Count} virtual disk(s), updating DataGridView",
+                                EventType.Information, 5032);
+
+                            // Update DataGridView on UI thread
+                            UpdateVirtualDisksDataGridView(diskDetails);
+
+                            toolStripStatusLabelTextMainForm.Text = $"Loaded {diskDetails.Count} virtual disk(s)";
+
+                            Message($"Virtual disk overview loaded successfully with {diskDetails.Count} disk(s)",
+                                EventType.Information, 5033);
+
+                            // Show success message
+                            int diskCount = diskDetails.Count;
                             MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
                                 "Refresh Complete",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
                         }
+                        else
+                        {
+                            Message("No virtual disks found",
+                                EventType.Warning, 5034);
+
+                            toolStripStatusLabelTextMainForm.Text = "No virtual disks found";
+
+                            MessageBox.Show("No virtual disks found.",
+                                "Information",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        string errorMsg = $"Error updating virtual disk display: {ex.Message}";
+                        Message(errorMsg, EventType.Error, 5046);
+
+                        MessageBox.Show(errorMsg,
+                            "Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+
+                        toolStripStatusLabelTextMainForm.Text = "Error displaying virtual disk data";
                     }
 
                 }, "Virtual Disk Overview Refresh");
@@ -3879,6 +3925,8 @@ Management:
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+
+                toolStripStatusLabelTextMainForm.Text = "Error loading virtual disks";
             }
         }
 
