@@ -30,6 +30,25 @@ namespace HyperView.Forms
         private bool _isInitializing = true;
         private bool _isConnecting = false; // Prevent double login attempts
 
+        private class ConnectionTestResult
+        {
+            public bool Success { get; set; }
+            public string Error { get; set; }
+            public int VMCount { get; set; }
+            public bool RequiresElevation { get; set; }
+            public bool CanAutoElevate { get; set; }
+            public bool IsLocal { get; set; }
+
+            // Enhanced properties
+            public string HostName { get; set; }
+            public string HyperVVersion { get; set; }
+            public int LogicalProcessorCount { get; set; }
+            public double TotalMemoryGB { get; set; }
+            public bool IsCluster { get; set; }
+            public string ClusterName { get; set; }
+            public string FullyQualifiedDomainName { get; set; }
+        }
+
         public LoginForm()
         {
             InitializeComponent();
@@ -40,6 +59,12 @@ namespace HyperView.Forms
 
             // Mark initialization as complete
             _isInitializing = false;
+        }
+
+        private void SetToolName()
+        {
+            labelLoginFormToolName.Text = Globals.ToolName.HyperView + " v." + Globals.ToolProperties.ToolVersion;
+            Text = $"{Globals.ToolName.HyperView} - Login";
         }
 
         /// <summary>
@@ -99,6 +124,22 @@ namespace HyperView.Forms
                     FileLogger.EventType.Warning, 1050);
             }
         }
+
+        private void InitializeFormEvents()
+        {
+            // Set password char
+            textboxPassword.UseSystemPasswordChar = true;
+
+            // Setup tooltip for Windows authentication radio button to show current user
+            ToolTip toolTip = new ToolTip();
+            toolTip.SetToolTip(radioWindows,
+                $"Connect using your current Windows credentials: {WindowsIdentity.GetCurrent().Name}");
+
+            // Update UI based on initial selection
+            RadioAuth_CheckedChanged(null, null);
+        }
+
+        #region Hyper-V Detection Methods
 
         private bool TestLocalHyperVInstallation()
         {
@@ -312,388 +353,9 @@ namespace HyperView.Forms
             }
         }
 
-        private void UpdateStatusLabel(string message, bool? isSuccess = null)
-        {
-            try
-            {
-                if (toolStripStatusLabelTextLoginForm != null)
-                {
-                    toolStripStatusLabelTextLoginForm.Text = message;
+        #endregion Hyper-V Detection Methods
 
-                    // Update color based on status
-                    if (isSuccess.HasValue)
-                    {
-                        toolStripStatusLabelTextLoginForm.ForeColor = isSuccess.Value 
-                            ? Color.Green 
-                            : Color.Orange;
-                    }
-                    else
-                    {
-                        toolStripStatusLabelTextLoginForm.ForeColor = SystemColors.ControlText;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Message($"Error updating status label: {ex.Message}",
-                    FileLogger.EventType.Warning, 1071);
-            }
-        }
-
-        private void SetToolName()
-        {
-            labelLoginFormToolName.Text = Globals.ToolName.HyperView + " v." + Globals.ToolProperties.ToolVersion;
-            Text = $"{Globals.ToolName.HyperView} - Login";
-        }
-
-        private void InitializeFormEvents()
-        {
-            // Set password char
-            textboxPassword.UseSystemPasswordChar = true;
-
-            // Setup tooltip for Windows authentication radio button to show current user
-            ToolTip toolTip = new ToolTip();
-            toolTip.SetToolTip(radioWindows, 
-                $"Connect using your current Windows credentials: {WindowsIdentity.GetCurrent().Name}");
-
-            // Update UI based on initial selection
-            RadioAuth_CheckedChanged(null, null);
-        }
-
-        private void RadioAuth_CheckedChanged(object sender, EventArgs e)
-        {
-            bool useCustomAuth = radioCustom.Checked;
-            labelUsername.Enabled = useCustomAuth;
-            textboxUsername.Enabled = useCustomAuth;
-            labelPassword.Enabled = useCustomAuth;
-            textboxPassword.Enabled = useCustomAuth;
-            checkboxRemember.Enabled = useCustomAuth;
-
-            if (!useCustomAuth)
-            {
-                checkboxRemember.Checked = false;
-            }
-        }
-
-        private void TextboxServer_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-
-                // Don't trigger login if already in progress
-                if (_isConnecting)
-                    return;
-
-                if (radioWindows.Checked)
-                {
-                    ButtonLogin.PerformClick();
-                }
-                else
-                {
-                    textboxUsername.Focus();
-                }
-            }
-        }
-
-        private void TextboxUsername_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-
-                // Don't trigger login if already in progress
-                if (_isConnecting)
-                    return;
-
-                if (string.IsNullOrWhiteSpace(textboxPassword.Text))
-                {
-                    textboxPassword.Focus();
-                }
-                else
-                {
-                    ButtonLogin.PerformClick();
-                }
-            }
-        }
-
-        private void TextboxPassword_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-
-                // Don't trigger login if already in progress
-                if (_isConnecting)
-                    return;
-
-                ButtonLogin.PerformClick();
-            }
-        }
-
-        private async void ButtonLogin_Click(object sender, EventArgs e)
-        {
-            // Prevent double-click or multiple simultaneous login attempts
-            if (_isConnecting || !ButtonLogin.Enabled)
-            {
-                FileLogger.Message($"Login attempt blocked - already in progress or button disabled",
-                    FileLogger.EventType.Warning, 1042);
-                return;
-            }
-
-            _isConnecting = true;
-
-            // Immediately disable the button to prevent any possibility of re-entry
-            ButtonLogin.Enabled = false;
-            buttonCancel.Enabled = false;
-
-            string serverName = textboxServer.Text.Trim();
-
-            // Validate input
-            if (string.IsNullOrWhiteSpace(serverName))
-            {
-                MessageBox.Show("Please enter a server name or IP address.", Globals.MsgBox.Warning,
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                textboxServer.Focus();
-                ButtonLogin.Enabled = true;
-                buttonCancel.Enabled = true;
-                _isConnecting = false;
-                return;
-            }
-
-            if (radioCustom.Checked)
-            {
-                if (string.IsNullOrWhiteSpace(textboxUsername.Text))
-                {
-                    MessageBox.Show("Please enter a username.", Globals.MsgBox.Warning,
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    textboxUsername.Focus();
-                    ButtonLogin.Enabled = true;
-                    buttonCancel.Enabled = true;
-                    _isConnecting = false;
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(textboxPassword.Text))
-                {
-                    MessageBox.Show("Please enter a password.", Globals.MsgBox.Warning,
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    textboxPassword.Focus();
-                    ButtonLogin.Enabled = true;
-                    buttonCancel.Enabled = true;
-                    _isConnecting = false;
-                    return;
-                }
-            }
-
-            // Save credentials if requested
-            if (checkboxRemember.Checked && radioCustom.Checked)
-            {
-                SaveCredentials(serverName, textboxUsername.Text, textboxPassword.Text);
-            }
-            else if (!checkboxRemember.Checked)
-            {
-                ClearSavedCredentials();
-            }
-
-            // Disable UI and show progress (button already disabled above)
-            string originalText = ButtonLogin.Text;
-            ButtonLogin.Text = "Connecting...";
-            this.Cursor = Cursors.WaitCursor;
-
-            FileLogger.Message($"Starting connection test to '{serverName}'",
-                FileLogger.EventType.Information, 1044);
-
-            try
-            {
-                bool useWindowsAuth = radioWindows.Checked;
-                PSCredential credentials = null;
-
-                if (!useWindowsAuth)
-                {
-                    SecureString securePassword = new SecureString();
-                    foreach (char c in textboxPassword.Text)
-                    {
-                        securePassword.AppendChar(c);
-                    }
-                    securePassword.MakeReadOnly();
-                    credentials = new PSCredential(textboxUsername.Text.Trim(), securePassword);
-                }
-
-                // Test connection
-                var connectionResult = await TestHyperVConnection(serverName, credentials);
-
-                if (connectionResult.Success)
-                {
-                    string connectedUser = useWindowsAuth
-                        ? WindowsIdentity.GetCurrent().Name
-                        : textboxUsername.Text.Trim();
-
-                    string connectionType = useWindowsAuth
-                        ? "Windows Authentication"
-                        : "Custom Credentials";
-
-                    // Store result for legacy compatibility
-                    Result = new LoginResult
-                    {
-                        Success = true,
-                        ServerName = serverName,
-                        UseWindowsAuth = useWindowsAuth,
-                        Credentials = credentials,
-                        ConnectedUser = connectedUser,
-                        ConnectionType = connectionType,
-                        VMCount = connectionResult.VMCount
-                    };
-
-                    // Initialize global session context for reuse across the application
-                    SessionContext.Initialize(
-                        serverName,
-                        useWindowsAuth,
-                        credentials,
-                        connectedUser,
-                        connectionType,
-                        connectionResult.VMCount,
-                        connectionResult.IsLocal,
-                        connectionResult.HostName,
-                        connectionResult.HyperVVersion,
-                        connectionResult.LogicalProcessorCount,
-                        connectionResult.TotalMemoryGB,
-                        connectionResult.IsCluster,
-                        connectionResult.ClusterName,
-                        connectionResult.FullyQualifiedDomainName
-                    );
-
-                    FileLogger.Message($"Login successful for '{serverName}' as '{connectedUser}'",
-                        FileLogger.EventType.Information, 1016);
-
-                    // Hide login form and show main form
-                    FileLogger.Message($"Hiding login form and showing MainForm...",
-                        FileLogger.EventType.Information, 1039);
-
-                    this.Hide();
-
-                    using (MainForm mainForm = new MainForm())
-                    {
-                        FileLogger.Message($"MainForm created, showing dialog...",
-                            FileLogger.EventType.Information, 1040);
-
-                        var mainResult = mainForm.ShowDialog();
-
-                        FileLogger.Message($"MainForm closed with result: {mainResult}",
-                            FileLogger.EventType.Information, 1041);
-
-                        // If main form closes, clear session and close application
-                        if (mainResult == DialogResult.OK || mainResult == DialogResult.Cancel)
-                        {
-                            SessionContext.Clear();
-                            this.DialogResult = DialogResult.OK;
-                            this.Close();
-                        }
-                    }
-                }
-                else
-                {
-                    // Handle connection failures
-                    if (connectionResult.RequiresElevation && connectionResult.CanAutoElevate)
-                    {
-                        // Show detailed permission error with restart option
-                        var elevationPrompt = "🔒 Administrator Privileges Required\n\n" +
-                            "To manage local Hyper-V, you need ONE of the following:\n\n" +
-                            "  • Run this application as Administrator\n" +
-                            "  • Be a member of the 'Hyper-V Administrators' group\n\n" +
-                            "Would you like to restart this application as Administrator now?";
-
-                        FileLogger.Message("Prompting user for elevation due to permission error",
-                            FileLogger.EventType.Information, 1096);
-
-                        var result = MessageBox.Show(elevationPrompt, "Elevation Required",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                        if (result == DialogResult.Yes)
-                        {
-                            try
-                            {
-                                FileLogger.Message("User requested application restart with elevation",
-                                    FileLogger.EventType.Information, 1000);
-                                ApplicationFunctions.RestartAsAdmin();
-                                Application.Exit();
-                            }
-                            catch (Exception ex)
-                            {
-                                FileLogger.Message($"Failed to start as admin: {ex.Message}",
-                                    FileLogger.EventType.Error, 1001);
-                                MessageBox.Show($"Failed to restart as administrator:\n\n{ex.Message}\n\n" +
-                                    "Please close this application and manually run it as Administrator.",
-                                    "Elevation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }
-                        else
-                        {
-                            FileLogger.Message("User declined elevation, showing error details",
-                                FileLogger.EventType.Information, 1097);
-
-                            // Show alternative if user declines elevation
-                            MessageBox.Show(
-                                "Unable to connect without proper permissions.\n\n" +
-                                "Alternative solutions:\n" +
-                                "  • Right-click the application and select 'Run as administrator'\n" +
-                                "  • Ask your administrator to add you to the 'Hyper-V Administrators' group\n" +
-                                "  • Connect to a remote Hyper-V host instead of localhost",
-                                "Connection Failed",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Failed to connect to {serverName}\n\nError: {connectionResult.Error}",
-                            "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Message($"Connection error: {ex.Message}", FileLogger.EventType.Error, 1002);
-                MessageBox.Show($"Connection error: {ex.Message}", Globals.MsgBox.Error,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                ButtonLogin.Text = originalText;
-                ButtonLogin.Enabled = true;
-                buttonCancel.Enabled = true;
-                this.Cursor = Cursors.Default;
-                _isConnecting = false; // Reset the flag
-
-                FileLogger.Message($"Login attempt completed, resetting UI",
-                    FileLogger.EventType.Information, 1045);
-            }
-        }
-
-        private void ButtonCancel_Click(object sender, EventArgs e)
-        {
-            Result = new LoginResult { Success = false, Cancelled = true };
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
-        }
-
-        private class ConnectionTestResult
-        {
-            public bool Success { get; set; }
-            public string Error { get; set; }
-            public int VMCount { get; set; }
-            public bool RequiresElevation { get; set; }
-            public bool CanAutoElevate { get; set; }
-            public bool IsLocal { get; set; }
-            
-            // Enhanced properties
-            public string HostName { get; set; }
-            public string HyperVVersion { get; set; }
-            public int LogicalProcessorCount { get; set; }
-            public double TotalMemoryGB { get; set; }
-            public bool IsCluster { get; set; }
-            public string ClusterName { get; set; }
-            public string FullyQualifiedDomainName { get; set; }
-        }
+        #region Tests
 
         private async Task<ConnectionTestResult> TestHyperVConnection(string serverName, PSCredential credential)
         {
@@ -736,9 +398,9 @@ namespace HyperView.Forms
             computerName = computerName.Trim();
 
             // Check common local names
-            if (computerName == "." || 
+            if (computerName == "." ||
                 string.Equals(computerName, "localhost", StringComparison.OrdinalIgnoreCase) ||
-                computerName == "127.0.0.1" || 
+                computerName == "127.0.0.1" ||
                 computerName == "::1")
                 return true;
 
@@ -819,7 +481,7 @@ namespace HyperView.Forms
                     using (PowerShell ps = PowerShell.Create())
                     {
                         ps.Runspace = runspace;
-                        
+
                         // Check for Hyper-V module
                         ps.AddScript("Get-Module -ListAvailable -Name Hyper-V");
                         FileLogger.Message($"Checking for Hyper-V PowerShell module...",
@@ -876,7 +538,7 @@ namespace HyperView.Forms
                         using (ServiceController sc = new ServiceController("vmms"))
                         {
                             var status = sc.Status;
-                            
+
                             if (status != ServiceControllerStatus.Running)
                             {
                                 FileLogger.Message($"Hyper-V service is not running (Status: {status})",
@@ -1293,13 +955,13 @@ namespace HyperView.Forms
                     {
                         var result = (PSObject)hyperVResult[0];
                         var hashtable = (System.Collections.Hashtable)result.BaseObject;
-                        
+
                         bool available = (bool)hashtable["Available"];
-                        
+
                         if (!available)
                         {
                             string error = hashtable["Error"]?.ToString() ?? "Unknown error";
-                            
+
                             FileLogger.Message($"Hyper-V not available on '{serverName}': {error}",
                                 FileLogger.EventType.Warning, 1028);
 
@@ -1425,27 +1087,7 @@ namespace HyperView.Forms
             }
         }
 
-        private bool TestNetworkConnection(string hostname, int port)
-        {
-            try
-            {
-                using (TcpClient client = new TcpClient())
-                {
-                    var result = client.BeginConnect(hostname, port, null, null);
-                    var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3));
-                    if (success)
-                    {
-                        client.EndConnect(result);
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        #endregion Tests
 
         #region Credential Storage
 
@@ -1651,6 +1293,374 @@ namespace HyperView.Forms
 
         #endregion
 
+        #region UI Handlers     
+
+        private void UpdateStatusLabel(string message, bool? isSuccess = null)
+        {
+            try
+            {
+                if (toolStripStatusLabelTextLoginForm != null)
+                {
+                    toolStripStatusLabelTextLoginForm.Text = message;
+
+                    // Update color based on status
+                    if (isSuccess.HasValue)
+                    {
+                        toolStripStatusLabelTextLoginForm.ForeColor = isSuccess.Value 
+                            ? Color.Green 
+                            : Color.Orange;
+                    }
+                    else
+                    {
+                        toolStripStatusLabelTextLoginForm.ForeColor = SystemColors.ControlText;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Message($"Error updating status label: {ex.Message}",
+                    FileLogger.EventType.Warning, 1071);
+            }
+        }
+
+        private void RadioAuth_CheckedChanged(object sender, EventArgs e)
+        {
+            bool useCustomAuth = radioCustom.Checked;
+            labelUsername.Enabled = useCustomAuth;
+            textboxUsername.Enabled = useCustomAuth;
+            labelPassword.Enabled = useCustomAuth;
+            textboxPassword.Enabled = useCustomAuth;
+            checkboxRemember.Enabled = useCustomAuth;
+
+            if (!useCustomAuth)
+            {
+                checkboxRemember.Checked = false;
+            }
+        }
+
+        private void TextboxServer_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+
+                // Don't trigger login if already in progress
+                if (_isConnecting)
+                    return;
+
+                if (radioWindows.Checked)
+                {
+                    ButtonLogin.PerformClick();
+                }
+                else
+                {
+                    textboxUsername.Focus();
+                }
+            }
+        }
+
+        private void TextboxUsername_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+
+                // Don't trigger login if already in progress
+                if (_isConnecting)
+                    return;
+
+                if (string.IsNullOrWhiteSpace(textboxPassword.Text))
+                {
+                    textboxPassword.Focus();
+                }
+                else
+                {
+                    ButtonLogin.PerformClick();
+                }
+            }
+        }
+
+        private void TextboxPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+
+                // Don't trigger login if already in progress
+                if (_isConnecting)
+                    return;
+
+                ButtonLogin.PerformClick();
+            }
+        }
+
+        private async void ButtonLogin_Click(object sender, EventArgs e)
+        {
+            // Prevent double-click or multiple simultaneous login attempts
+            if (_isConnecting || !ButtonLogin.Enabled)
+            {
+                FileLogger.Message($"Login attempt blocked - already in progress or button disabled",
+                    FileLogger.EventType.Warning, 1042);
+                return;
+            }
+
+            _isConnecting = true;
+
+            // Immediately disable the button to prevent any possibility of re-entry
+            ButtonLogin.Enabled = false;
+            buttonCancel.Enabled = false;
+
+            string serverName = textboxServer.Text.Trim();
+
+            // Validate input
+            if (string.IsNullOrWhiteSpace(serverName))
+            {
+                MessageBox.Show("Please enter a server name or IP address.", Globals.MsgBox.Warning,
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                textboxServer.Focus();
+                ButtonLogin.Enabled = true;
+                buttonCancel.Enabled = true;
+                _isConnecting = false;
+                return;
+            }
+
+            if (radioCustom.Checked)
+            {
+                if (string.IsNullOrWhiteSpace(textboxUsername.Text))
+                {
+                    MessageBox.Show("Please enter a username.", Globals.MsgBox.Warning,
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    textboxUsername.Focus();
+                    ButtonLogin.Enabled = true;
+                    buttonCancel.Enabled = true;
+                    _isConnecting = false;
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(textboxPassword.Text))
+                {
+                    MessageBox.Show("Please enter a password.", Globals.MsgBox.Warning,
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    textboxPassword.Focus();
+                    ButtonLogin.Enabled = true;
+                    buttonCancel.Enabled = true;
+                    _isConnecting = false;
+                    return;
+                }
+            }
+
+            // Save credentials if requested
+            if (checkboxRemember.Checked && radioCustom.Checked)
+            {
+                SaveCredentials(serverName, textboxUsername.Text, textboxPassword.Text);
+            }
+            else if (!checkboxRemember.Checked)
+            {
+                ClearSavedCredentials();
+            }
+
+            // Disable UI and show progress (button already disabled above)
+            string originalText = ButtonLogin.Text;
+            ButtonLogin.Text = "Connecting...";
+            this.Cursor = Cursors.WaitCursor;
+
+            FileLogger.Message($"Starting connection test to '{serverName}'",
+                FileLogger.EventType.Information, 1044);
+
+            try
+            {
+                bool useWindowsAuth = radioWindows.Checked;
+                PSCredential credentials = null;
+
+                if (!useWindowsAuth)
+                {
+                    SecureString securePassword = new SecureString();
+                    foreach (char c in textboxPassword.Text)
+                    {
+                        securePassword.AppendChar(c);
+                    }
+                    securePassword.MakeReadOnly();
+                    credentials = new PSCredential(textboxUsername.Text.Trim(), securePassword);
+                }
+
+                // Test connection
+                var connectionResult = await TestHyperVConnection(serverName, credentials);
+
+                if (connectionResult.Success)
+                {
+                    string connectedUser = useWindowsAuth
+                        ? WindowsIdentity.GetCurrent().Name
+                        : textboxUsername.Text.Trim();
+
+                    string connectionType = useWindowsAuth
+                        ? "Windows Authentication"
+                        : "Custom Credentials";
+
+                    // Store result for legacy compatibility
+                    Result = new LoginResult
+                    {
+                        Success = true,
+                        ServerName = serverName,
+                        UseWindowsAuth = useWindowsAuth,
+                        Credentials = credentials,
+                        ConnectedUser = connectedUser,
+                        ConnectionType = connectionType,
+                        VMCount = connectionResult.VMCount
+                    };
+
+                    // Initialize global session context for reuse across the application
+                    SessionContext.Initialize(
+                        serverName,
+                        useWindowsAuth,
+                        credentials,
+                        connectedUser,
+                        connectionType,
+                        connectionResult.VMCount,
+                        connectionResult.IsLocal,
+                        connectionResult.HostName,
+                        connectionResult.HyperVVersion,
+                        connectionResult.LogicalProcessorCount,
+                        connectionResult.TotalMemoryGB,
+                        connectionResult.IsCluster,
+                        connectionResult.ClusterName,
+                        connectionResult.FullyQualifiedDomainName
+                    );
+
+                    FileLogger.Message($"Login successful for '{serverName}' as '{connectedUser}'",
+                        FileLogger.EventType.Information, 1016);
+
+                    // Hide login form and show main form
+                    FileLogger.Message($"Hiding login form and showing MainForm...",
+                        FileLogger.EventType.Information, 1039);
+
+                    this.Hide();
+
+                    using (MainForm mainForm = new MainForm())
+                    {
+                        FileLogger.Message($"MainForm created, showing dialog...",
+                            FileLogger.EventType.Information, 1040);
+
+                        var mainResult = mainForm.ShowDialog();
+
+                        FileLogger.Message($"MainForm closed with result: {mainResult}",
+                            FileLogger.EventType.Information, 1041);
+
+                        // If main form closes, clear session and close application
+                        if (mainResult == DialogResult.OK || mainResult == DialogResult.Cancel)
+                        {
+                            SessionContext.Clear();
+                            this.DialogResult = DialogResult.OK;
+                            this.Close();
+                        }
+                    }
+                }
+                else
+                {
+                    // Handle connection failures
+                    if (connectionResult.RequiresElevation && connectionResult.CanAutoElevate)
+                    {
+                        // Show detailed permission error with restart option
+                        var elevationPrompt = "🔒 Administrator Privileges Required\n\n" +
+                            "To manage local Hyper-V, you need ONE of the following:\n\n" +
+                            "  • Run this application as Administrator\n" +
+                            "  • Be a member of the 'Hyper-V Administrators' group\n\n" +
+                            "Would you like to restart this application as Administrator now?";
+
+                        FileLogger.Message("Prompting user for elevation due to permission error",
+                            FileLogger.EventType.Information, 1096);
+
+                        var result = MessageBox.Show(elevationPrompt, "Elevation Required",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                        if (result == DialogResult.Yes)
+                        {
+                            try
+                            {
+                                FileLogger.Message("User requested application restart with elevation",
+                                    FileLogger.EventType.Information, 1000);
+                                ApplicationFunctions.RestartAsAdmin();
+                                Application.Exit();
+                            }
+                            catch (Exception ex)
+                            {
+                                FileLogger.Message($"Failed to start as admin: {ex.Message}",
+                                    FileLogger.EventType.Error, 1001);
+                                MessageBox.Show($"Failed to restart as administrator:\n\n{ex.Message}\n\n" +
+                                    "Please close this application and manually run it as Administrator.",
+                                    "Elevation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        else
+                        {
+                            FileLogger.Message("User declined elevation, showing error details",
+                                FileLogger.EventType.Information, 1097);
+
+                            // Show alternative if user declines elevation
+                            MessageBox.Show(
+                                "Unable to connect without proper permissions.\n\n" +
+                                "Alternative solutions:\n" +
+                                "  • Right-click the application and select 'Run as administrator'\n" +
+                                "  • Ask your administrator to add you to the 'Hyper-V Administrators' group\n" +
+                                "  • Connect to a remote Hyper-V host instead of localhost",
+                                "Connection Failed",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Failed to connect to {serverName}\n\nError: {connectionResult.Error}",
+                            "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Message($"Connection error: {ex.Message}", FileLogger.EventType.Error, 1002);
+                MessageBox.Show($"Connection error: {ex.Message}", Globals.MsgBox.Error,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                ButtonLogin.Text = originalText;
+                ButtonLogin.Enabled = true;
+                buttonCancel.Enabled = true;
+                this.Cursor = Cursors.Default;
+                _isConnecting = false; // Reset the flag
+
+                FileLogger.Message($"Login attempt completed, resetting UI",
+                    FileLogger.EventType.Information, 1045);
+            }
+        }
+
+        private void ButtonCancel_Click(object sender, EventArgs e)
+        {
+            Result = new LoginResult { Success = false, Cancelled = true };
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+
+        private bool TestNetworkConnection(string hostname, int port)
+        {
+            try
+            {
+                using (TcpClient client = new TcpClient())
+                {
+                    var result = client.BeginConnect(hostname, port, null, null);
+                    var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3));
+                    if (success)
+                    {
+                        client.EndConnect(result);
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
         private void textboxServer_TextChanged(object sender, EventArgs e)
         {
             // Skip during form initialization
@@ -1715,5 +1725,7 @@ namespace HyperView.Forms
                 "that your user account is a member of the 'Hyper-V Administrators' group.",
                 "Connection Guide", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        #endregion UI Handlers
     }
 }

@@ -3515,7 +3515,6 @@ Management:
             }
         }
 
-
         /// <summary>
         /// Handles the Load Cluster/refresh button click event
         /// </summary>
