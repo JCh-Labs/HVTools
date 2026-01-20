@@ -1727,10 +1727,13 @@ namespace HyperView
                     // Update DataGridView
                     UpdateVMGroupsDataGridView(vmGroups);
 
-                    MessageBox.Show($"VM Groups refreshed successfully.\n\nFound {vmGroups.Count} group(s).",
+                    // Update status strip
+                    toolStripStatusLabelTextMainForm.Text = $"VM Groups refreshed successfully: {vmGroups.Count} group(s) loaded";
+
+                    /*MessageBox.Show($"VM Groups refreshed successfully.\n\nFound {vmGroups.Count} group(s).",
                         "Refresh Complete",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        MessageBoxIcon.Information);*/
                 }
                 else
                 {
@@ -2543,18 +2546,23 @@ namespace HyperView
                     {
                         this.Invoke((Action)(() =>
                         {
-                            MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
+                            toolStripStatusLabelTextMainForm.Text = "VM overview refreshed successfully. Total VMs: " + totalVMs + ", Running VMs: " + runningVMs;
+
+                            /*MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
                                 "Refresh Complete",
                                 MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                                MessageBoxIcon.Information);*/
                         }));
                     }
                     else
                     {
-                        MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
+                        // Update statusstrip directly
+                        toolStripStatusLabelTextMainForm.Text = "VM overview refreshed successfully. Total VMs: " + totalVMs + ", Running VMs: " + runningVMs;
+
+                        /*MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
                             "Refresh Complete",
                             MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                            MessageBoxIcon.Information);*/
                     }
 
                 }, "VM Overview Refresh");
@@ -2724,11 +2732,15 @@ namespace HyperView
                 Message($"VM summary generated - Total VMs: {totalVMs}, Running: {runningVMs}",
                     EventType.Information, 2157);
 
+
+                // Update status strip
+                toolStripStatusLabelTextMainForm.Text = "VM Overview Loaded";
+
                 // Show summary message
-                MessageBox.Show(summaryText,
+                /*MessageBox.Show(summaryText,
                     "VM Overview Loaded",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    MessageBoxIcon.Information);*/
             }
             catch (Exception ex)
             {
@@ -3051,10 +3063,10 @@ Management:
                         string message = hostDetails.Count == 1 ? "Ready - 1 host loaded" : $"Ready - {hostDetails.Count} hosts loaded";
                         toolStripStatusLabelTextMainForm.Text = message;
 
-                        MessageBox.Show($"Host details refreshed successfully.\n\nFound {hostDetails.Count} host(s).",
+                        /*MessageBox.Show($"Host details refreshed successfully.\n\nFound {hostDetails.Count} host(s).",
                             "Refresh Complete",
                             MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                            MessageBoxIcon.Information);*/
                     }
                     else
                     {
@@ -3883,10 +3895,14 @@ Management:
 
                             // Show success message
                             int diskCount = diskDetails.Count;
-                            MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
+
+                            // Update status label
+                            toolStripStatusLabelTextMainForm.Text = $"Virtual disk overview refreshed - {diskCount} disk(s) found";
+
+                            /*MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
                                 "Refresh Complete",
                                 MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                                MessageBoxIcon.Information);*/
                         }
                         else
                         {
