@@ -24,7 +24,7 @@ namespace HyperView
         private void MainForm_Load(object sender, EventArgs e)
         {
             // Set initial status (make dynamic based on context if needed when shown later)
-            toolStripStatusLabelTextMainForm.Text = "Loading...";
+            toolStripStatusLabelTextMainForm.Text = @"Loading...";
             // Initial data load will happen in OnShown
         }
 
@@ -39,14 +39,13 @@ namespace HyperView
             if (_initialLoadComplete)
                 return;
 
-            Thread progressThread = null;
-            ValidationProgressForm progressForm = null;
+            ValidationProgressForm? progressForm = null;
             ManualResetEvent progressFormReady = new ManualResetEvent(false);
 
             try
             {
                 // Create progress form on a separate UI thread to keep it responsive
-                progressThread = new Thread(() =>
+                var progressThread = new Thread(() =>
                 {
                     progressForm = new ValidationProgressForm();
                     progressForm.StartPosition = FormStartPosition.CenterScreen;
