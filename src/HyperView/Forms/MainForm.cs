@@ -1812,9 +1812,9 @@ namespace HyperView
 
                     // Truncate long VM lists
                     string vmMembers = group.VMList;
-                    if (!string.IsNullOrEmpty(vmMembers) && vmMembers.Length > 100)
+                    if (!string.IsNullOrEmpty(vmMembers) && vmMembers.Length > 250)
                     {
-                        vmMembers = vmMembers.Substring(0, 100) + "...";
+                        vmMembers = vmMembers.Substring(0, 250) + "...";
                     }
                     row["VM Members"] = vmMembers;
 
@@ -1834,6 +1834,12 @@ namespace HyperView
                 datagridviewVMGroups.AllowUserToAddRows = false;
                 datagridviewVMGroups.AllowUserToDeleteRows = false;
                 datagridviewVMGroups.RowHeadersVisible = false;
+
+                // Enforce alphabetic sorting on "Group Name" column
+                if (datagridviewVMGroups.Columns.Contains("Group Name"))
+                {
+                    datagridviewVMGroups.Sort(datagridviewVMGroups.Columns["Group Name"], System.ComponentModel.ListSortDirection.Ascending);
+                }
 
                 Message($"VM Groups DataGridView updated successfully with {vmGroups.Count} groups",
                     EventType.Information, 2070);

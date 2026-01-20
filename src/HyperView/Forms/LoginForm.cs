@@ -103,14 +103,16 @@ namespace HyperView.Forms
                 if (hyperVInstalled)
                 {
                     textboxServer.Text = Environment.MachineName;
-                    UpdateStatusLabel("Ready - Local Hyper-V detected", isSuccess: true);
+                    //UpdateStatusLabel("Ready - Local Hyper-V detected", isSuccess: true);
+                    UpdateStatusLabel("Ready - Local Hyper-V detected");
                     FileLogger.Message($"Local Hyper-V installation detected - default server set to: '{Environment.MachineName}'",
                         FileLogger.EventType.Information, 1048);
                 }
                 else
                 {
                     textboxServer.Text = Environment.MachineName;
-                    UpdateStatusLabel("Ready - No local Hyper-V detected", isSuccess: false);
+                    //UpdateStatusLabel("Ready - No local Hyper-V detected", isSuccess: false);
+                    UpdateStatusLabel("Ready - No local Hyper-V detected");
                     FileLogger.Message("No local Hyper-V detected - default server set to current machine name",
                         FileLogger.EventType.Information, 1049);
                 }

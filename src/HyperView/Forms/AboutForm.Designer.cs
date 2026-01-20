@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutForm));
             SuspendLayout();
             // 
             // AboutForm
@@ -35,7 +36,9 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "AboutForm";
+            StartPosition = FormStartPosition.CenterParent;
             Text = "AboutForm";
             Load += AboutForm_Load;
             ResumeLayout(false);
