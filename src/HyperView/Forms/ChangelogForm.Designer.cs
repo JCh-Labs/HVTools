@@ -28,12 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "ChangelogForm";
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChangelogForm));
+            richTextBoxChangelog = new TextBox();
+            SuspendLayout();
+            // 
+            // richTextBoxChangelog
+            // 
+            richTextBoxChangelog.Location = new Point(1, 0);
+            richTextBoxChangelog.Multiline = true;
+            richTextBoxChangelog.Name = "richTextBoxChangelog";
+            richTextBoxChangelog.ReadOnly = true;
+            richTextBoxChangelog.Size = new Size(661, 485);
+            richTextBoxChangelog.TabIndex = 0;
+            // 
+            // ChangelogForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(663, 486);
+            Controls.Add(richTextBoxChangelog);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "ChangelogForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Changelog";
+            Load += ChangelogForm_Load;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
+
+        private TextBox richTextBoxChangelog;
     }
 }
