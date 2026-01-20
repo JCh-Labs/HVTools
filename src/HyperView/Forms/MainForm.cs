@@ -155,6 +155,181 @@ namespace HyperView
             }
         }
 
+        /// <summary>
+        /// Executes a long-running operation with a progress form
+        /// </summary>
+        /// <param name="operation">The operation to execute in background</param>
+        /// <param name="operationName">Name of the operation for logging</param>
+        private async void ExecuteWithProgressForm(Action operation, string operationName)
+        {
+            ValidationProgressForm progressForm = null;
+
+            try
+            {
+                // Show progress form
+                progressForm = new ValidationProgressForm();
+                progressForm.StartPosition = FormStartPosition.CenterScreen;
+                progressForm.Show(this);
+                progressForm.Refresh();
+                Application.DoEvents();
+
+                Message($"Starting background operation: {operationName}", EventType.Information, 6001);
+
+                Exception taskException = null;
+
+                // Run operation in background task
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        operation();
+                    }
+                    catch (Exception ex)
+                    {
+                        taskException = ex;
+                        Message($"Error in background operation '{operationName}': {ex.Message}",
+                            EventType.Error, 6002);
+                    }
+                });
+
+                // Close progress form on UI thread (we're back on UI thread after await)
+                try
+                {
+                    if (progressForm != null && !progressForm.IsDisposed)
+                    {
+                        progressForm.Close();
+                        progressForm.Dispose();
+                        progressForm = null;
+                    }
+
+                    if (taskException != null)
+                    {
+                        MessageBox.Show($"Error during {operationName}:\n\n{taskException.Message}",
+                            "Operation Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Message($"Error closing progress form: {ex.Message}",
+                        EventType.Warning, 6003);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error setting up progress form for '{operationName}': {ex.Message}",
+                    EventType.Error, 6005);
+
+                // Clean up progress form if there was an error
+                if (progressForm != null && !progressForm.IsDisposed)
+                {
+                    try
+                    {
+                        progressForm.Close();
+                        progressForm.Dispose();
+                    }
+                    catch { }
+                }
+
+                MessageBox.Show($"Error during {operationName}:\n\n{ex.Message}",
+                    "Operation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Executes a long-running operation with a progress form and returns a result
+        /// </summary>
+        /// <typeparam name="T">The type of result to return</typeparam>
+        /// <param name="operation">The operation to execute in background</param>
+        /// <param name="onComplete">Action to execute with the result on UI thread</param>
+        /// <param name="operationName">Name of the operation for logging</param>
+        private async void ExecuteWithProgressForm<T>(Func<T> operation, Action<T> onComplete, string operationName)
+        {
+            ValidationProgressForm progressForm = null;
+
+            try
+            {
+                // Show progress form
+                progressForm = new ValidationProgressForm();
+                progressForm.StartPosition = FormStartPosition.CenterScreen;
+                progressForm.Show(this);
+                progressForm.Refresh();
+                Application.DoEvents();
+
+                Message($"Starting background operation: {operationName}", EventType.Information, 6006);
+
+                T result = default(T);
+                Exception taskException = null;
+
+                // Run operation in background task
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        result = operation();
+                    }
+                    catch (Exception ex)
+                    {
+                        taskException = ex;
+                        Message($"Error in background operation '{operationName}': {ex.Message}",
+                            EventType.Error, 6007);
+                    }
+                });
+
+                // Execute completion action on UI thread (we're back on UI thread after await)
+                try
+                {
+                    if (progressForm != null && !progressForm.IsDisposed)
+                    {
+                        progressForm.Close();
+                        progressForm.Dispose();
+                        progressForm = null;
+                    }
+
+                    if (taskException != null)
+                    {
+                        MessageBox.Show($"Error during {operationName}:\n\n{taskException.Message}",
+                            "Operation Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                    else if (onComplete != null)
+                    {
+                        onComplete(result);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Message($"Error in completion handler for '{operationName}': {ex.Message}",
+                        EventType.Error, 6008);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error setting up progress form for '{operationName}': {ex.Message}",
+                    EventType.Error, 6010);
+
+                // Clean up progress form if there was an error
+                if (progressForm != null && !progressForm.IsDisposed)
+                {
+                    try
+                    {
+                        progressForm.Close();
+                        progressForm.Dispose();
+                    }
+                    catch { }
+                }
+
+                MessageBox.Show($"Error during {operationName}:\n\n{ex.Message}",
+                    "Operation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
         private void LoadVMOverview()
         {
             try
@@ -2317,39 +2492,72 @@ namespace HyperView
                     return;
                 }
 
-                // Show progress cursor
-                this.Cursor = Cursors.WaitCursor;
-
                 Message("Starting VM overview refresh...",
                     EventType.Information, 2152);
 
-                // Reload VM overview data
-                LoadVMOverview();
-
-                // Count running VMs from the grid
-                int totalVMs = datagridviewVMOverView.Rows.Count;
-                int runningVMs = 0;
-
-                foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                // Execute with progress form
+                ExecuteWithProgressForm(() =>
                 {
-                    var state = row.Cells["State"].Value?.ToString();
-                    if (state == "Running")
+                    // Reload VM overview data (runs in background thread, but UI operations need invoke)
+                    LoadVMOverview();
+
+                    // Count running VMs from the grid  
+                    int totalVMs = 0;
+                    int runningVMs = 0;
+
+                    if (datagridviewVMOverView.InvokeRequired)
                     {
-                        runningVMs++;
+                        datagridviewVMOverView.Invoke((Action)(() =>
+                        {
+                            totalVMs = datagridviewVMOverView.Rows.Count;
+
+                            foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                            {
+                                var state = row.Cells["State"].Value?.ToString();
+                                if (state == "Running")
+                                {
+                                    runningVMs++;
+                                }
+                            }
+                        }));
                     }
-                }
+                    else
+                    {
+                        totalVMs = datagridviewVMOverView.Rows.Count;
 
-                Message($"VM overview refresh completed - Total: {totalVMs}, Running: {runningVMs}",
-                    EventType.Information, 2153);
+                        foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                        {
+                            var state = row.Cells["State"].Value?.ToString();
+                            if (state == "Running")
+                            {
+                                runningVMs++;
+                            }
+                        }
+                    }
 
-                // Show success message
-                MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
-                    "Refresh Complete",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    Message($"VM overview refresh completed - Total: {totalVMs}, Running: {runningVMs}",
+                        EventType.Information, 2153);
 
-                // Update window title with latest connection info
-                //this.Text = $"{Globals.ToolName.HyperView} - Connected to {SessionContext.ServerName} ({SessionContext.ConnectionType}) - {totalVMs} VMs";
+                    // Show success message (will be invoked on UI thread automatically)
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke((Action)(() =>
+                        {
+                            MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
+                                "Refresh Complete",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }));
+                    }
+                    else
+                    {
+                        MessageBox.Show($"VM overview refreshed successfully.\n\nTotal VMs: {totalVMs}\nRunning VMs: {runningVMs}",
+                            "Refresh Complete",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+
+                }, "VM Overview Refresh");
             }
             catch (Exception ex)
             {
@@ -2360,10 +2568,6 @@ namespace HyperView
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-            }
-            finally
-            {
-                this.Cursor = Cursors.Default;
             }
         }
 
@@ -2822,44 +3026,49 @@ Management:
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
-                toolStripStatusLabelTextMainForm.Text = "Loading host details...";
-
                 Message("Retrieving Hyper-V host details...",
                     EventType.Information, 4011);
 
-                // Get host details
-                var hostDetails = HostDetails.GetHyperVHostDetails(
-                    cmd => ExecutePowerShellCommand(cmd),
-                    (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd));
-
-                if (hostDetails != null && hostDetails.Count > 0)
+                // Execute with progress form
+                ExecuteWithProgressForm<List<HostDetailsInfo>>(() =>
                 {
-                    Message($"Retrieved details for {hostDetails.Count} host(s), updating DataGridView",
-                        EventType.Information, 4012);
+                    // Get host details (runs in background)
+                    return HostDetails.GetHyperVHostDetails(
+                        cmd => ExecutePowerShellCommand(cmd),
+                        (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd));
 
-                    // Update the DataGridView
-                    UpdateHostsDataGridView(hostDetails);
-
-                    string message = hostDetails.Count == 1 ? "Ready - 1 host loaded" : $"Ready - {hostDetails.Count} hosts loaded";
-                    toolStripStatusLabelTextMainForm.Text = message;
-
-                    MessageBox.Show($"Host details refreshed successfully.\n\nFound {hostDetails.Count} host(s).",
-                        "Refresh Complete",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
-                else
+                }, (hostDetails) =>
                 {
-                    Message("No host details retrieved",
-                        EventType.Warning, 4013);
-                    toolStripStatusLabelTextMainForm.Text = "No host data available";
+                    // Handle result on UI thread
+                    if (hostDetails != null && hostDetails.Count > 0)
+                    {
+                        Message($"Retrieved details for {hostDetails.Count} host(s), updating DataGridView",
+                            EventType.Information, 4012);
 
-                    MessageBox.Show("No host details found or error retrieving details.",
-                        "Refresh Complete",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
+                        // Update the DataGridView
+                        UpdateHostsDataGridView(hostDetails);
+
+                        string message = hostDetails.Count == 1 ? "Ready - 1 host loaded" : $"Ready - {hostDetails.Count} hosts loaded";
+                        toolStripStatusLabelTextMainForm.Text = message;
+
+                        MessageBox.Show($"Host details refreshed successfully.\n\nFound {hostDetails.Count} host(s).",
+                            "Refresh Complete",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        Message("No host details retrieved",
+                            EventType.Warning, 4013);
+                        toolStripStatusLabelTextMainForm.Text = "No host data available";
+
+                        MessageBox.Show("No host details found or error retrieving details.",
+                            "Refresh Complete",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+
+                }, "Host Details Refresh");
             }
             catch (Exception ex)
             {
@@ -2872,10 +3081,6 @@ Management:
                     MessageBoxIcon.Error);
 
                 toolStripStatusLabelTextMainForm.Text = "Error loading host details";
-            }
-            finally
-            {
-                this.Cursor = Cursors.Default;
             }
         }
 
@@ -3630,18 +3835,40 @@ Management:
                     return;
                 }
 
-                // Load virtual disk overview
-                LoadVirtualDiskOverview();
-
-                // Show success message if disks were loaded
-                if (datagridviewvDiskOverView != null && datagridviewvDiskOverView.Rows.Count > 0)
+                // Execute with progress form
+                ExecuteWithProgressForm(() =>
                 {
-                    int diskCount = datagridviewvDiskOverView.Rows.Count;
-                    MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
-                        "Refresh Complete",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
+                    // Load virtual disk overview (runs in background thread)
+                    LoadVirtualDiskOverview();
+
+                    // Show success message if disks were loaded
+                    if (datagridviewvDiskOverView.InvokeRequired)
+                    {
+                        datagridviewvDiskOverView.Invoke((Action)(() =>
+                        {
+                            if (datagridviewvDiskOverView != null && datagridviewvDiskOverView.Rows.Count > 0)
+                            {
+                                int diskCount = datagridviewvDiskOverView.Rows.Count;
+                                MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
+                                    "Refresh Complete",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                            }
+                        }));
+                    }
+                    else
+                    {
+                        if (datagridviewvDiskOverView != null && datagridviewvDiskOverView.Rows.Count > 0)
+                        {
+                            int diskCount = datagridviewvDiskOverView.Rows.Count;
+                            MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
+                                "Refresh Complete",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                    }
+
+                }, "Virtual Disk Overview Refresh");
             }
             catch (Exception ex)
             {
