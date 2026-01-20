@@ -1975,7 +1975,7 @@ namespace HyperView
                     datagridviewVMGroups.Sort(datagridviewVMGroups.Columns["Group Name"], System.ComponentModel.ListSortDirection.Ascending);
                 }
 
-                Message($"VM Groups DataGridView updated successfully with {vmGroups.Count} groups",
+                Message($"VM Groups DataGridView updated successfully with '{vmGroups.Count}' groups",
                     EventType.Information, 2070);
             }
             catch (Exception ex)

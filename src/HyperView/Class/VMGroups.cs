@@ -132,9 +132,10 @@ namespace HyperView.Class
 
                         // Process VM Members array
                         var vmMembersProperty = result.Properties["VMMembers"]?.Value;
-                        FileLogger.Message($"VM Members property type for group '{groupInfo.Name}': {vmMembersProperty?.GetType().FullName ?? "null"}",
+#if DEBUG
+                        FileLogger.Message($"VM Members property type for group '{groupInfo.Name}'", //: {vmMembersProperty?.GetType().FullName ?? "null"}",
                             FileLogger.EventType.Information, 2072);
-                        
+#endif
                         if (vmMembersProperty != null)
                         {
                             // Unwrap PSObject if needed
@@ -142,10 +143,12 @@ namespace HyperView.Class
                             if (vmMembersProperty is PSObject psObj)
                             {
                                 actualValue = psObj.BaseObject;
+#if debug
                                 FileLogger.Message($"Unwrapped PSObject - BaseObject type: {actualValue?.GetType().FullName ?? "null"}",
                                     FileLogger.EventType.Information, 2080);
+#endif
                             }
-                            
+
                             // Handle different types that might be returned
                             if (actualValue is System.Collections.IEnumerable enumerable && !(actualValue is string))
                             {
