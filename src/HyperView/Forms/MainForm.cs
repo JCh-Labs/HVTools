@@ -20,6 +20,13 @@ namespace HyperView
             LoadVMOverview();
         }
 
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // Set initial status (make dynamic based on context if needed when shown later)
+            toolStripStatusLabelTextMainForm.Text = "Ready";
+            // Any additional initialization on form load
+        }
+
         /// <summary>
         /// Handles the DataBindingComplete event to apply color coding after data is fully bound
         /// </summary>
@@ -31,7 +38,6 @@ namespace HyperView
                 ApplyColorCoding();
             }
         }
-
 
         private void InitializeSession()
         {
@@ -3980,35 +3986,35 @@ Management:
                 double totalMaxSizeGB = 0;
                 double totalFileSizeGB = 0;
                 double totalUsedSpaceGB = 0;
-                
+
                 // Disk type breakdown
                 int dynamicDisks = 0;
                 int fixedDisks = 0;
                 int differencingDisks = 0;
                 int passThroughDisks = 0;
-                
+
                 // Disk format breakdown
                 int vhdDisks = 0;
                 int vhdxDisks = 0;
                 int physicalDisks = 0;
-                
+
                 // Controller breakdown
                 int scsiDisks = 0;
                 int ideDisks = 0;
-                
+
                 // Advanced features
                 int sharedDisks = 0;
                 int readOnlyDisks = 0;
                 int disksWithQoS = 0;
                 int clusteredDisks = 0;
-                
+
                 // VM state breakdown
                 int disksOnRunningVMs = 0;
                 int disksOnStoppedVMs = 0;
-                
+
                 // Fragmentation tracking
                 var fragmentationValues = new List<double>();
-                
+
                 // Unique VMs with disks
                 var uniqueVMs = new HashSet<string>();
                 var uniqueHosts = new HashSet<string>();
@@ -4120,18 +4126,18 @@ Management:
                 }
 
                 // Calculate averages and percentages
-                double avgFragmentation = fragmentationValues.Count > 0 
-                    ? Math.Round(fragmentationValues.Average(), 1) 
+                double avgFragmentation = fragmentationValues.Count > 0
+                    ? Math.Round(fragmentationValues.Average(), 1)
                     : 0;
 
-                double spaceEfficiency = totalMaxSizeGB > 0 
-                    ? Math.Round((totalFileSizeGB / totalMaxSizeGB) * 100, 1) 
+                double spaceEfficiency = totalMaxSizeGB > 0
+                    ? Math.Round((totalFileSizeGB / totalMaxSizeGB) * 100, 1)
                     : 0;
 
                 // Get cluster information if available
                 string clusterSection = "";
                 string clusterName = "N/A";
-                
+
                 // Get cluster name from first row if available
                 if (datagridviewvDiskOverView.Rows.Count > 0)
                 {
@@ -4220,7 +4226,7 @@ Management:
         /// <summary>
         /// Generates recommendations based on disk statistics
         /// </summary>
-        private string GetDiskRecommendations(int dynamicDisks, int fixedDisks, double spaceEfficiency, 
+        private string GetDiskRecommendations(int dynamicDisks, int fixedDisks, double spaceEfficiency,
             double avgFragmentation, int vhdDisks)
         {
             var recommendations = new List<string>();
@@ -4249,9 +4255,9 @@ Management:
                 recommendations.Add($"• {vhdDisks} VHD disk(s) detected - consider migrating to VHDX format");
             }
 
-            return recommendations.Count > 0 
-                ? string.Join("\n", recommendations) 
+            return recommendations.Count > 0
+                ? string.Join("\n", recommendations)
                 : "• Disk configuration looks optimal";
-        }
+        }        
     }
 }

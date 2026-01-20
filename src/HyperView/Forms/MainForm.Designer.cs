@@ -920,6 +920,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "MainForm";
             FormClosing += MainForm_FormClosing;
+            Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).EndInit();
             tabcontrolMainForm.ResumeLayout(false);
             tabpagehvOverview.ResumeLayout(false);
