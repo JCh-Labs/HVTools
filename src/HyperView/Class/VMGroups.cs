@@ -197,8 +197,10 @@ namespace HyperView.Class
                             if (groupMembersProperty is PSObject psObj)
                             {
                                 actualValue = psObj.BaseObject;
+#if debug
                                 FileLogger.Message($"Unwrapped PSObject - BaseObject type: {actualValue?.GetType().FullName ?? "null"}",
                                     FileLogger.EventType.Information, 2081);
+#endif
                             }
                             
                             // Handle different types that might be returned
