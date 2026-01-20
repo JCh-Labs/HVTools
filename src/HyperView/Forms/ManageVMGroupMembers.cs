@@ -55,7 +55,7 @@ namespace HyperView.Forms
 
                 if (currentGroup == null)
                 {
-                    MessageBox.Show($"VM Group '{GroupName}' not found.",
+                    MessageBox.Show($@"VM Group '{GroupName}' not found.",
                         "Group Not Found",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -101,7 +101,7 @@ namespace HyperView.Forms
 
                 if (listboxAvailable.SelectedItems.Count == 0)
                 {
-                    MessageBox.Show("Please select VMs to add.",
+                    MessageBox.Show(@"Please select VMs to add.",
                         "No Selection",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -191,7 +191,7 @@ namespace HyperView.Forms
 
                 if (listboxMembers.SelectedItems.Count == 0)
                 {
-                    MessageBox.Show("Please select VMs to remove.",
+                    MessageBox.Show(@"Please select VMs to remove.",
                         "No Selection",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -199,7 +199,7 @@ namespace HyperView.Forms
                 }
 
                 var confirmResult = MessageBox.Show(
-                    "Are you sure you want to remove the selected VM(s) from the group?",
+                    @"Are you sure you want to remove the selected VM(s) from the group?",
                     "Confirm Removal",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);

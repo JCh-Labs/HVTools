@@ -1417,7 +1417,7 @@ namespace HyperView.Forms
             // Validate input
             if (string.IsNullOrWhiteSpace(serverName))
             {
-                MessageBox.Show("Please enter a server name or IP address.", Globals.MsgBox.Warning,
+                MessageBox.Show(@"Please enter a server name or IP address.", Globals.MsgBox.Warning,
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 textboxServer.Focus();
                 ButtonLogin.Enabled = true;
@@ -1430,7 +1430,7 @@ namespace HyperView.Forms
             {
                 if (string.IsNullOrWhiteSpace(textboxUsername.Text))
                 {
-                    MessageBox.Show("Please enter a username.", Globals.MsgBox.Warning,
+                    MessageBox.Show(@"Please enter a username.", Globals.MsgBox.Warning,
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     textboxUsername.Focus();
                     ButtonLogin.Enabled = true;
@@ -1441,7 +1441,7 @@ namespace HyperView.Forms
 
                 if (string.IsNullOrWhiteSpace(textboxPassword.Text))
                 {
-                    MessageBox.Show("Please enter a password.", Globals.MsgBox.Warning,
+                    MessageBox.Show(@"Please enter a password.", Globals.MsgBox.Warning,
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     textboxPassword.Focus();
                     ButtonLogin.Enabled = true;
@@ -1610,7 +1610,9 @@ namespace HyperView.Forms
                     }
                     else
                     {
-                        MessageBox.Show($"Failed to connect to {serverName}\n\nError: {connectionResult.Error}",
+                        MessageBox.Show($@"Failed to connect to {serverName}
+
+Error: {connectionResult.Error}",
                             "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -1618,7 +1620,7 @@ namespace HyperView.Forms
             catch (Exception ex)
             {
                 FileLogger.Message($"Connection error: {ex.Message}", FileLogger.EventType.Error, 1002);
-                MessageBox.Show($"Connection error: {ex.Message}", Globals.MsgBox.Error,
+                MessageBox.Show($@"Connection error: {ex.Message}", Globals.MsgBox.Error,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally

@@ -116,25 +116,29 @@ namespace HyperView
                 if (loadException != null)
                 {
                     MessageBox.Show(
-                        $"Error loading initial data:\n\n{loadException.Message}",
-                        "Data Load Error",
+                        $@"Error loading initial data:
+
+{loadException.Message}",
+                        @"Data Load Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
                 }
 
                 _initialLoadComplete = true;
-                toolStripStatusLabelTextMainForm.Text = "Ready";
+                toolStripStatusLabelTextMainForm.Text = @"Ready";
                 Message("Initial data load completed successfully", EventType.Information, 2205);
             }
             catch (Exception ex)
             {
                 Message($"Error in OnShown initial load: {ex.Message}", EventType.Error, 2206);
                 MessageBox.Show(
-                    $"Error initializing form:\n\n{ex.Message}",
+                    $@"Error initializing form:
+
+{ex.Message}",
                     "Initialization Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                toolStripStatusLabelTextMainForm.Text = "Error";
+                toolStripStatusLabelTextMainForm.Text = @"Error";
             }
             finally
             {
@@ -179,7 +183,7 @@ namespace HyperView
                 // Check if we have an active session
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active session found. Please login again.", "Error",
+                    MessageBox.Show(@"No active session found. Please login again.", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.DialogResult = DialogResult.Cancel;
                     this.Close();
@@ -212,7 +216,7 @@ namespace HyperView
                         if (ps.HadErrors)
                         {
                             var error = ps.Streams.Error[0];
-                            MessageBox.Show($"Failed to create PowerShell session: {error.Exception.Message}",
+                            MessageBox.Show($@"Failed to create PowerShell session: {error.Exception.Message}",
                                 "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             this.DialogResult = DialogResult.Cancel;
                             this.Close();
@@ -235,7 +239,7 @@ namespace HyperView
             {
                 Message($"Failed to initialize session: {ex.Message}",
                     EventType.Error, 2003);
-                MessageBox.Show($"Failed to initialize session: {ex.Message}", "Error",
+                MessageBox.Show($@"Failed to initialize session: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.DialogResult = DialogResult.Cancel;
                 this.Close();
@@ -343,7 +347,9 @@ namespace HyperView
 
                     if (taskException != null)
                     {
-                        MessageBox.Show($"Error during {operationName}:\n\n{taskException.Message}",
+                        MessageBox.Show($@"Error during {operationName}:
+
+{taskException.Message}",
                             "Operation Error",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
@@ -371,7 +377,9 @@ namespace HyperView
                     catch { }
                 }
 
-                MessageBox.Show($"Error during {operationName}:\n\n{ex.Message}",
+                MessageBox.Show($@"Error during {operationName}:
+
+{ex.Message}",
                     "Operation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -430,7 +438,9 @@ namespace HyperView
 
                     if (taskException != null)
                     {
-                        MessageBox.Show($"Error during {operationName}:\n\n{taskException.Message}",
+                        MessageBox.Show($@"Error during {operationName}:
+
+{taskException.Message}",
                             "Operation Error",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
@@ -462,7 +472,9 @@ namespace HyperView
                     catch { }
                 }
 
-                MessageBox.Show($"Error during {operationName}:\n\n{ex.Message}",
+                MessageBox.Show($@"Error during {operationName}:
+
+{ex.Message}",
                     "Operation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -501,7 +513,7 @@ namespace HyperView
 
                 if (results == null || results.Count == 0)
                 {
-                    MessageBox.Show("No VMs found.", "Information",
+                    MessageBox.Show(@"No VMs found.", "Information",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
@@ -723,7 +735,7 @@ namespace HyperView
             {
                 Message($"Error loading VM overview: {ex.Message}",
                     EventType.Error, 2006);
-                MessageBox.Show($"Error loading VM overview: {ex.Message}", "Error",
+                MessageBox.Show($@"Error loading VM overview: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1306,7 +1318,7 @@ namespace HyperView
 
                 // Show confirmation dialog
                 var confirmResult = MessageBox.Show(
-                    $"Are you sure you want to disconnect from Hyper-V (server: '{SessionContext.ServerName}') and close the application?",
+                    $@"Are you sure you want to disconnect from Hyper-V (server: '{SessionContext.ServerName}') and close the application?",
                     "Confirm Exit",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
@@ -1355,14 +1367,14 @@ namespace HyperView
                 // Check if there's an active connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active connection to disconnect.", "Information",
+                    MessageBox.Show(@"No active connection to disconnect.", "Information",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 // Show confirmation dialog
                 var confirmResult = MessageBox.Show(
-                    $"Are you sure you want to disconnect from Hyper-V (server: '{SessionContext.ServerName}')?",
+                    $@"Are you sure you want to disconnect from Hyper-V (server: '{SessionContext.ServerName}')?",
                     "Confirm Disconnect",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
@@ -1477,7 +1489,9 @@ namespace HyperView
                 disconnectToolStripMenuItem.Enabled = true;
 
                 // Show error to user
-                MessageBox.Show($"Failed to disconnect from Hyper-V:\n\n{ex.Message}",
+                MessageBox.Show($@"Failed to disconnect from Hyper-V:
+
+{ex.Message}",
                     "Disconnect Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -1497,7 +1511,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("Please connect to a Hyper-V server first.",
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -1525,7 +1539,7 @@ namespace HyperView
                             Message($"VM Group '{groupName}' created successfully",
                                 EventType.Information, 2031);
 
-                            MessageBox.Show($"VM Group '{groupName}' created successfully.",
+                            MessageBox.Show($@"VM Group '{groupName}' created successfully.",
                                 "Group Created",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
@@ -1541,7 +1555,9 @@ namespace HyperView
                             Message($"Failed to create VM Group '{groupName}': {createResult.Error}",
                                 EventType.Error, 2032);
 
-                            MessageBox.Show($"Failed to create VM Group:\n\n{createResult.Error}",
+                            MessageBox.Show($@"Failed to create VM Group:
+
+{createResult.Error}",
                                 "Error",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
@@ -1576,7 +1592,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("Please connect to a Hyper-V server first.",
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -1586,7 +1602,7 @@ namespace HyperView
                 // Get selected VM group (assuming you have a datagridviewVMGroups control)
                 if (datagridviewVMGroups == null || datagridviewVMGroups.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Please select a VM Group to delete.",
+                    MessageBox.Show(@"Please select a VM Group to delete.",
                         "No Selection",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -1597,7 +1613,7 @@ namespace HyperView
 
                 if (string.IsNullOrEmpty(selectedGroupName))
                 {
-                    MessageBox.Show("Invalid VM Group selection.",
+                    MessageBox.Show(@"Invalid VM Group selection.",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
@@ -1609,7 +1625,7 @@ namespace HyperView
 
                 // First confirmation
                 var confirmResult = MessageBox.Show(
-                    $"Are you sure you want to delete VM Group '{selectedGroupName}'?",
+                    $@"Are you sure you want to delete VM Group '{selectedGroupName}'?",
                     "Confirm Deletion",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
@@ -1629,7 +1645,7 @@ namespace HyperView
                     Message($"VM Group '{selectedGroupName}' deleted successfully",
                         EventType.Information, 2042);
 
-                    MessageBox.Show($"VM Group '{selectedGroupName}' deleted successfully.",
+                    MessageBox.Show($@"VM Group '{selectedGroupName}' deleted successfully.",
                         "Success",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -1688,7 +1704,9 @@ namespace HyperView
                                 Message($"Failed to force delete VM Group '{selectedGroupName}': {forceDeleteResult.Error}",
                                     EventType.Error, 2046);
 
-                                MessageBox.Show($"Failed to force delete VM Group:\n\n{forceDeleteResult.Error}",
+                                MessageBox.Show($@"Failed to force delete VM Group:
+
+{forceDeleteResult.Error}",
                                     "Error",
                                     MessageBoxButtons.OK,
                                     MessageBoxIcon.Error);
@@ -1706,7 +1724,9 @@ namespace HyperView
                         Message($"Failed to delete VM Group '{selectedGroupName}': {result.Error}",
                             EventType.Error, 2048);
 
-                        MessageBox.Show($"Failed to delete VM Group:\n\n{result.Error}",
+                        MessageBox.Show($@"Failed to delete VM Group:
+
+{result.Error}",
                             "Error",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
@@ -1735,7 +1755,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("Please connect to a Hyper-V server first.",
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -1745,7 +1765,7 @@ namespace HyperView
                 // Get selected VM group
                 if (datagridviewVMGroups == null || datagridviewVMGroups.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Please select a VM Group to rename.",
+                    MessageBox.Show(@"Please select a VM Group to rename.",
                         "No Selection",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -1756,7 +1776,7 @@ namespace HyperView
 
                 if (string.IsNullOrEmpty(currentGroupName))
                 {
-                    MessageBox.Show("Invalid VM Group selection.",
+                    MessageBox.Show(@"Invalid VM Group selection.",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
@@ -1791,7 +1811,7 @@ namespace HyperView
                             Message($"VM Group renamed successfully from '{currentGroupName}' to '{newGroupName}'",
                                 EventType.Information, 2097);
 
-                            MessageBox.Show($"VM Group renamed successfully from '{currentGroupName}' to '{newGroupName}'.",
+                            MessageBox.Show($@"VM Group renamed successfully from '{currentGroupName}' to '{newGroupName}'.",
                                 "Group Renamed",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
@@ -1807,7 +1827,9 @@ namespace HyperView
                             Message($"Failed to rename VM Group '{currentGroupName}': {renameResult.Error}",
                                 EventType.Error, 2098);
 
-                            MessageBox.Show($"Failed to rename VM Group:\n\n{renameResult.Error}",
+                            MessageBox.Show($@"Failed to rename VM Group:
+
+{renameResult.Error}",
                                 "Error",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
@@ -1842,7 +1864,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("Please connect to a Hyper-V server first.",
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -1879,7 +1901,7 @@ namespace HyperView
                     Message("No VM Groups retrieved",
                         EventType.Warning, 2059);
 
-                    MessageBox.Show("No VM Groups found or error retrieving groups.",
+                    MessageBox.Show(@"No VM Groups found or error retrieving groups.",
                         "Refresh Complete",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -2021,7 +2043,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("Please connect to a Hyper-V server first.",
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -2031,7 +2053,7 @@ namespace HyperView
                 // Check if we have VM data
                 if (datagridviewVMOverView == null || datagridviewVMOverView.Rows.Count == 0)
                 {
-                    MessageBox.Show("No VM data available. Please load VMs first.",
+                    MessageBox.Show(@"No VM data available. Please load VMs first.",
                         "No Data",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -2098,7 +2120,10 @@ namespace HyperView
 
                                 // Show success message with option to open file location
                                 var result = MessageBox.Show(
-                                    $"VM data exported successfully to:\n{filePath}\n\nWould you like to open the file location?",
+                                    $@"VM data exported successfully to:
+{filePath}
+
+Would you like to open the file location?",
                                     "Export Complete",
                                     MessageBoxButtons.YesNo,
                                     MessageBoxIcon.Information);
@@ -2410,7 +2435,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("Please connect to a Hyper-V server first.",
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -2420,7 +2445,7 @@ namespace HyperView
                 // Get selected VM group
                 if (datagridviewVMGroups == null || datagridviewVMGroups.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Please select a VM Group to manage.",
+                    MessageBox.Show(@"Please select a VM Group to manage.",
                         "No Selection",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -2431,7 +2456,7 @@ namespace HyperView
 
                 if (string.IsNullOrEmpty(groupName))
                 {
-                    MessageBox.Show("Invalid VM Group selection.",
+                    MessageBox.Show(@"Invalid VM Group selection.",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
@@ -2633,7 +2658,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -2734,7 +2759,7 @@ namespace HyperView
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -2744,7 +2769,7 @@ namespace HyperView
                 // Check if we have VM data
                 if (datagridviewVMOverView == null || datagridviewVMOverView.Rows.Count == 0)
                 {
-                    MessageBox.Show("No VM data available. Please load VMs first.",
+                    MessageBox.Show(@"No VM data available. Please load VMs first.",
                         "No Data",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -2920,7 +2945,7 @@ namespace HyperView
 
                 if (string.IsNullOrEmpty(vmName))
                 {
-                    MessageBox.Show("Could not retrieve VM name.",
+                    MessageBox.Show(@"Could not retrieve VM name.",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
@@ -3000,7 +3025,7 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -3030,7 +3055,7 @@ Management:
 
                 if (clusterInfo == null)
                 {
-                    MessageBox.Show("Failed to retrieve cluster information.",
+                    MessageBox.Show(@"Failed to retrieve cluster information.",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
@@ -3176,7 +3201,7 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -3219,7 +3244,7 @@ Management:
                             EventType.Warning, 4013);
                         toolStripStatusLabelTextMainForm.Text = "No host data available";
 
-                        MessageBox.Show("No host details found or error retrieving details.",
+                        MessageBox.Show(@"No host details found or error retrieving details.",
                             "Refresh Complete",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information);
@@ -3420,7 +3445,7 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -3458,7 +3483,7 @@ Management:
 
                 if (clusterInfo == null)
                 {
-                    MessageBox.Show("Failed to retrieve cluster information.",
+                    MessageBox.Show(@"Failed to retrieve cluster information.",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
@@ -3675,7 +3700,7 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -3984,7 +4009,7 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -4055,7 +4080,7 @@ Management:
 
                             toolStripStatusLabelTextMainForm.Text = "No virtual disks found";
 
-                            MessageBox.Show("No virtual disks found.",
+                            MessageBox.Show(@"No virtual disks found.",
                                 "Information",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
@@ -4100,7 +4125,7 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show("No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
                         "Connection Required",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
@@ -4110,7 +4135,7 @@ Management:
                 // Check if we have disk data
                 if (datagridviewvDiskOverView == null || datagridviewvDiskOverView.Rows.Count == 0)
                 {
-                    MessageBox.Show("No virtual disk data available. Please load disks first.",
+                    MessageBox.Show(@"No virtual disk data available. Please load disks first.",
                         "No Data",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
