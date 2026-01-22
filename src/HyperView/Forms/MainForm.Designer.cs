@@ -1,4 +1,4 @@
-﻿namespace HyperView
+﻿namespace HyperView.Forms
 {
     partial class MainForm
     {

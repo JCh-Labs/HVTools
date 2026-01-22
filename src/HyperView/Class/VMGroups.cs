@@ -2,14 +2,14 @@
 
 namespace HyperView.Class
 {
-    public class VMGroupInfo
+    public class VmGroupInfo
     {
         public string Name { get; set; }
         public string GroupType { get; set; }
         public string GroupTypeDisplay { get; set; }
-        public int VMCount { get; set; }
-        public string VMList { get; set; }
-        public List<string> VMMembers { get; set; } = new List<string>();
+        public int VmCount { get; set; }
+        public string VmList { get; set; }
+        public List<string> VmMembers { get; set; } = new List<string>();
         public int GroupCount { get; set; }
         public string GroupList { get; set; }
         public List<string> GroupMembers { get; set; } = new List<string>();
@@ -18,36 +18,36 @@ namespace HyperView.Class
         public string Id { get; set; }
     }
 
-    public class VMGroupDeletionResult
+    public class VmGroupDeletionResult
     {
         public bool Success { get; set; }
         public string Error { get; set; }
         public bool CanForce { get; set; }
-        public int VMCount { get; set; }
-        public List<string> VMNames { get; set; } = new List<string>();
+        public int VmCount { get; set; }
+        public List<string> VmNames { get; set; } = new List<string>();
     }
 
-    public class VMGroupCreationResult
+    public class VmGroupCreationResult
     {
         public bool Success { get; set; }
         public string Error { get; set; }
     }
 
-    public class VMGroupRenameResult
+    public class VmGroupRenameResult
     {
         public bool Success { get; set; }
         public string Error { get; set; }
     }
 
-    public class VMGroupMemberResult
+    public class VmGroupMemberResult
     {
         public bool Success { get; set; }
         public string Error { get; set; }
     }
 
-    public static class VMGroups
+    public static class VmGroups
     {
-        public static List<VMGroupInfo> GetHyperVVMGroups(
+        public static List<VmGroupInfo> GetHyperVvmGroups(
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
         {
             try
@@ -108,21 +108,21 @@ namespace HyperView.Class
                 {
                     FileLogger.Message("No VM Groups found",
                         FileLogger.EventType.Information, 2062);
-                    return new List<VMGroupInfo>();
+                    return new List<VmGroupInfo>();
                 }
 
-                var vmGroups = new List<VMGroupInfo>();
+                var vmGroups = new List<VmGroupInfo>();
 
                 foreach (var result in results)
                 {
                     try
                     {
-                        var groupInfo = new VMGroupInfo
+                        var groupInfo = new VmGroupInfo
                         {
                             Name = result.Properties["Name"]?.Value?.ToString() ?? "Unknown",
                             GroupType = result.Properties["GroupType"]?.Value?.ToString() ?? "Unknown",
-                            VMCount = Convert.ToInt32(result.Properties["VMCount"]?.Value ?? 0),
-                            VMList = result.Properties["VMList"]?.Value?.ToString() ?? "",
+                            VmCount = Convert.ToInt32(result.Properties["VMCount"]?.Value ?? 0),
+                            VmList = result.Properties["VMList"]?.Value?.ToString() ?? "",
                             GroupCount = Convert.ToInt32(result.Properties["GroupCount"]?.Value ?? 0),
                             GroupList = result.Properties["GroupList"]?.Value?.ToString() ?? "",
                             TotalMembers = Convert.ToInt32(result.Properties["TotalMembers"]?.Value ?? 0),
@@ -166,7 +166,7 @@ namespace HyperView.Class
                                         string vmName = actualItem.ToString();
                                         if (!string.IsNullOrWhiteSpace(vmName))
                                         {
-                                            groupInfo.VMMembers.Add(vmName);
+                                            groupInfo.VmMembers.Add(vmName);
                                             FileLogger.Message($"Added VM member: '{vmName}' to group '{groupInfo.Name}'",
                                                 FileLogger.EventType.Information, 2073);
                                         }
@@ -176,13 +176,13 @@ namespace HyperView.Class
                             else if (actualValue is string strValue && !string.IsNullOrWhiteSpace(strValue))
                             {
                                 // Handle case where it's returned as a single string
-                                groupInfo.VMMembers.Add(strValue);
+                                groupInfo.VmMembers.Add(strValue);
                                 FileLogger.Message($"Added VM member (string): '{strValue}' to group '{groupInfo.Name}'",
                                     FileLogger.EventType.Information, 2074);
                             }
                         }
                         
-                        FileLogger.Message($"Total VM members parsed for group '{groupInfo.Name}': {groupInfo.VMMembers.Count}",
+                        FileLogger.Message($"Total VM members parsed for group '{groupInfo.Name}': {groupInfo.VmMembers.Count}",
                             FileLogger.EventType.Information, 2075);
 
                         // Process Group Members array
@@ -249,7 +249,7 @@ namespace HyperView.Class
 
                         vmGroups.Add(groupInfo);
 
-                        FileLogger.Message($"Processed VM Group: '{groupInfo.Name}' ({groupInfo.GroupTypeDisplay}) - {groupInfo.VMCount} VMs",
+                        FileLogger.Message($"Processed VM Group: '{groupInfo.Name}' ({groupInfo.GroupTypeDisplay}) - {groupInfo.VmCount} VMs",
                             FileLogger.EventType.Information, 2063);
                     }
                     catch (Exception ex)
@@ -268,11 +268,11 @@ namespace HyperView.Class
             {
                 FileLogger.Message($"Error retrieving VM Groups: {ex.Message}",
                     FileLogger.EventType.Error, 2066);
-                return new List<VMGroupInfo>();
+                return new List<VmGroupInfo>();
             }
         }
 
-        public static VMGroupDeletionResult RemoveHyperVVMGroup(
+        public static VmGroupDeletionResult RemoveHyperVvmGroup(
             string groupName,
             bool force,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
@@ -303,7 +303,7 @@ namespace HyperView.Class
 
                 if (checkResults == null || checkResults.Count == 0)
                 {
-                    return new VMGroupDeletionResult
+                    return new VmGroupDeletionResult
                     {
                         Success = false,
                         Error = $"VM Group '{groupName}' does not exist"
@@ -337,13 +337,13 @@ namespace HyperView.Class
                     FileLogger.Message($"VM Group '{groupName}' cannot be deleted without force - contains {vmCount} VM(s)",
                         FileLogger.EventType.Warning, 2052);
 
-                    return new VMGroupDeletionResult
+                    return new VmGroupDeletionResult
                     {
                         Success = false,
                         Error = $"Cannot delete VM Group '{groupName}' because it contains {vmCount} VM(s). Use Force to delete anyway.",
                         CanForce = true,
-                        VMCount = vmCount,
-                        VMNames = vmNames
+                        VmCount = vmCount,
+                        VmNames = vmNames
                     };
                 }
 
@@ -361,13 +361,13 @@ namespace HyperView.Class
                                 FileLogger.EventType.Information, 2073);
 
                             // Use correct Remove-VMGroupMember format
-                            var removeVMScript = $@"
+                            var removeVmScript = $@"
                                 $group = Get-VMGroup -Name '{groupName}' -ErrorAction Stop
                                 $vm = Get-VM -Name '{vmName}' -ErrorAction Stop
                                 Remove-VMGroupMember -VMGroup $group -VM $vm -ErrorAction Stop
                             ";
 
-                            var removeVMResult = executePowerShellCommand(removeVMScript);
+                            var removeVmResult = executePowerShellCommand(removeVmScript);
 
                             FileLogger.Message($"Successfully removed VM '{vmName}' from group '{groupName}'",
                                 FileLogger.EventType.Information, 2074);
@@ -392,7 +392,7 @@ namespace HyperView.Class
 
                 if (removeGroupResult == null)
                 {
-                    return new VMGroupDeletionResult
+                    return new VmGroupDeletionResult
                     {
                         Success = false,
                         Error = "Failed to remove VM Group. Check logs for details."
@@ -402,7 +402,7 @@ namespace HyperView.Class
                 FileLogger.Message($"VM Group '{groupName}' removed successfully",
                     FileLogger.EventType.Information, 2054);
 
-                return new VMGroupDeletionResult
+                return new VmGroupDeletionResult
                 {
                     Success = true
                 };
@@ -412,7 +412,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Exception removing VM Group '{groupName}': {ex.Message}",
                     FileLogger.EventType.Error, 2055);
 
-                return new VMGroupDeletionResult
+                return new VmGroupDeletionResult
                 {
                     Success = false,
                     Error = ex.Message
@@ -420,10 +420,10 @@ namespace HyperView.Class
             }
         }
 
-        public static void RefreshVMGroupsView(
+        public static void RefreshVmGroupsView(
             string reason,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand,
-            Action<List<VMGroupInfo>> updateDataGridView)
+            Action<List<VmGroupInfo>> updateDataGridView)
         {
             try
             {
@@ -431,7 +431,7 @@ namespace HyperView.Class
                     FileLogger.EventType.Information, 2079);
 
                 // Get fresh VM Groups data
-                var vmGroups = GetHyperVVMGroups(executePowerShellCommand);
+                var vmGroups = GetHyperVvmGroups(executePowerShellCommand);
 
                 if (vmGroups != null && updateDataGridView != null)
                 {
@@ -454,7 +454,7 @@ namespace HyperView.Class
             }
         }
 
-        public static VMGroupCreationResult CreateHyperVVMGroup(
+        public static VmGroupCreationResult CreateHyperVvmGroup(
             string groupName,
             string groupType,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
@@ -474,7 +474,7 @@ namespace HyperView.Class
                     FileLogger.Message($"VM Group '{groupName}' created successfully via PowerShell",
                         FileLogger.EventType.Information, 2036);
 
-                    return new VMGroupCreationResult
+                    return new VmGroupCreationResult
                     {
                         Success = true
                     };
@@ -485,7 +485,7 @@ namespace HyperView.Class
                     FileLogger.Message($"VM Group creation returned no results: {error}",
                         FileLogger.EventType.Warning, 2037);
 
-                    return new VMGroupCreationResult
+                    return new VmGroupCreationResult
                     {
                         Success = false,
                         Error = error
@@ -497,7 +497,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Exception creating VM Group: {ex.Message}",
                     FileLogger.EventType.Error, 2038);
 
-                return new VMGroupCreationResult
+                return new VmGroupCreationResult
                 {
                     Success = false,
                     Error = ex.Message
@@ -505,7 +505,7 @@ namespace HyperView.Class
             }
         }
 
-        public static VMGroupRenameResult RenameHyperVVMGroup(
+        public static VmGroupRenameResult RenameHyperVvmGroup(
             string oldGroupName,
             string newGroupName,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
@@ -526,7 +526,7 @@ namespace HyperView.Class
                     FileLogger.Message($"VM Group rename failed: {error}",
                         FileLogger.EventType.Error, 2091);
 
-                    return new VMGroupRenameResult
+                    return new VmGroupRenameResult
                     {
                         Success = false,
                         Error = error
@@ -536,7 +536,7 @@ namespace HyperView.Class
                 FileLogger.Message($"VM Group renamed successfully from '{oldGroupName}' to '{newGroupName}'",
                     FileLogger.EventType.Information, 2092);
 
-                return new VMGroupRenameResult
+                return new VmGroupRenameResult
                 {
                     Success = true
                 };
@@ -546,7 +546,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Exception renaming VM Group '{oldGroupName}': {ex.Message}",
                     FileLogger.EventType.Error, 2093);
 
-                return new VMGroupRenameResult
+                return new VmGroupRenameResult
                 {
                     Success = false,
                     Error = ex.Message
@@ -554,7 +554,7 @@ namespace HyperView.Class
             }
         }
 
-        public static VMGroupMemberResult AddVMToGroup(
+        public static VmGroupMemberResult AddVmToGroup(
             string vmName,
             string groupName,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
@@ -577,7 +577,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Successfully added VM '{vmName}' to group '{groupName}'",
                     FileLogger.EventType.Information, 2119);
 
-                return new VMGroupMemberResult
+                return new VmGroupMemberResult
                 {
                     Success = true
                 };
@@ -587,7 +587,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Exception adding VM '{vmName}' to group '{groupName}': {ex.Message}",
                     FileLogger.EventType.Error, 2120);
 
-                return new VMGroupMemberResult
+                return new VmGroupMemberResult
                 {
                     Success = false,
                     Error = ex.Message
@@ -595,7 +595,7 @@ namespace HyperView.Class
             }
         }
 
-        public static VMGroupMemberResult RemoveVMFromGroup(
+        public static VmGroupMemberResult RemoveVmFromGroup(
             string vmName,
             string groupName,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
@@ -618,7 +618,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Successfully removed VM '{vmName}' from group '{groupName}'",
                     FileLogger.EventType.Information, 2123);
 
-                return new VMGroupMemberResult
+                return new VmGroupMemberResult
                 {
                     Success = true
                 };
@@ -628,7 +628,7 @@ namespace HyperView.Class
                 FileLogger.Message($"Exception removing VM '{vmName}' from group '{groupName}': {ex.Message}",
                     FileLogger.EventType.Error, 2124);
 
-                return new VMGroupMemberResult
+                return new VmGroupMemberResult
                 {
                     Success = false,
                     Error = ex.Message

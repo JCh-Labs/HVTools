@@ -13,14 +13,14 @@ namespace HyperView.Class
         public static PSCredential Credentials { get; set; }
         public static string ConnectedUser { get; set; }
         public static string ConnectionType { get; set; }
-        public static int VMCount { get; set; }
+        public static int VmCount { get; set; }
         public static bool IsLocal { get; set; }
         
         // Enhanced properties
         public static string HostName { get; set; }
         public static string HyperVVersion { get; set; }
         public static int LogicalProcessorCount { get; set; }
-        public static double TotalMemoryGB { get; set; }
+        public static double TotalMemoryGb { get; set; }
         public static bool IsCluster { get; set; }
         public static string ClusterName { get; set; }
         public static string FullyQualifiedDomainName { get; set; }
@@ -32,7 +32,7 @@ namespace HyperView.Class
         public static void Initialize(string serverName, bool useWindowsAuth, PSCredential credentials, 
             string connectedUser, string connectionType, int vmCount, bool isLocal,
             string hostName = null, string hyperVVersion = null, int logicalProcessorCount = 0,
-            double totalMemoryGB = 0, bool isCluster = false, string clusterName = null,
+            double totalMemoryGb = 0, bool isCluster = false, string clusterName = null,
             string fullyQualifiedDomainName = null)
         {
             ServerName = serverName;
@@ -40,12 +40,12 @@ namespace HyperView.Class
             Credentials = credentials;
             ConnectedUser = connectedUser;
             ConnectionType = connectionType;
-            VMCount = vmCount;
+            VmCount = vmCount;
             IsLocal = isLocal;
             HostName = hostName ?? serverName;
             HyperVVersion = hyperVVersion;
             LogicalProcessorCount = logicalProcessorCount;
-            TotalMemoryGB = totalMemoryGB;
+            TotalMemoryGb = totalMemoryGb;
             IsCluster = isCluster;
             ClusterName = clusterName;
             FullyQualifiedDomainName = fullyQualifiedDomainName ?? serverName;
@@ -57,7 +57,7 @@ namespace HyperView.Class
                 
             if (!string.IsNullOrEmpty(hyperVVersion))
             {
-                FileLogger.Message($"Hyper-V Version: {hyperVVersion}, Processors: {logicalProcessorCount}, Memory: {totalMemoryGB:F2} GB", 
+                FileLogger.Message($"Hyper-V Version: {hyperVVersion}, Processors: {logicalProcessorCount}, Memory: {totalMemoryGb:F2} GB", 
                     FileLogger.EventType.Information, 2002);
             }
         }
@@ -74,12 +74,12 @@ namespace HyperView.Class
             Credentials = null;
             ConnectedUser = null;
             ConnectionType = null;
-            VMCount = 0;
+            VmCount = 0;
             IsLocal = false;
             HostName = null;
             HyperVVersion = null;
             LogicalProcessorCount = 0;
-            TotalMemoryGB = 0;
+            TotalMemoryGb = 0;
             IsCluster = false;
             ClusterName = null;
             FullyQualifiedDomainName = null;

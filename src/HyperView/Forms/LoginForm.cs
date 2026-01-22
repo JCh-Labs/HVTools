@@ -22,7 +22,7 @@ namespace HyperView.Forms
             public PSCredential Credentials { get; set; }
             public string ConnectedUser { get; set; }
             public string ConnectionType { get; set; }
-            public int VMCount { get; set; }
+            public int VmCount { get; set; }
         }
 
         public LoginResult Result { get; private set; }
@@ -34,7 +34,7 @@ namespace HyperView.Forms
         {
             public bool Success { get; set; }
             public string Error { get; set; }
-            public int VMCount { get; set; }
+            public int VmCount { get; set; }
             public bool RequiresElevation { get; set; }
             public bool CanAutoElevate { get; set; }
             public bool IsLocal { get; set; }
@@ -43,7 +43,7 @@ namespace HyperView.Forms
             public string HostName { get; set; }
             public string HyperVVersion { get; set; }
             public int LogicalProcessorCount { get; set; }
-            public double TotalMemoryGB { get; set; }
+            public double TotalMemoryGb { get; set; }
             public bool IsCluster { get; set; }
             public string ClusterName { get; set; }
             public string FullyQualifiedDomainName { get; set; }
@@ -76,13 +76,13 @@ namespace HyperView.Forms
 
             // Temporarily set TopMost to force the window to the foreground
             // This is needed because Windows may not always activate a new window
-            this.TopMost = true;
-            this.TopMost = false;
+            TopMost = true;
+            TopMost = false;
 
             // Activate and bring the form to the foreground
-            this.Activate();
-            this.BringToFront();
-            this.Focus();
+            Activate();
+            BringToFront();
+            Focus();
 
             // Set focus to the server textbox for immediate typing
             textboxServer.Focus();
@@ -717,13 +717,13 @@ namespace HyperView.Forms
                         return new ConnectionTestResult
                         {
                             Success = true,
-                            VMCount = vmCount,
+                            VmCount = vmCount,
                             IsLocal = true,
                             HostName = hostName,
                             FullyQualifiedDomainName = fqdn,
                             HyperVVersion = hyperVVersion,
                             LogicalProcessorCount = logicalProcessors,
-                            TotalMemoryGB = memoryGb,
+                            TotalMemoryGb = memoryGb,
                             IsCluster = isCluster,
                             ClusterName = clusterName
                         };
@@ -1010,13 +1010,13 @@ namespace HyperView.Forms
                         return new ConnectionTestResult
                         {
                             Success = true,
-                            VMCount = vmCount,
+                            VmCount = vmCount,
                             IsLocal = false,
                             HostName = hostName,
                             FullyQualifiedDomainName = fqdn,
                             HyperVVersion = hyperVVersion,
                             LogicalProcessorCount = logicalProcessors,
-                            TotalMemoryGB = memoryGb,
+                            TotalMemoryGb = memoryGb,
                             IsCluster = isCluster,
                             ClusterName = clusterName
                         };
@@ -1464,7 +1464,7 @@ namespace HyperView.Forms
             // Disable UI and show progress (button already disabled above)
             string originalText = ButtonLogin.Text;
             ButtonLogin.Text = "Connecting...";
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             FileLogger.Message($"Starting connection test to '{serverName}'",
                 FileLogger.EventType.Information, 1044);
@@ -1507,7 +1507,7 @@ namespace HyperView.Forms
                         Credentials = credentials,
                         ConnectedUser = connectedUser,
                         ConnectionType = connectionType,
-                        VMCount = connectionResult.VMCount
+                        VmCount = connectionResult.VmCount
                     };
 
                     // Initialize global session context for reuse across the application
@@ -1517,12 +1517,12 @@ namespace HyperView.Forms
                         credentials,
                         connectedUser,
                         connectionType,
-                        connectionResult.VMCount,
+                        connectionResult.VmCount,
                         connectionResult.IsLocal,
                         connectionResult.HostName,
                         connectionResult.HyperVVersion,
                         connectionResult.LogicalProcessorCount,
-                        connectionResult.TotalMemoryGB,
+                        connectionResult.TotalMemoryGb,
                         connectionResult.IsCluster,
                         connectionResult.ClusterName,
                         connectionResult.FullyQualifiedDomainName
@@ -1535,7 +1535,7 @@ namespace HyperView.Forms
                     FileLogger.Message($"Hiding login form and showing MainForm...",
                         FileLogger.EventType.Information, 1039);
 
-                    this.Hide();
+                    Hide();
 
                     using (MainForm mainForm = new MainForm())
                     {
@@ -1551,8 +1551,8 @@ namespace HyperView.Forms
                         if (mainResult == DialogResult.OK || mainResult == DialogResult.Cancel)
                         {
                             SessionContext.Clear();
-                            this.DialogResult = DialogResult.OK;
-                            this.Close();
+                            DialogResult = DialogResult.OK;
+                            Close();
                         }
                     }
                 }
@@ -1632,7 +1632,7 @@ Error: {connectionResult.Error}",
                 ButtonLogin.Text = originalText;
                 ButtonLogin.Enabled = true;
                 buttonCancel.Enabled = true;
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
                 _isConnecting = false; // Reset the flag
 
                 FileLogger.Message($"Login attempt completed, resetting UI",
@@ -1643,8 +1643,8 @@ Error: {connectionResult.Error}",
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
             Result = new LoginResult { Success = false, Cancelled = true };
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private bool TestNetworkConnection(string hostname, int port)

@@ -3,7 +3,7 @@ using HyperView.Class;
 
 namespace HyperView.Forms
 {
-    public partial class RenameVMGroupForm : Form
+    public partial class RenameVmGroupForm : Form
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string CurrentGroupName { get; set; }
@@ -11,7 +11,7 @@ namespace HyperView.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string NewGroupName { get; private set; }
 
-        public RenameVMGroupForm()
+        public RenameVmGroupForm()
         {
             InitializeComponent();
         }
@@ -67,8 +67,8 @@ namespace HyperView.Forms
             FileLogger.Message($"VM Group rename confirmed: '{CurrentGroupName}' -> '{NewGroupName}'",
                 FileLogger.EventType.Information, 2088);
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)
@@ -76,8 +76,8 @@ namespace HyperView.Forms
             FileLogger.Message("VM Group rename cancelled",
                 FileLogger.EventType.Information, 2089);
 
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
     }
 }

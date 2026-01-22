@@ -4,7 +4,7 @@ using HyperView.Class;
 
 namespace HyperView.Forms
 {
-    public partial class ManageVMGroupMembers : Form
+    public partial class ManageVmGroupMembers : Form
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string GroupName { get; set; }
@@ -15,7 +15,7 @@ namespace HyperView.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Func<string, System.Collections.ObjectModel.Collection<PSObject>> ExecutePowerShellCommand { get; set; }
 
-        public ManageVMGroupMembers()
+        public ManageVmGroupMembers()
         {
             InitializeComponent();
         }
@@ -27,7 +27,7 @@ namespace HyperView.Forms
 
             if (!string.IsNullOrEmpty(GroupName))
             {
-                this.Text = $"Manage VM Group Members - {GroupName}";
+                Text = $"Manage VM Group Members - {GroupName}";
                 UpdateMemberLists();
             }
         }
@@ -50,7 +50,7 @@ namespace HyperView.Forms
                 listboxMembers.Items.Clear();
 
                 // Get current group info
-                var vmGroups = VMGroups.GetHyperVVMGroups(ExecutePowerShellCommand);
+                var vmGroups = VmGroups.GetHyperVvmGroups(ExecutePowerShellCommand);
                 var currentGroup = vmGroups.FirstOrDefault(g => g.Name == GroupName);
 
                 if (currentGroup == null)
@@ -62,7 +62,7 @@ namespace HyperView.Forms
                     return;
                 }
 
-                var currentMembers = currentGroup.VMMembers ?? new List<string>();
+                var currentMembers = currentGroup.VmMembers ?? new List<string>();
 
                 // Populate available VMs (exclude current members)
                 if (AllVMs != null)
@@ -117,11 +117,11 @@ namespace HyperView.Forms
                 int successCount = 0;
                 int errorCount = 0;
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
                 foreach (var vmName in selectedVMs)
                 {
-                    var result = VMGroups.AddVMToGroup(vmName, GroupName, ExecutePowerShellCommand);
+                    var result = VmGroups.AddVmToGroup(vmName, GroupName, ExecutePowerShellCommand);
                     if (result.Success)
                     {
                         successCount++;
@@ -137,14 +137,14 @@ namespace HyperView.Forms
                     }
                 }
 
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 // Refresh after a short delay to confirm (Hyper-V caching issue)
                 Task.Delay(500).ContinueWith(_ =>
                 {
-                    if (!this.IsDisposed)
+                    if (!IsDisposed)
                     {
-                        this.Invoke(new Action(() =>
+                        Invoke(new Action(() =>
                         {
                             UpdateMemberLists();
                         }));
@@ -170,7 +170,7 @@ namespace HyperView.Forms
             }
             catch (Exception ex)
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 string errorMsg = $"Error adding VMs to group: {ex.Message}";
                 FileLogger.Message(errorMsg, FileLogger.EventType.Error, 2133);
@@ -218,11 +218,11 @@ namespace HyperView.Forms
                 int successCount = 0;
                 int errorCount = 0;
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
                 foreach (var vmName in selectedVMs)
                 {
-                    var result = VMGroups.RemoveVMFromGroup(vmName, GroupName, ExecutePowerShellCommand);
+                    var result = VmGroups.RemoveVmFromGroup(vmName, GroupName, ExecutePowerShellCommand);
                     if (result.Success)
                     {
                         successCount++;
@@ -242,14 +242,14 @@ namespace HyperView.Forms
                     }
                 }
 
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 // Refresh after a short delay to confirm (Hyper-V caching issue)
                 Task.Delay(500).ContinueWith(_ =>
                 {
-                    if (!this.IsDisposed)
+                    if (!IsDisposed)
                     {
-                        this.Invoke(new Action(() =>
+                        Invoke(new Action(() =>
                         {
                             UpdateMemberLists();
                         }));
@@ -275,7 +275,7 @@ namespace HyperView.Forms
             }
             catch (Exception ex)
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 string errorMsg = $"Error removing VMs from group: {ex.Message}";
                 FileLogger.Message(errorMsg, FileLogger.EventType.Error, 2137);
@@ -292,8 +292,8 @@ namespace HyperView.Forms
             FileLogger.Message("User closed ManageVMGroupMembers form",
                 FileLogger.EventType.Information, 2138);
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }

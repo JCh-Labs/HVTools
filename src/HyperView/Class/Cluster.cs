@@ -322,7 +322,7 @@ namespace HyperView.Class
                         FileLogger.Message("Checking for highly available VMs...",
                             FileLogger.EventType.Information, 3014);
 
-                        string haVMCheckScript = @"
+                        string haVmCheckScript = @"
                             $haVMs = Get-VM | Where-Object { $_.IsClustered -eq $true } -ErrorAction SilentlyContinue
                             if ($haVMs) {
                                 return @{
@@ -333,11 +333,11 @@ namespace HyperView.Class
                             return @{ Found = $false }
                         ";
 
-                        var haVMResult = executePowerShellCommand(haVMCheckScript);
+                        var haVmResult = executePowerShellCommand(haVmCheckScript);
 
-                        if (haVMResult != null && haVMResult.Count > 0)
+                        if (haVmResult != null && haVmResult.Count > 0)
                         {
-                            var result = (PSObject)haVMResult[0];
+                            var result = (PSObject)haVmResult[0];
                             var hashtable = (System.Collections.Hashtable)result.BaseObject;
                             bool found = (bool)hashtable["Found"];
 
@@ -446,13 +446,13 @@ namespace HyperView.Class
                         {
                             clusterDetails.Nodes.Add(new ClusterNodeInfo
                             {
-                                Name = GetPSObjectProperty(node, "Name"),
-                                State = GetPSObjectProperty(node, "State"),
-                                Id = GetPSObjectProperty(node, "Id"),
-                                NodeWeight = GetPSObjectPropertyInt(node, "NodeWeight"),
-                                DynamicWeight = GetPSObjectPropertyInt(node, "DynamicWeight"),
-                                FaultDomain = GetPSObjectProperty(node, "FaultDomain"),
-                                DrainStatus = GetPSObjectProperty(node, "DrainStatus")
+                                Name = GetPsObjectProperty(node, "Name"),
+                                State = GetPsObjectProperty(node, "State"),
+                                Id = GetPsObjectProperty(node, "Id"),
+                                NodeWeight = GetPsObjectPropertyInt(node, "NodeWeight"),
+                                DynamicWeight = GetPsObjectPropertyInt(node, "DynamicWeight"),
+                                FaultDomain = GetPsObjectProperty(node, "FaultDomain"),
+                                DrainStatus = GetPsObjectProperty(node, "DrainStatus")
                             });
                         }
                         FileLogger.Message($"Retrieved information for {clusterDetails.Nodes.Count} cluster node(s)",
@@ -487,11 +487,11 @@ namespace HyperView.Class
                         {
                             clusterDetails.Networks.Add(new ClusterNetworkInfo
                             {
-                                Name = GetPSObjectProperty(network, "Name"),
-                                Address = GetPSObjectProperty(network, "Address"),
-                                AddressMask = GetPSObjectProperty(network, "AddressMask"),
-                                Role = GetPSObjectProperty(network, "Role"),
-                                State = GetPSObjectProperty(network, "State")
+                                Name = GetPsObjectProperty(network, "Name"),
+                                Address = GetPsObjectProperty(network, "Address"),
+                                AddressMask = GetPsObjectProperty(network, "AddressMask"),
+                                Role = GetPsObjectProperty(network, "Role"),
+                                State = GetPsObjectProperty(network, "State")
                             });
                         }
                         FileLogger.Message($"Retrieved information for {clusterDetails.Networks.Count} cluster network(s)",
@@ -527,15 +527,15 @@ namespace HyperView.Class
                         foreach (var storage in storageResult)
                         {
                             // Skip if it's not a valid result (could be null or empty from the if statement)
-                            var name = GetPSObjectProperty(storage, "Name");
+                            var name = GetPsObjectProperty(storage, "Name");
                             if (!string.IsNullOrEmpty(name))
                             {
                                 clusterDetails.SharedStorage.Add(new ClusterStorageInfo
                                 {
                                     Name = name,
-                                    OwnerNode = GetPSObjectProperty(storage, "OwnerNode"),
-                                    State = GetPSObjectProperty(storage, "State"),
-                                    SharedVolumeInfo = GetPSObjectProperty(storage, "SharedVolumeInfo")
+                                    OwnerNode = GetPsObjectProperty(storage, "OwnerNode"),
+                                    State = GetPsObjectProperty(storage, "State"),
+                                    SharedVolumeInfo = GetPsObjectProperty(storage, "SharedVolumeInfo")
                                 });
                             }
                         }
@@ -575,11 +575,11 @@ namespace HyperView.Class
                         {
                             clusterDetails.VirtualMachines.Add(new ClusterGroupInfo
                             {
-                                Name = GetPSObjectProperty(vm, "Name"),
-                                OwnerNode = GetPSObjectProperty(vm, "OwnerNode"),
-                                State = GetPSObjectProperty(vm, "State"),
-                                Priority = GetPSObjectPropertyInt(vm, "Priority"),
-                                PreferredOwners = GetPSObjectProperty(vm, "PreferredOwners")
+                                Name = GetPsObjectProperty(vm, "Name"),
+                                OwnerNode = GetPsObjectProperty(vm, "OwnerNode"),
+                                State = GetPsObjectProperty(vm, "State"),
+                                Priority = GetPsObjectPropertyInt(vm, "Priority"),
+                                PreferredOwners = GetPsObjectProperty(vm, "PreferredOwners")
                             });
                         }
                         FileLogger.Message($"Retrieved information for {clusterDetails.VirtualMachines.Count} clustered VM(s)",
@@ -608,7 +608,7 @@ namespace HyperView.Class
         /// <summary>
         /// Helper method to safely get a string property from a PSObject (handles remote deserialization)
         /// </summary>
-        private static string GetPSObjectProperty(PSObject psObject, string propertyName)
+        private static string GetPsObjectProperty(PSObject psObject, string propertyName)
         {
             try
             {
@@ -631,7 +631,7 @@ namespace HyperView.Class
         /// <summary>
         /// Helper method to safely get an int property from a PSObject (handles remote deserialization)
         /// </summary>
-        private static int GetPSObjectPropertyInt(PSObject psObject, string propertyName)
+        private static int GetPsObjectPropertyInt(PSObject psObject, string propertyName)
         {
             try
             {

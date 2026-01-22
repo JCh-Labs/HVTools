@@ -14,7 +14,7 @@ namespace HyperView.Class
         public string NodeState { get; set; } = "Standalone";
         public string Domain { get; set; } = "";
         public string OperatingSystem { get; set; } = "";
-        public string OSVersion { get; set; } = "";
+        public string OsVersion { get; set; } = "";
         public string BuildNumber { get; set; } = "";
         public string BootTime { get; set; } = "";
         public string Uptime { get; set; } = "";
@@ -32,24 +32,24 @@ namespace HyperView.Class
         public string Processor { get; set; } = "";
         public int Sockets { get; set; } = 1;
         public int Cores { get; set; } = 1;
-        public int LogicalCPUs { get; set; } = 1;
+        public int LogicalCpUs { get; set; } = 1;
         public string HyperThreading { get; set; } = "No";
-        public string SLATSupport { get; set; } = "No";
-        public double TotalMemoryGB { get; set; }
-        public double UsedMemoryGB { get; set; }
-        public double FreeMemoryGB { get; set; }
+        public string SlatSupport { get; set; } = "No";
+        public double TotalMemoryGb { get; set; }
+        public double UsedMemoryGb { get; set; }
+        public double FreeMemoryGb { get; set; }
         public double MemoryUsagePercent { get; set; }
         public int TotalVMs { get; set; }
         public int RunningVMs { get; set; }
         public int StoppedVMs { get; set; }
         public int VirtualSwitches { get; set; }
         public int ExternalSwitches { get; set; }
-        public string IPAddresses { get; set; } = "";
+        public string IpAddresses { get; set; } = "";
         public string LiveMigration { get; set; } = "Disabled";
         public string EnhancedSession { get; set; } = "No";
-        public string NUMASpanning { get; set; } = "No";
-        public string VHDPath { get; set; } = "";
-        public string VMConfigPath { get; set; } = "";
+        public string NumaSpanning { get; set; } = "No";
+        public string VhdPath { get; set; } = "";
+        public string VmConfigPath { get; set; } = "";
     }
 
     /// <summary>
@@ -391,7 +391,7 @@ namespace HyperView.Class
                     NodeState = GetJsonString(root, "NodeState"),
                     Domain = GetJsonString(root, "Domain"),
                     OperatingSystem = GetJsonString(root, "OperatingSystem"),
-                    OSVersion = GetJsonString(root, "OSVersion"),
+                    OsVersion = GetJsonString(root, "OSVersion"),
                     BuildNumber = GetJsonString(root, "BuildNumber"),
                     BootTime = GetJsonString(root, "BootTime"),
                     Uptime = GetJsonString(root, "Uptime"),
@@ -409,24 +409,24 @@ namespace HyperView.Class
                     Processor = GetJsonString(root, "Processor"),
                     Sockets = GetJsonInt(root, "Sockets"),
                     Cores = GetJsonInt(root, "Cores"),
-                    LogicalCPUs = GetJsonInt(root, "LogicalCPUs"),
+                    LogicalCpUs = GetJsonInt(root, "LogicalCPUs"),
                     HyperThreading = GetJsonString(root, "HyperThreading"),
-                    SLATSupport = GetJsonString(root, "SLATSupport"),
-                    TotalMemoryGB = GetJsonDouble(root, "TotalMemoryGB"),
-                    UsedMemoryGB = GetJsonDouble(root, "UsedMemoryGB"),
-                    FreeMemoryGB = GetJsonDouble(root, "FreeMemoryGB"),
+                    SlatSupport = GetJsonString(root, "SLATSupport"),
+                    TotalMemoryGb = GetJsonDouble(root, "TotalMemoryGB"),
+                    UsedMemoryGb = GetJsonDouble(root, "UsedMemoryGB"),
+                    FreeMemoryGb = GetJsonDouble(root, "FreeMemoryGB"),
                     MemoryUsagePercent = GetJsonDouble(root, "MemoryUsagePercent"),
                     TotalVMs = GetJsonInt(root, "TotalVMs"),
                     RunningVMs = GetJsonInt(root, "RunningVMs"),
                     StoppedVMs = GetJsonInt(root, "StoppedVMs"),
                     VirtualSwitches = GetJsonInt(root, "VirtualSwitches"),
                     ExternalSwitches = GetJsonInt(root, "ExternalSwitches"),
-                    IPAddresses = GetJsonString(root, "IPAddresses"),
+                    IpAddresses = GetJsonString(root, "IPAddresses"),
                     LiveMigration = GetJsonString(root, "LiveMigration"),
                     EnhancedSession = GetJsonString(root, "EnhancedSession"),
-                    NUMASpanning = GetJsonString(root, "NUMASpanning"),
-                    VHDPath = GetJsonString(root, "VHDPath"),
-                    VMConfigPath = GetJsonString(root, "VMConfigPath")
+                    NumaSpanning = GetJsonString(root, "NUMASpanning"),
+                    VhdPath = GetJsonString(root, "VHDPath"),
+                    VmConfigPath = GetJsonString(root, "VMConfigPath")
                 };
                 
                 FileLogger.Message($"Successfully parsed JSON host details for '{hostInfo.HostName}'",
@@ -1042,7 +1042,7 @@ try {
                     NodeState = GetStringProperty(psObject, "NodeState"),
                     Domain = GetStringProperty(psObject, "Domain"),
                     OperatingSystem = GetStringProperty(psObject, "OperatingSystem"),
-                    OSVersion = GetStringProperty(psObject, "OSVersion"),
+                    OsVersion = GetStringProperty(psObject, "OSVersion"),
                     BuildNumber = GetStringProperty(psObject, "BuildNumber"),
                     BootTime = GetStringProperty(psObject, "BootTime"),
                     Uptime = GetStringProperty(psObject, "Uptime"),
@@ -1060,24 +1060,24 @@ try {
                     Processor = GetStringProperty(psObject, "Processor"),
                     Sockets = GetIntProperty(psObject, "Sockets"),
                     Cores = GetIntProperty(psObject, "Cores"),
-                    LogicalCPUs = GetIntProperty(psObject, "LogicalCPUs"),
+                    LogicalCpUs = GetIntProperty(psObject, "LogicalCPUs"),
                     HyperThreading = GetStringProperty(psObject, "HyperThreading"),
-                    SLATSupport = GetStringProperty(psObject, "SLATSupport"),
-                    TotalMemoryGB = GetDoubleProperty(psObject, "TotalMemoryGB"),
-                    UsedMemoryGB = GetDoubleProperty(psObject, "UsedMemoryGB"),
-                    FreeMemoryGB = GetDoubleProperty(psObject, "FreeMemoryGB"),
+                    SlatSupport = GetStringProperty(psObject, "SLATSupport"),
+                    TotalMemoryGb = GetDoubleProperty(psObject, "TotalMemoryGB"),
+                    UsedMemoryGb = GetDoubleProperty(psObject, "UsedMemoryGB"),
+                    FreeMemoryGb = GetDoubleProperty(psObject, "FreeMemoryGB"),
                     MemoryUsagePercent = GetDoubleProperty(psObject, "MemoryUsagePercent"),
                     TotalVMs = GetIntProperty(psObject, "TotalVMs"),
                     RunningVMs = GetIntProperty(psObject, "RunningVMs"),
                     StoppedVMs = GetIntProperty(psObject, "StoppedVMs"),
                     VirtualSwitches = GetIntProperty(psObject, "VirtualSwitches"),
                     ExternalSwitches = GetIntProperty(psObject, "ExternalSwitches"),
-                    IPAddresses = GetStringProperty(psObject, "IPAddresses"),
+                    IpAddresses = GetStringProperty(psObject, "IPAddresses"),
                     LiveMigration = GetStringProperty(psObject, "LiveMigration"),
                     EnhancedSession = GetStringProperty(psObject, "EnhancedSession"),
-                    NUMASpanning = GetStringProperty(psObject, "NUMASpanning"),
-                    VHDPath = GetStringProperty(psObject, "VHDPath"),
-                    VMConfigPath = GetStringProperty(psObject, "VMConfigPath")
+                    NumaSpanning = GetStringProperty(psObject, "NUMASpanning"),
+                    VhdPath = GetStringProperty(psObject, "VHDPath"),
+                    VmConfigPath = GetStringProperty(psObject, "VMConfigPath")
                 };
             }
             catch (Exception ex)

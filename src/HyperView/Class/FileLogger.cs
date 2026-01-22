@@ -88,9 +88,9 @@ namespace HyperView.Class
                 banner.AppendLine($"  User:                {Environment.UserName}");
                 banner.AppendLine($"  Domain User:         {Environment.UserDomainName}\\{Environment.UserName}");
                 banner.AppendLine($"  Computer Name:       {Environment.MachineName}");
-                banner.AppendLine($"  OS Version:          {OSVersionInfo.Name}");
-                banner.AppendLine($"  OS Edition:          {OSVersionInfo.Edition}");
-                banner.AppendLine($"  OS Build:            {OSVersionInfo.BuildVersion}");
+                banner.AppendLine($"  OS Version:          {OsVersionInfo.Name}");
+                banner.AppendLine($"  OS Edition:          {OsVersionInfo.Edition}");
+                banner.AppendLine($"  OS Build:            {OsVersionInfo.BuildVersion}");
                 banner.AppendLine($"  64-bit OS:           {Environment.Is64BitOperatingSystem}");
                 banner.AppendLine($"  64-bit Process:      {Environment.Is64BitProcess}");
                 banner.AppendLine($"  Running as Admin:    {ApplicationFunctions.IsRunningAsAdmin()}");

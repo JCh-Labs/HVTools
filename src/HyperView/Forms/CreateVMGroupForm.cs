@@ -2,9 +2,9 @@
 
 namespace HyperView.Forms
 {
-    public partial class CreateVMGroupForm : Form
+    public partial class CreateVmGroupForm : Form
     {
-        private class VMGroupTemplate
+        private class VmGroupTemplate
         {
             public string Name { get; set; }
             public string Type { get; set; }
@@ -12,19 +12,19 @@ namespace HyperView.Forms
             public string Category { get; set; }
         }
 
-        public class VMGroupResult
+        public class VmGroupResult
         {
             public string GroupName { get; set; }
             public string GroupType { get; set; }
         }
 
-        public VMGroupResult Result { get; private set; }
+        public VmGroupResult Result { get; private set; }
 
         private int _originalFormHeight;
         private int _expandedFormHeight;
-        private VMGroupTemplate _selectedTemplate;
+        private VmGroupTemplate _selectedTemplate;
 
-        public CreateVMGroupForm()
+        public CreateVmGroupForm()
         {
             InitializeComponent();
             InitializeForm();
@@ -33,8 +33,8 @@ namespace HyperView.Forms
         private void InitializeForm()
         {
             // Set initial form height
-            this.Height = 113;
-            _originalFormHeight = this.Height;
+            Height = 113;
+            _originalFormHeight = Height;
 
             // Initialize combo box with group types
             if (comboboxGroupType != null)
@@ -59,88 +59,88 @@ namespace HyperView.Forms
             }
         }
 
-        private List<VMGroupTemplate> GetRecommendedVMGroups()
+        private List<VmGroupTemplate> GetRecommendedVmGroups()
         {
-            var groups = new List<VMGroupTemplate>
+            var groups = new List<VmGroupTemplate>
             {
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Production Web Servers",
                     Type = "VMCollectionType",
                     Description = "High-priority web servers requiring maximum uptime and load balancing",
                     Category = "Production"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Development Environment",
                     Type = "VMCollectionType",
                     Description = "Development and testing virtual machines for software development",
                     Category = "Development"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Database Servers",
                     Type = "VMCollectionType",
                     Description = "Critical database servers with high resource requirements and backup needs",
                     Category = "Production"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Domain Controllers",
                     Type = "VMCollectionType",
                     Description = "Active Directory domain controllers for authentication and directory services",
                     Category = "Infrastructure"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "File and Print Servers",
                     Type = "VMCollectionType",
                     Description = "File servers and print servers for document management and printing",
                     Category = "Infrastructure"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Application Servers",
                     Type = "VMCollectionType",
                     Description = "Business application servers hosting enterprise applications",
                     Category = "Production"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Test Lab VMs",
                     Type = "VMCollectionType",
                     Description = "Testing and lab virtual machines for experimentation and validation",
                     Category = "Testing"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Backup and Recovery",
                     Type = "VMCollectionType",
                     Description = "Backup servers and disaster recovery systems",
                     Category = "Infrastructure"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Monitoring Systems",
                     Type = "VMCollectionType",
                     Description = "System monitoring, logging, and management tools",
                     Category = "Management"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "DMZ Servers",
                     Type = "VMCollectionType",
                     Description = "Demilitarized zone servers for external-facing services",
                     Category = "Security"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Email Servers",
                     Type = "VMCollectionType",
                     Description = "Exchange servers and email infrastructure components",
                     Category = "Infrastructure"
                 },
-                new VMGroupTemplate
+                new VmGroupTemplate
                 {
                     Name = "Terminal Services",
                     Type = "VMCollectionType",
@@ -155,7 +155,7 @@ namespace HyperView.Forms
             return groups;
         }
 
-        private void InitializeRecommendedVMGroupsTreeView()
+        private void InitializeRecommendedVmGroupsTreeView()
         {
             try
             {
@@ -165,7 +165,7 @@ namespace HyperView.Forms
                 FileLogger.Message("Starting TreeView initialization for recommended VM Groups...",
                     FileLogger.EventType.Information, 3001);
 
-                var recommendedGroups = GetRecommendedVMGroups();
+                var recommendedGroups = GetRecommendedVmGroups();
                 FileLogger.Message($"Retrieved {recommendedGroups.Count} recommended groups",
                     FileLogger.EventType.Information, 3002);
 
@@ -173,14 +173,14 @@ namespace HyperView.Forms
                 treeviewTemplates.Nodes.Clear();
 
                 // Group by Category
-                var categories = new Dictionary<string, List<VMGroupTemplate>>();
+                var categories = new Dictionary<string, List<VmGroupTemplate>>();
                 foreach (var group in recommendedGroups)
                 {
                     string categoryName = string.IsNullOrEmpty(group.Category) ? "Uncategorized" : group.Category;
 
                     if (!categories.ContainsKey(categoryName))
                     {
-                        categories[categoryName] = new List<VMGroupTemplate>();
+                        categories[categoryName] = new List<VmGroupTemplate>();
                     }
                     categories[categoryName].Add(group);
                 }
@@ -279,7 +279,7 @@ namespace HyperView.Forms
             }
 
             // Store result
-            Result = new VMGroupResult
+            Result = new VmGroupResult
             {
                 GroupName = textboxGroupName.Text.Trim(),
                 GroupType = comboboxGroupType?.SelectedItem?.ToString() ?? "VMCollectionType"
@@ -288,8 +288,8 @@ namespace HyperView.Forms
             FileLogger.Message($"VM Group created: Name='{Result.GroupName}', Type='{Result.GroupType}'",
                 FileLogger.EventType.Information, 3010);
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)
@@ -297,8 +297,8 @@ namespace HyperView.Forms
             FileLogger.Message("VM Group creation cancelled",
                 FileLogger.EventType.Information, 3011);
 
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private void ButtonRecommended_Click(object sender, EventArgs e)
@@ -314,19 +314,19 @@ namespace HyperView.Forms
             {
                 buttonRecommended.Text = "Hide Templates";
                 // Expand the form to show templates section
-                this.Height = _expandedFormHeight;
+                Height = _expandedFormHeight;
 
                 FileLogger.Message("Showing recommended VM group templates",
                     FileLogger.EventType.Information, 3012);
 
                 // Initialize TreeView ONLY when showing
-                InitializeRecommendedVMGroupsTreeView();
+                InitializeRecommendedVmGroupsTreeView();
             }
             else
             {
                 buttonRecommended.Text = "Templates...";
                 // Collapse the form to original size
-                this.Height = _originalFormHeight;
+                Height = _originalFormHeight;
 
                 FileLogger.Message("Hiding recommended VM group templates",
                     FileLogger.EventType.Information, 3013);
@@ -337,7 +337,7 @@ namespace HyperView.Forms
         {
             var selectedNode = treeviewTemplates.SelectedNode;
             
-            if (selectedNode != null && selectedNode.Tag is VMGroupTemplate group)
+            if (selectedNode != null && selectedNode.Tag is VmGroupTemplate group)
             {
                 if (labelSelected != null)
                     labelSelected.Text = $"Selected: {group.Name}";
@@ -399,7 +399,7 @@ namespace HyperView.Forms
                 buttonRecommended.Text = "Templates...";
 
             // Collapse the form to original size
-            this.Height = _originalFormHeight;
+            Height = _originalFormHeight;
 
             // Hide the templates section
             if (groupboxRecommended != null)

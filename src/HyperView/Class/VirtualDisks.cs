@@ -7,18 +7,18 @@ namespace HyperView.Class
     /// </summary>
     public class VirtualDiskInfo
     {
-        public string VMName { get; set; } = "";
-        public string VMState { get; set; } = "";
-        public string VMId { get; set; } = "";
-        public string VMGeneration { get; set; } = "";
-        public string VMNotes { get; set; } = "";
+        public string VmName { get; set; } = "";
+        public string VmState { get; set; } = "";
+        public string VmId { get; set; } = "";
+        public string VmGeneration { get; set; } = "";
+        public string VmNotes { get; set; } = "";
         public string DiskName { get; set; } = "";
         public string DiskPath { get; set; } = "";
         public string DiskType { get; set; } = ""; // Dynamic, Fixed, Differencing
         public string DiskFormat { get; set; } = ""; // VHD, VHDX
-        public double MaxSizeGB { get; set; }
-        public double FileSizeGB { get; set; }
-        public double UsedSpaceGB { get; set; }
+        public double MaxSizeGb { get; set; }
+        public double FileSizeGb { get; set; }
+        public double UsedSpaceGb { get; set; }
         public string FragmentationPercent { get; set; } = "";
         public int PhysicalSectorSizeBytes { get; set; }
         public int LogicalSectorSizeBytes { get; set; }
@@ -32,18 +32,18 @@ namespace HyperView.Class
         public bool IsClustered { get; set; }
         public string SupportPersistentReservations { get; set; } = "";
         public string QoSPolicyId { get; set; } = "";
-        public string QoSMinimumIOPS { get; set; } = "";
-        public string QoSMaximumIOPS { get; set; } = "";
+        public string QoSMinimumIops { get; set; } = "";
+        public string QoSMaximumIops { get; set; } = "";
         public string ParentPath { get; set; } = "";
         public string DiskIdentifier { get; set; } = "";
         public string ClusterName { get; set; } = "";
         public string CurrentHost { get; set; } = "";
         public string HostCluster { get; set; } = "";
-        public string VMPath { get; set; } = "";
+        public string VmPath { get; set; } = "";
         public string ConfigurationLocation { get; set; } = "";
         public string SnapshotFileLocation { get; set; } = "";
         public string SmartPagingFilePath { get; set; } = "";
-        public string GuestOSType { get; set; } = "";
+        public string GuestOsType { get; set; } = "";
     }
 
     /// <summary>
@@ -434,18 +434,18 @@ namespace HyperView.Class
                     {
                         var disk = new VirtualDiskInfo
                         {
-                            VMName = GetStringProperty(psObject, "VMName"),
-                            VMState = GetStringProperty(psObject, "VMState"),
-                            VMId = GetStringProperty(psObject, "VMId"),
-                            VMGeneration = GetStringProperty(psObject, "VMGeneration"),
-                            VMNotes = GetStringProperty(psObject, "VMNotes"),
+                            VmName = GetStringProperty(psObject, "VMName"),
+                            VmState = GetStringProperty(psObject, "VMState"),
+                            VmId = GetStringProperty(psObject, "VMId"),
+                            VmGeneration = GetStringProperty(psObject, "VMGeneration"),
+                            VmNotes = GetStringProperty(psObject, "VMNotes"),
                             DiskName = GetStringProperty(psObject, "DiskName"),
                             DiskPath = GetStringProperty(psObject, "DiskPath"),
                             DiskType = GetStringProperty(psObject, "DiskType"),
                             DiskFormat = GetStringProperty(psObject, "DiskFormat"),
-                            MaxSizeGB = GetDoubleProperty(psObject, "MaxSizeGB"),
-                            FileSizeGB = GetDoubleProperty(psObject, "FileSizeGB"),
-                            UsedSpaceGB = GetDoubleProperty(psObject, "UsedSpaceGB"),
+                            MaxSizeGb = GetDoubleProperty(psObject, "MaxSizeGB"),
+                            FileSizeGb = GetDoubleProperty(psObject, "FileSizeGB"),
+                            UsedSpaceGb = GetDoubleProperty(psObject, "UsedSpaceGB"),
                             FragmentationPercent = GetStringProperty(psObject, "FragmentationPercent"),
                             PhysicalSectorSizeBytes = GetIntProperty(psObject, "PhysicalSectorSizeBytes"),
                             LogicalSectorSizeBytes = GetIntProperty(psObject, "LogicalSectorSizeBytes"),
@@ -459,18 +459,18 @@ namespace HyperView.Class
                             IsClustered = GetBoolProperty(psObject, "IsClustered"),
                             SupportPersistentReservations = GetStringProperty(psObject, "SupportPersistentReservations"),
                             QoSPolicyId = GetStringProperty(psObject, "QoSPolicyId"),
-                            QoSMinimumIOPS = GetStringProperty(psObject, "QoSMinimumIOPS"),
-                            QoSMaximumIOPS = GetStringProperty(psObject, "QoSMaximumIOPS"),
+                            QoSMinimumIops = GetStringProperty(psObject, "QoSMinimumIOPS"),
+                            QoSMaximumIops = GetStringProperty(psObject, "QoSMaximumIOPS"),
                             ParentPath = GetStringProperty(psObject, "ParentPath"),
                             DiskIdentifier = GetStringProperty(psObject, "DiskIdentifier"),
                             ClusterName = GetStringProperty(psObject, "ClusterName"),
                             CurrentHost = GetStringProperty(psObject, "CurrentHost"),
                             HostCluster = GetStringProperty(psObject, "HostCluster"),
-                            VMPath = GetStringProperty(psObject, "VMPath"),
+                            VmPath = GetStringProperty(psObject, "VMPath"),
                             ConfigurationLocation = GetStringProperty(psObject, "ConfigurationLocation"),
                             SnapshotFileLocation = GetStringProperty(psObject, "SnapshotFileLocation"),
                             SmartPagingFilePath = GetStringProperty(psObject, "SmartPagingFilePath"),
-                            GuestOSType = GetStringProperty(psObject, "GuestOSType")
+                            GuestOsType = GetStringProperty(psObject, "GuestOSType")
                         };
 
                         disks.Add(disk);

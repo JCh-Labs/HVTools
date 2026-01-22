@@ -17,16 +17,16 @@ namespace HyperView.Forms
             string filePath = Assembly.GetExecutingAssembly().Location;
 
             // Initialize WINTRUST_FILE_INFO
-            WINTRUST_FILE_INFO fileInfo = new WINTRUST_FILE_INFO
+            WintrustFileInfo fileInfo = new WintrustFileInfo
             {
-                cbStruct = (uint)Marshal.SizeOf(typeof(WINTRUST_FILE_INFO)),
+                cbStruct = (uint)Marshal.SizeOf(typeof(WintrustFileInfo)),
                 pcwszFilePath = Marshal.StringToCoTaskMemUni(filePath)
             };
 
             // Initialize WINTRUST_DATA
-            WINTRUST_DATA winTrustData = new WINTRUST_DATA
+            WintrustData winTrustData = new WintrustData
             {
-                cbStruct = (uint)Marshal.SizeOf(typeof(WINTRUST_DATA)),
+                cbStruct = (uint)Marshal.SizeOf(typeof(WintrustData)),
                 dwUIChoice = 2, // WTD_UI_NONE
                 fdwRevocationChecks = 0, // WTD_REVOKE_NONE
                 dwUnionChoice = 1, // WTD_CHOICE_FILE
@@ -153,7 +153,7 @@ namespace HyperView.Forms
                         return titleAttribute.Title;
                     }
                 }
-                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
             }
         }
 
@@ -222,7 +222,7 @@ namespace HyperView.Forms
         {
             try
             {
-                Process.Start(Globals.ToolStings.URLMyBlog);
+                Process.Start(Globals.ToolStings.UrlMyBlog);
             }
             catch (Exception ex)
             {
@@ -234,7 +234,7 @@ namespace HyperView.Forms
         {
             try
             {
-                Process.Start(Globals.ToolStings.URLGitHub);
+                Process.Start(Globals.ToolStings.UrlGitHub);
             }
             catch (Exception ex)
             {
@@ -246,7 +246,7 @@ namespace HyperView.Forms
         {
             try
             {
-                Process.Start(Globals.ToolStings.URLBuyMeaCoffie);
+                Process.Start(Globals.ToolStings.UrlBuyMeaCoffie);
             }
             catch (Exception ex)
             {
@@ -258,7 +258,7 @@ namespace HyperView.Forms
         {
             try
             {
-                Process.Start(Globals.ToolStings.URLLinkedIn);
+                Process.Start(Globals.ToolStings.UrlLinkedIn);
             }
             catch (Exception ex)
             {

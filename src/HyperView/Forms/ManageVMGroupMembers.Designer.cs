@@ -1,6 +1,6 @@
 ﻿namespace HyperView.Forms
 {
-    partial class ManageVMGroupMembers
+    partial class ManageVmGroupMembers
     {
         /// <summary>
         /// Required designer variable.
@@ -129,7 +129,7 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "ManageVMGroupMembers";
+            Name = "ManageVmGroupMembers";
             StartPosition = FormStartPosition.CenterParent;
             Text = "ManageVMGroupMembers";
             Load += ManageVMGroupMembers_Load;

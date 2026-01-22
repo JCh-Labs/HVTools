@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace HyperView.Class
 {
-    internal class OSVersionInfo
+    internal class OsVersionInfo
     {
         #region Bit
 
@@ -587,7 +587,7 @@ namespace HyperView.Class
                                     case ProductEnterpriseS:
                                         edition = "Enterprise LTSC";
                                         break;
-                                    case ProductEnterpriseSN:
+                                    case ProductEnterpriseSn:
                                         edition = "Enterprise LTSC N";
                                         break;
                                     case ProductProfessional:
@@ -946,7 +946,7 @@ namespace HyperView.Class
         private const int ProductEducation = 0x00000079;
         private const int ProductEducationN = 0x0000007A;
         private const int ProductEnterpriseS = 0x0000007D;
-        private const int ProductEnterpriseSN = 0x0000007E;
+        private const int ProductEnterpriseSn = 0x0000007E;
         private const int ProductProfessionalEducation = 0x000000A4;
         private const int ProductProfessionalEducationN = 0x000000A5;
         private const int ProductProfessionalWorkstation = 0x000000A1;

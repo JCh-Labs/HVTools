@@ -1,6 +1,6 @@
 ﻿namespace HyperView.Forms
 {
-    partial class CreateVMGroupForm
+    partial class CreateVmGroupForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CreateVMGroupForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CreateVmGroupForm));
             buttonOK = new Button();
             buttonCancel = new Button();
             buttonRecommended = new Button();
@@ -184,7 +184,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "CreateVMGroupForm";
+            Name = "CreateVmGroupForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "CreateVMGroupForm";
             Load += CreateVMGroupForm_Load;

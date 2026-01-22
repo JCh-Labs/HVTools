@@ -1,6 +1,6 @@
 ﻿namespace HyperView.Forms
 {
-    partial class RenameVMGroupForm
+    partial class RenameVmGroupForm
     {
         /// <summary>
         /// Required designer variable.
@@ -103,7 +103,7 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "RenameVMGroupForm";
+            Name = "RenameVmGroupForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "RenameVMGroupForm";
             Load += RenameVMGroupForm_Load;

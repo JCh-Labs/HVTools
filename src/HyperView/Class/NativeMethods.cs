@@ -4,7 +4,7 @@ namespace HyperView.Class
 {
     // Struct layout attribute to define the structure layout for P/Invoke, with sequential layout and Unicode character set
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct WINTRUST_FILE_INFO
+    public struct WintrustFileInfo
     {
         public uint cbStruct;         // Size of the structure in bytes
         public IntPtr pcwszFilePath;  // Pointer to the file path
@@ -14,7 +14,7 @@ namespace HyperView.Class
 
     // Struct layout attribute to define the structure layout for P/Invoke, with sequential layout and Unicode character set
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct WINTRUST_DATA
+    public struct WintrustData
     {
         public uint cbStruct;              // Size of the structure in bytes
         public IntPtr pPolicyCallbackData; // Pointer to policy callback data (optional)
@@ -38,7 +38,7 @@ namespace HyperView.Class
         public static extern int WinVerifyTrust(
             IntPtr hwnd,                              // Handle to a window for displaying UI (optional)
             [MarshalAs(UnmanagedType.LPStruct)]
-        Guid pgActionID,                              // GUID specifying the action to be performed
+        Guid pgActionId,                              // GUID specifying the action to be performed
             IntPtr pWinTrustData                      // Pointer to WINTRUST_DATA structure
         );
     }

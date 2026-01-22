@@ -1,12 +1,11 @@
-﻿using HyperView.Class;
-using HyperView.Forms;
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using HyperView.Class;
 using static HyperView.Class.FileLogger;
 
-namespace HyperView
+namespace HyperView.Forms
 {
     public partial class MainForm : Form
     {
@@ -76,9 +75,9 @@ namespace HyperView
                 {
                     try
                     {
-                        this.Invoke((MethodInvoker)delegate
+                        Invoke((MethodInvoker)delegate
                         {
-                            LoadVMOverview();
+                            LoadVmOverview();
                         });
                     }
                     catch (Exception ex)
@@ -99,9 +98,9 @@ namespace HyperView
                     {
                         try
                         {
-                            this.Invoke((MethodInvoker)delegate
+                            Invoke((MethodInvoker)delegate
                             {
-                                UpdateVMGroupsDataGridView();
+                                UpdateVmGroupsDataGridView();
                             });
                         }
                         catch (Exception ex)
@@ -185,8 +184,8 @@ namespace HyperView
                 {
                     MessageBox.Show(@"No active session found. Please login again.", @"Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    this.DialogResult = DialogResult.Cancel;
-                    this.Close();
+                    DialogResult = DialogResult.Cancel;
+                    Close();
                     return;
                 }
 
@@ -218,8 +217,8 @@ namespace HyperView
                             var error = ps.Streams.Error[0];
                             MessageBox.Show($@"Failed to create PowerShell session: {error.Exception.Message}",
                                 @"Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            this.DialogResult = DialogResult.Cancel;
-                            this.Close();
+                            DialogResult = DialogResult.Cancel;
+                            Close();
                             return;
                         }
 
@@ -233,7 +232,7 @@ namespace HyperView
                 }
 
                 // Update form title with connection info
-                this.Text = $"{Globals.ToolName.ShortName} - Connected to {SessionContext.ServerName} ({SessionContext.ConnectionType})";
+                Text = $@"{Globals.ToolName.ShortName} - Connected to {SessionContext.ServerName} ({SessionContext.ConnectionType})";
             }
             catch (Exception ex)
             {
@@ -241,8 +240,8 @@ namespace HyperView
                     EventType.Error, 2003);
                 MessageBox.Show($@"Failed to initialize session: {ex.Message}", @"Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.DialogResult = DialogResult.Cancel;
-                this.Close();
+                DialogResult = DialogResult.Cancel;
+                Close();
             }
         }
 
@@ -374,7 +373,10 @@ namespace HyperView
                         progressForm.Close();
                         progressForm.Dispose();
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
 
                 MessageBox.Show($@"Error during {operationName}:
@@ -469,7 +471,10 @@ namespace HyperView
                         progressForm.Close();
                         progressForm.Dispose();
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
 
                 MessageBox.Show($@"Error during {operationName}:
@@ -481,7 +486,7 @@ namespace HyperView
             }
         }
 
-        private void LoadVMOverview()
+        private void LoadVmOverview()
         {
             try
             {
@@ -603,8 +608,8 @@ namespace HyperView
                     if (hasDetailedProperties && isClusterCollection)
                     {
                         // Use pre-collected data from cluster node collection
-                        var totalDiskGB = vm.Properties["TotalDiskSizeGB"]?.Value;
-                        row["Total Disk (GB)"] = totalDiskGB != null ? Convert.ToDouble(totalDiskGB).ToString("F2") : "";
+                        var totalDiskGb = vm.Properties["TotalDiskSizeGB"]?.Value;
+                        row["Total Disk (GB)"] = totalDiskGb != null ? Convert.ToDouble(totalDiskGb).ToString("F2") : "";
 
                         var networkAdapterCount = vm.Properties["NetworkAdapterCount"]?.Value;
                         row["Network Adapters"] = networkAdapterCount?.ToString() ?? "0";
@@ -621,16 +626,16 @@ namespace HyperView
                         // Standard approach - make additional calls (for standalone/local)
                         if (!string.IsNullOrEmpty(vmName))
                         {
-                            var totalDiskGB = GetVMTotalDiskSize(vmName);
-                            row["Total Disk (GB)"] = totalDiskGB > 0 ? totalDiskGB.ToString("F2") : "";
+                            var totalDiskGb = GetVmTotalDiskSize(vmName);
+                            row["Total Disk (GB)"] = totalDiskGb > 0 ? totalDiskGb.ToString("F2") : "";
 
-                            var networkAdapterCount = GetVMNetworkAdapterCount(vmName);
+                            var networkAdapterCount = GetVmNetworkAdapterCount(vmName);
                             row["Network Adapters"] = networkAdapterCount.ToString();
 
-                            var integrationServicesInfo = GetVMIntegrationServices(vmName);
+                            var integrationServicesInfo = GetVmIntegrationServices(vmName);
                             row["Integration Services"] = integrationServicesInfo;
 
-                            var checkpointCount = GetVMCheckpointCount(vmName);
+                            var checkpointCount = GetVmCheckpointCount(vmName);
                             row["Checkpoints"] = checkpointCount.ToString();
                         }
                         else
@@ -678,7 +683,7 @@ namespace HyperView
                     // Get VM groups - always need to query this as it's not node-specific
                     if (!string.IsNullOrEmpty(vmName))
                     {
-                        var groups = GetVMGroups(vmName);
+                        var groups = GetVmGroups(vmName);
                         row["VM Groups"] = groups;
                     }
                     else
@@ -752,7 +757,7 @@ namespace HyperView
                     {
                         Name = "Export",
                         DataPropertyName = "Export",
-                        HeaderText = "☑",
+                        HeaderText = @"☑",
                         Width = 40,
                         TrueValue = true,
                         FalseValue = false,
@@ -1119,7 +1124,7 @@ namespace HyperView
                 return $"{timeSpan.Minutes}m {timeSpan.Seconds}s";
         }
 
-        private double GetVMTotalDiskSize(string vmName)
+        private double GetVmTotalDiskSize(string vmName)
         {
             try
             {
@@ -1128,7 +1133,7 @@ namespace HyperView
                 if (results == null || results.Count == 0)
                     return 0;
 
-                double totalGB = 0;
+                double totalGb = 0;
                 foreach (var hdd in results)
                 {
                     var path = hdd.Properties["Path"]?.Value?.ToString();
@@ -1141,18 +1146,18 @@ namespace HyperView
                             if (sizeResult != null && sizeResult.Count > 0)
                             {
                                 var size = Convert.ToInt64(sizeResult[0].BaseObject);
-                                totalGB += size / (1024.0 * 1024.0 * 1024.0);
+                                totalGb += size / (1024.0 * 1024.0 * 1024.0);
                             }
                         }
                         else if (File.Exists(path))
                         {
-                            var fileInfo = new System.IO.FileInfo(path);
-                            totalGB += fileInfo.Length / (1024.0 * 1024.0 * 1024.0);
+                            var fileInfo = new FileInfo(path);
+                            totalGb += fileInfo.Length / (1024.0 * 1024.0 * 1024.0);
                         }
                     }
                 }
 
-                return totalGB;
+                return totalGb;
             }
             catch
             {
@@ -1160,7 +1165,7 @@ namespace HyperView
             }
         }
 
-        private int GetVMNetworkAdapterCount(string vmName)
+        private int GetVmNetworkAdapterCount(string vmName)
         {
             try
             {
@@ -1173,7 +1178,7 @@ namespace HyperView
             }
         }
 
-        private string GetVMGroups(string vmName)
+        private string GetVmGroups(string vmName)
         {
             try
             {
@@ -1192,7 +1197,7 @@ namespace HyperView
             }
         }
 
-        private int GetVMCheckpointCount(string vmName)
+        private int GetVmCheckpointCount(string vmName)
         {
             try
             {
@@ -1205,7 +1210,7 @@ namespace HyperView
             }
         }
 
-        private string GetVMIntegrationServices(string vmName)
+        private string GetVmIntegrationServices(string vmName)
         {
             try
             {
@@ -1499,13 +1504,13 @@ namespace HyperView
                         EventType.Information, 2023);
 
                     // Hide main form temporarily
-                    this.Hide();
+                    Hide();
 
                     Message("Showing login form for reconnection...",
                         EventType.Information, 2024);
 
                     // Show login form for reconnection
-                    using (Forms.LoginForm loginForm = new Forms.LoginForm())
+                    using (LoginForm loginForm = new LoginForm())
                     {
                         var loginResult = loginForm.ShowDialog();
 
@@ -1516,8 +1521,8 @@ namespace HyperView
                                 EventType.Information, 2025);
 
                             // Close current MainForm (will trigger cleanup)
-                            this.DialogResult = DialogResult.OK;
-                            this.Close();
+                            DialogResult = DialogResult.OK;
+                            Close();
 
                             // The LoginForm will handle showing the new MainForm
                         }
@@ -1527,8 +1532,8 @@ namespace HyperView
                             Message("Authentication cancelled after disconnect - closing application",
                                 EventType.Information, 2026);
 
-                            this.DialogResult = DialogResult.Cancel;
-                            this.Close();
+                            DialogResult = DialogResult.Cancel;
+                            Close();
                         }
                     }
                 }
@@ -1556,7 +1561,7 @@ namespace HyperView
                     MessageBoxIcon.Error);
 
                 // Show the form again if it was hidden
-                this.Show();
+                Show();
             }
         }
 
@@ -1578,7 +1583,7 @@ namespace HyperView
                 }
 
                 // Show the CreateVMGroupForm
-                using (Forms.CreateVMGroupForm createGroupForm = new Forms.CreateVMGroupForm())
+                using (CreateVmGroupForm createGroupForm = new CreateVmGroupForm())
                 {
                     var result = createGroupForm.ShowDialog();
 
@@ -1591,7 +1596,7 @@ namespace HyperView
                             EventType.Information, 2030);
 
                         // Create the VM Group using PowerShell
-                        var createResult = VMGroups.CreateHyperVVMGroup(groupName, groupType, cmd => ExecutePowerShellCommand(cmd));
+                        var createResult = VmGroups.CreateHyperVvmGroup(groupName, groupType, cmd => ExecutePowerShellCommand(cmd));
 
                         if (createResult.Success)
                         {
@@ -1604,10 +1609,10 @@ namespace HyperView
                                 MessageBoxIcon.Information);
 
                             // Refresh VM Groups view
-                            VMGroups.RefreshVMGroupsView(
+                            VmGroups.RefreshVmGroupsView(
                                 $"New group created: {groupName}",
                                 cmd => ExecutePowerShellCommand(cmd),
-                                groups => UpdateVMGroupsDataGridView(groups));
+                                groups => UpdateVmGroupsDataGridView(groups));
                         }
                         else
                         {
@@ -1697,7 +1702,7 @@ namespace HyperView
                 }
 
                 // Try to remove without force first
-                var result = VMGroups.RemoveHyperVVMGroup(selectedGroupName, false, cmd => ExecutePowerShellCommand(cmd));
+                var result = VmGroups.RemoveHyperVvmGroup(selectedGroupName, false, cmd => ExecutePowerShellCommand(cmd));
 
                 if (result.Success)
                 {
@@ -1710,21 +1715,21 @@ namespace HyperView
                         MessageBoxIcon.Information);
 
                     // Refresh the VM Groups view
-                    VMGroups.RefreshVMGroupsView(
+                    VmGroups.RefreshVmGroupsView(
                         $"Group deleted: {selectedGroupName}",
                         cmd => ExecutePowerShellCommand(cmd),
-                        groups => UpdateVMGroupsDataGridView(groups));
+                        groups => UpdateVmGroupsDataGridView(groups));
                 }
                 else
                 {
                     // Check if it's because the group contains VMs and can be forced
                     if (result.CanForce)
                     {
-                        Message($"VM Group '{selectedGroupName}' contains {result.VMCount} VM(s), asking for force deletion",
+                        Message($"VM Group '{selectedGroupName}' contains {result.VmCount} VM(s), asking for force deletion",
                             EventType.Information, 2043);
 
-                        string vmList = string.Join("\n• ", result.VMNames);
-                        string forceMessage = $"VM Group '{selectedGroupName}' contains {result.VMCount} VM(s):\n\n• {vmList}\n\n" +
+                        string vmList = string.Join("\n• ", result.VmNames);
+                        string forceMessage = $"VM Group '{selectedGroupName}' contains {result.VmCount} VM(s):\n\n• {vmList}\n\n" +
                                             "The VMs will remain but will be removed from this group.\n\n" +
                                             "Do you want to force delete the VM Group anyway?";
 
@@ -1739,7 +1744,7 @@ namespace HyperView
                                 EventType.Information, 2044);
 
                             // Try again with force
-                            var forceDeleteResult = VMGroups.RemoveHyperVVMGroup(selectedGroupName, true, cmd => ExecutePowerShellCommand(cmd));
+                            var forceDeleteResult = VmGroups.RemoveHyperVvmGroup(selectedGroupName, true, cmd => ExecutePowerShellCommand(cmd));
 
                             if (forceDeleteResult.Success)
                             {
@@ -1753,10 +1758,10 @@ namespace HyperView
                                     MessageBoxIcon.Information);
 
                                 // Refresh the VM Groups view
-                                VMGroups.RefreshVMGroupsView(
+                                VmGroups.RefreshVmGroupsView(
                                     $"Group force deleted: {selectedGroupName}",
                                     cmd => ExecutePowerShellCommand(cmd),
-                                    groups => UpdateVMGroupsDataGridView(groups));
+                                    groups => UpdateVmGroupsDataGridView(groups));
                             }
                             else
                             {
@@ -1846,7 +1851,7 @@ namespace HyperView
                     EventType.Information, 2095);
 
                 // Show rename form
-                using (Forms.RenameVMGroupForm renameForm = new Forms.RenameVMGroupForm())
+                using (RenameVmGroupForm renameForm = new RenameVmGroupForm())
                 {
                     renameForm.CurrentGroupName = currentGroupName;
 
@@ -1860,7 +1865,7 @@ namespace HyperView
                             EventType.Information, 2096);
 
                         // Rename the VM Group using PowerShell
-                        var renameResult = VMGroups.RenameHyperVVMGroup(
+                        var renameResult = VmGroups.RenameHyperVvmGroup(
                             currentGroupName,
                             newGroupName,
                             cmd => ExecutePowerShellCommand(cmd));
@@ -1876,10 +1881,10 @@ namespace HyperView
                                 MessageBoxIcon.Information);
 
                             // Refresh VM Groups view
-                            VMGroups.RefreshVMGroupsView(
+                            VmGroups.RefreshVmGroupsView(
                                 $"Group renamed: {currentGroupName} -> {newGroupName}",
                                 cmd => ExecutePowerShellCommand(cmd),
-                                groups => UpdateVMGroupsDataGridView(groups));
+                                groups => UpdateVmGroupsDataGridView(groups));
                         }
                         else
                         {
@@ -1931,13 +1936,13 @@ namespace HyperView
                 }
 
                 // Show progress
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
                 Message("Retrieving VM Groups from server...",
                     EventType.Information, 2057);
 
                 // Get VM Groups
-                var vmGroups = VMGroups.GetHyperVVMGroups(cmd => ExecutePowerShellCommand(cmd));
+                var vmGroups = VmGroups.GetHyperVvmGroups(cmd => ExecutePowerShellCommand(cmd));
 
                 if (vmGroups != null)
                 {
@@ -1945,7 +1950,7 @@ namespace HyperView
                         EventType.Information, 2058);
 
                     // Update DataGridView
-                    UpdateVMGroupsDataGridView(vmGroups);
+                    UpdateVmGroupsDataGridView(vmGroups);
 
                     // Update status strip
                     toolStripStatusLabelTextMainForm.Text = $"VM Groups refreshed successfully: {vmGroups.Count} group(s) loaded";
@@ -1978,11 +1983,11 @@ namespace HyperView
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
             }
         }
 
-        private void UpdateVMGroupsDataGridView(List<VMGroupInfo> vmGroups)
+        private void UpdateVmGroupsDataGridView(List<VmGroupInfo> vmGroups)
         {
             try
             {
@@ -2022,10 +2027,10 @@ namespace HyperView
                     var row = dataTable.NewRow();
                     row["Group Name"] = group.Name;
                     row["Group Type"] = group.GroupTypeDisplay;
-                    row["VM Count"] = group.VMCount.ToString();
+                    row["VM Count"] = group.VmCount.ToString();
 
                     // Truncate long VM lists
-                    string vmMembers = group.VMList;
+                    string vmMembers = group.VmList;
                     if (!string.IsNullOrEmpty(vmMembers) && vmMembers.Length > 250)
                     {
                         vmMembers = vmMembers.Substring(0, 250) + "...";
@@ -2065,7 +2070,7 @@ namespace HyperView
             }
         }
 
-        private void UpdateVMGroupsDataGridView()
+        private void UpdateVmGroupsDataGridView()
         {
             try
             {
@@ -2073,11 +2078,11 @@ namespace HyperView
                     EventType.Information, 2083);
 
                 // Get VM Groups without showing message boxes
-                var vmGroups = VMGroups.GetHyperVVMGroups(cmd => ExecutePowerShellCommand(cmd));
+                var vmGroups = VmGroups.GetHyperVvmGroups(cmd => ExecutePowerShellCommand(cmd));
 
                 if (vmGroups != null)
                 {
-                    UpdateVMGroupsDataGridView(vmGroups);
+                    UpdateVmGroupsDataGridView(vmGroups);
                 }
                 else
                 {
@@ -2097,7 +2102,7 @@ namespace HyperView
             
         }
 
-        private bool ExportToJson(string filePath, List<VMGroupInfo> vmGroups)
+        private bool ExportToJson(string filePath, List<VmGroupInfo> vmGroups)
         {
             try
             {
@@ -2115,7 +2120,7 @@ namespace HyperView
                         TotalVMs = datagridviewVMOverView.Rows.Count,
                         ApplicationVersion = "HyperView v1.0.0.0"
                     },
-                    VMData = GetVMDataFromGrid(),
+                    VMData = GetVmDataFromGrid(),
                     VMGroups = vmGroups
                 };
 
@@ -2136,14 +2141,14 @@ namespace HyperView
             }
         }
 
-        private bool ExportToCsv(string filePath, List<VMGroupInfo> vmGroups)
+        private bool ExportToCsv(string filePath, List<VmGroupInfo> vmGroups)
         {
             try
             {
                 Message("Exporting as CSV format",
                     EventType.Information, 2110);
 
-                var vmData = GetVMDataFromGrid();
+                var vmData = GetVmDataFromGrid();
                 var csv = new System.Text.StringBuilder();
 
                 // Write header
@@ -2178,7 +2183,7 @@ namespace HyperView
 
                     foreach (var group in vmGroups)
                     {
-                        groupsCsv.AppendLine($"\"{group.Name}\",\"{group.GroupTypeDisplay}\",\"{group.VMCount}\",\"{group.VMList}\",\"{group.ComputerName}\"");
+                        groupsCsv.AppendLine($"\"{group.Name}\",\"{group.GroupTypeDisplay}\",\"{group.VmCount}\",\"{group.VmList}\",\"{group.ComputerName}\"");
                     }
 
                     File.WriteAllText(groupsCsvPath, groupsCsv.ToString(), System.Text.Encoding.UTF8);
@@ -2197,14 +2202,14 @@ namespace HyperView
             }
         }
 
-        private bool ExportToXml(string filePath, List<VMGroupInfo> vmGroups)
+        private bool ExportToXml(string filePath, List<VmGroupInfo> vmGroups)
         {
             try
             {
                 Message("Exporting as XML format",
                     EventType.Information, 2113);
 
-                var vmData = GetVMDataFromGrid();
+                var vmData = GetVmDataFromGrid();
 
                 using (var writer = System.Xml.XmlWriter.Create(filePath, new System.Xml.XmlWriterSettings
                 {
@@ -2246,8 +2251,8 @@ namespace HyperView
                             writer.WriteStartElement("VMGroup");
                             writer.WriteElementString("Name", group.Name);
                             writer.WriteElementString("GroupType", group.GroupTypeDisplay);
-                            writer.WriteElementString("VMCount", group.VMCount.ToString());
-                            writer.WriteElementString("VMMembers", group.VMList);
+                            writer.WriteElementString("VMCount", group.VmCount.ToString());
+                            writer.WriteElementString("VMMembers", group.VmList);
                             writer.WriteEndElement();
                         }
                         writer.WriteEndElement();
@@ -2267,14 +2272,14 @@ namespace HyperView
             }
         }
 
-        private bool ExportToText(string filePath, List<VMGroupInfo> vmGroups)
+        private bool ExportToText(string filePath, List<VmGroupInfo> vmGroups)
         {
             try
             {
                 Message("Exporting as formatted text",
                     EventType.Information, 2115);
 
-                var vmData = GetVMDataFromGrid();
+                var vmData = GetVmDataFromGrid();
                 var textOutput = new List<string>();
 
                 textOutput.Add(new string('=', 80));
@@ -2314,8 +2319,8 @@ namespace HyperView
                         textOutput.Add("");
                         textOutput.Add($"Group Name: {group.Name}");
                         textOutput.Add($"  Type: {group.GroupTypeDisplay}");
-                        textOutput.Add($"  VM Count: {group.VMCount}");
-                        textOutput.Add($"  VM Members: {group.VMList}");
+                        textOutput.Add($"  VM Count: {group.VmCount}");
+                        textOutput.Add($"  VM Members: {group.VmList}");
                     }
                 }
 
@@ -2336,7 +2341,7 @@ namespace HyperView
             }
         }
 
-        private List<Dictionary<string, string>> GetVMDataFromGrid()
+        private List<Dictionary<string, string>> GetVmDataFromGrid()
         {
             var vmData = new List<Dictionary<string, string>>();
 
@@ -2496,7 +2501,7 @@ namespace HyperView
                 }
 
                 // Show manage members form
-                using (Forms.ManageVMGroupMembers manageForm = new Forms.ManageVMGroupMembers())
+                using (ManageVmGroupMembers manageForm = new ManageVmGroupMembers())
                 {
                     manageForm.GroupName = groupName;
                     manageForm.AllVMs = allVMs;
@@ -2510,10 +2515,10 @@ namespace HyperView
                             EventType.Information, 2141);
 
                         // Refresh the VM Groups view
-                        VMGroups.RefreshVMGroupsView(
+                        VmGroups.RefreshVmGroupsView(
                             $"Group members updated: {groupName}",
                             cmd => ExecutePowerShellCommand(cmd),
-                            groups => UpdateVMGroupsDataGridView(groups));
+                            groups => UpdateVmGroupsDataGridView(groups));
                     }
                 }
             }
@@ -2534,7 +2539,7 @@ namespace HyperView
             // Use the shared confirmation function
             if (ConfirmDisconnectAndExit())
             {
-                this.Close();
+                Close();
             }
         }
 
@@ -2544,17 +2549,17 @@ namespace HyperView
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = Globals.ToolStings.URLMyWebPage,
+                    FileName = Globals.ToolStings.UrlMyWebPage,
                     UseShellExecute = true
                 });
 
                 // Log the opening of the URL message
-                Message("User clicked the 'My webpage' link to open the URL: '" + Globals.ToolStings.URLMyWebPage + "'", EventType.Information, 1052);
+                Message("User clicked the 'My webpage' link to open the URL: '" + Globals.ToolStings.UrlMyWebPage + "'", EventType.Information, 1052);
             }
             catch (Exception ex)
             {
                 // Show an error message if the URL could not be opened
-                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.URLMyWebPage + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyWebPage + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
@@ -2567,17 +2572,17 @@ namespace HyperView
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = Globals.ToolStings.URLMyBlog,
+                    FileName = Globals.ToolStings.UrlMyBlog,
                     UseShellExecute = true
                 });
 
                 // Log the opening of the URL message
-                Message("User clicked the 'My webpage' link to open the URL: '" + Globals.ToolStings.URLMyBlog + "'", EventType.Information, 1052);
+                Message("User clicked the 'My webpage' link to open the URL: '" + Globals.ToolStings.UrlMyBlog + "'", EventType.Information, 1052);
             }
             catch (Exception ex)
             {
                 // Show an error message if the URL could not be opened
-                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.URLMyBlog + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyBlog + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
@@ -2646,17 +2651,17 @@ namespace HyperView
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = Globals.ToolStings.URLBuyMeaCoffie,
+                    FileName = Globals.ToolStings.UrlBuyMeaCoffie,
                     UseShellExecute = true
                 });
 
                 // Log the opening of the URL message
-                Message("User clicked the 'Buy me a coffie' picture in MainForm to open the URL: '" + Globals.ToolStings.URLBuyMeaCoffie + "'", EventType.Information, 1052);
+                Message("User clicked the 'Buy me a coffie' picture in MainForm to open the URL: '" + Globals.ToolStings.UrlBuyMeaCoffie + "'", EventType.Information, 1052);
             }
             catch (Exception ex)
             {
                 // Show an error message if the URL could not be opened
-                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.URLBuyMeaCoffie + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlBuyMeaCoffie + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
@@ -2690,7 +2695,7 @@ namespace HyperView
                 ExecuteWithProgressForm(() =>
                 {
                     // Reload VM overview data (runs in background thread, but UI operations need invoke)
-                    LoadVMOverview();
+                    LoadVmOverview();
 
                     // Count running VMs from the grid  
                     int totalVMs = 0;
@@ -2730,9 +2735,9 @@ namespace HyperView
                         EventType.Information, 2153);
 
                     // Show success message (will be invoked on UI thread automatically)
-                    if (this.InvokeRequired)
+                    if (InvokeRequired)
                     {
-                        this.Invoke((Action)(() =>
+                        Invoke((Action)(() =>
                         {
                             toolStripStatusLabelTextMainForm.Text = "VM overview refreshed successfully. Total VMs: " + totalVMs + ", Running VMs: " + runningVMs;
 
@@ -2794,7 +2799,7 @@ namespace HyperView
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
                 // Calculate VM statistics
                 int totalVMs = datagridviewVMOverView.Rows.Count;
@@ -2803,8 +2808,8 @@ namespace HyperView
                 int gen1VMs = 0;
                 int gen2VMs = 0;
                 int totalProcessors = 0;
-                long totalMemoryAssignedMB = 0;
-                double totalDiskSpaceGB = 0;
+                long totalMemoryAssignedMb = 0;
+                double totalDiskSpaceGb = 0;
 
                 foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
                 {
@@ -2830,19 +2835,19 @@ namespace HyperView
                     // Sum memory assigned
                     var memAssigned = row.Cells["Memory Assigned (MB)"].Value?.ToString();
                     if (!string.IsNullOrEmpty(memAssigned) && long.TryParse(memAssigned, out long memory))
-                        totalMemoryAssignedMB += memory;
+                        totalMemoryAssignedMb += memory;
 
                     // Sum disk space
                     var diskSpace = row.Cells["Total Disk (GB)"].Value?.ToString();
                     if (!string.IsNullOrEmpty(diskSpace) && double.TryParse(diskSpace, out double disk))
-                        totalDiskSpaceGB += disk;
+                        totalDiskSpaceGb += disk;
                 }
 
                 // Get VM Groups statistics
                 Message("Retrieving VM Groups for summary...",
                     EventType.Information, 2156);
 
-                var vmGroups = VMGroups.GetHyperVVMGroups(cmd => ExecutePowerShellCommand(cmd));
+                var vmGroups = VmGroups.GetHyperVvmGroups(cmd => ExecutePowerShellCommand(cmd));
                 int totalGroups = vmGroups?.Count ?? 0;
 
                 // Count grouped VMs
@@ -2851,15 +2856,15 @@ namespace HyperView
                 {
                     foreach (var group in vmGroups)
                     {
-                        foreach (var vmName in group.VMMembers)
+                        foreach (var vmName in group.VmMembers)
                         {
                             groupedVMs.Add(vmName);
                         }
                     }
                 }
 
-                int groupedVMCount = groupedVMs.Count;
-                int ungroupedVMCount = totalVMs - groupedVMCount;
+                int groupedVmCount = groupedVMs.Count;
+                int ungroupedVmCount = totalVMs - groupedVmCount;
 
                 // Get cluster information if connected to a cluster
                 string clusterSection = "";
@@ -2897,7 +2902,7 @@ namespace HyperView
                     }
                 }
 
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 // Create summary message
                 string summaryText = $@"VM Overview Summary - {SessionContext.ServerName}:
@@ -2909,13 +2914,13 @@ namespace HyperView
 
 💾 Resource Allocation:
 • Total Processors: {totalProcessors}
-• Memory Assigned: {Math.Round(totalMemoryAssignedMB / 1024.0, 1)} GB
-• Total Disk Space: {Math.Round(totalDiskSpaceGB, 1)} GB
+• Memory Assigned: {Math.Round(totalMemoryAssignedMb / 1024.0, 1)} GB
+• Total Disk Space: {Math.Round(totalDiskSpaceGb, 1)} GB
 
 🗂️ VM Groups:
 • Total Groups: {totalGroups}
-• Grouped VMs: {groupedVMCount}
-• Ungrouped VMs: {ungroupedVMCount}{clusterSection}";
+• Grouped VMs: {groupedVmCount}
+• Ungrouped VMs: {ungroupedVmCount}{clusterSection}";
 
                 Message($"VM summary generated - Total VMs: {totalVMs}, Running: {runningVMs}",
                     EventType.Information, 2157);
@@ -2932,7 +2937,7 @@ namespace HyperView
             }
             catch (Exception ex)
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 string errorMsg = $"Error generating VM summary: {ex.Message}";
                 Message(errorMsg, EventType.Error, 2158);
@@ -3124,7 +3129,7 @@ Management:
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
                 Message("Retrieving detailed cluster information...",
                     EventType.Information, 2166);
@@ -3249,7 +3254,7 @@ Management:
             }
             catch (Exception ex)
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 string errorMsg = $"Error displaying cluster information: {ex.Message}";
                 Message(errorMsg, EventType.Error, 2168);
@@ -3429,7 +3434,7 @@ Management:
                     row["Node State"] = host.NodeState;
                     row["Domain"] = host.Domain;
                     row["OS"] = host.OperatingSystem;
-                    row["Version"] = host.OSVersion;
+                    row["Version"] = host.OsVersion;
                     row["Build"] = host.BuildNumber;
                     row["Boot Time"] = host.BootTime;
                     row["Uptime"] = host.Uptime;
@@ -3447,24 +3452,24 @@ Management:
                     row["Processor"] = host.Processor;
                     row["Sockets"] = host.Sockets.ToString();
                     row["Cores"] = host.Cores.ToString();
-                    row["Logical CPUs"] = host.LogicalCPUs.ToString();
+                    row["Logical CPUs"] = host.LogicalCpUs.ToString();
                     row["Hyper-Threading"] = host.HyperThreading;
-                    row["SLAT Support"] = host.SLATSupport;
-                    row["Total RAM (GB)"] = host.TotalMemoryGB.ToString("F2");
-                    row["Used RAM (GB)"] = host.UsedMemoryGB.ToString("F2");
-                    row["Free RAM (GB)"] = host.FreeMemoryGB.ToString("F2");
+                    row["SLAT Support"] = host.SlatSupport;
+                    row["Total RAM (GB)"] = host.TotalMemoryGb.ToString("F2");
+                    row["Used RAM (GB)"] = host.UsedMemoryGb.ToString("F2");
+                    row["Free RAM (GB)"] = host.FreeMemoryGb.ToString("F2");
                     row["RAM Usage %"] = host.MemoryUsagePercent.ToString("F1");
                     row["Total VMs"] = host.TotalVMs.ToString();
                     row["Running VMs"] = host.RunningVMs.ToString();
                     row["Stopped VMs"] = host.StoppedVMs.ToString();
                     row["Virtual Switches"] = host.VirtualSwitches.ToString();
                     row["External Switches"] = host.ExternalSwitches.ToString();
-                    row["IP Addresses"] = host.IPAddresses;
+                    row["IP Addresses"] = host.IpAddresses;
                     row["Live Migration"] = host.LiveMigration;
                     row["Enhanced Session"] = host.EnhancedSession;
-                    row["NUMA Spanning"] = host.NUMASpanning;
-                    row["VHD Path"] = host.VHDPath;
-                    row["VM Config Path"] = host.VMConfigPath;
+                    row["NUMA Spanning"] = host.NumaSpanning;
+                    row["VHD Path"] = host.VhdPath;
+                    row["VM Config Path"] = host.VmConfigPath;
 
                     dataTable.Rows.Add(row);
                 }
@@ -3553,7 +3558,7 @@ Management:
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
                 toolStripStatusLabelTextMainForm.Text = @"Loading cluster information...";
 
                 Message("Retrieving detailed cluster information...",
@@ -3606,7 +3611,7 @@ Management:
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
             }
         }
 
@@ -3788,7 +3793,7 @@ Management:
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
                 toolStripStatusLabelTextMainForm.Text = @"Loading virtual disk information...";
 
                 Message("Retrieving virtual disk details...",
@@ -3845,7 +3850,7 @@ Management:
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
             }
         }
 
@@ -3939,20 +3944,20 @@ Management:
                     var row = dataTable.NewRow();
 
                     // VM Information
-                    row["VM Name"] = disk.VMName;
-                    row["VM State"] = disk.VMState;
-                    row["VM Generation"] = disk.VMGeneration;
-                    row["VM ID"] = disk.VMId;
-                    row["VM Notes"] = disk.VMNotes;
+                    row["VM Name"] = disk.VmName;
+                    row["VM State"] = disk.VmState;
+                    row["VM Generation"] = disk.VmGeneration;
+                    row["VM ID"] = disk.VmId;
+                    row["VM Notes"] = disk.VmNotes;
 
                     // Disk Information
                     row["Disk Name"] = disk.DiskName;
                     row["Disk Path"] = disk.DiskPath;
                     row["Disk Type"] = disk.DiskType;
                     row["Disk Format"] = disk.DiskFormat;
-                    row["Max Size (GB)"] = disk.MaxSizeGB > 0 ? disk.MaxSizeGB.ToString("F2") : "";
-                    row["File Size (GB)"] = disk.FileSizeGB > 0 ? disk.FileSizeGB.ToString("F2") : "";
-                    row["Used Space (GB)"] = disk.UsedSpaceGB > 0 ? disk.UsedSpaceGB.ToString("F2") : "";
+                    row["Max Size (GB)"] = disk.MaxSizeGb > 0 ? disk.MaxSizeGb.ToString("F2") : "";
+                    row["File Size (GB)"] = disk.FileSizeGb > 0 ? disk.FileSizeGb.ToString("F2") : "";
+                    row["Used Space (GB)"] = disk.UsedSpaceGb > 0 ? disk.UsedSpaceGb.ToString("F2") : "";
                     row["Fragmentation %"] = disk.FragmentationPercent;
                     row["Physical Sector Size"] = disk.PhysicalSectorSizeBytes > 0 ? disk.PhysicalSectorSizeBytes.ToString() : "";
                     row["Logical Sector Size"] = disk.LogicalSectorSizeBytes > 0 ? disk.LogicalSectorSizeBytes.ToString() : "";
@@ -3972,8 +3977,8 @@ Management:
 
                     // QoS Information
                     row["QoS Policy ID"] = disk.QoSPolicyId;
-                    row["QoS Min IOPS"] = disk.QoSMinimumIOPS;
-                    row["QoS Max IOPS"] = disk.QoSMaximumIOPS;
+                    row["QoS Min IOPS"] = disk.QoSMinimumIops;
+                    row["QoS Max IOPS"] = disk.QoSMaximumIops;
 
                     // Differencing Disk
                     row["Parent Path"] = disk.ParentPath;
@@ -3982,13 +3987,13 @@ Management:
                     // Environment Information
                     row["Cluster Name"] = disk.ClusterName;
                     row["Current Host"] = disk.CurrentHost;
-                    row["VM Path"] = disk.VMPath;
+                    row["VM Path"] = disk.VmPath;
                     row["Config Location"] = disk.ConfigurationLocation;
                     row["Snapshot Location"] = disk.SnapshotFileLocation;
                     row["Smart Paging Path"] = disk.SmartPagingFilePath;
 
                     // OS Information
-                    row["Guest OS Type"] = disk.GuestOSType;
+                    row["Guest OS Type"] = disk.GuestOsType;
 
                     dataTable.Rows.Add(row);
                 }
@@ -4223,13 +4228,13 @@ Management:
                     return;
                 }
 
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
                 // Calculate disk statistics
                 int totalDisks = datagridviewvDiskOverView.Rows.Count;
-                double totalMaxSizeGB = 0;
-                double totalFileSizeGB = 0;
-                double totalUsedSpaceGB = 0;
+                double totalMaxSizeGb = 0;
+                double totalFileSizeGb = 0;
+                double totalUsedSpaceGb = 0;
 
                 // Disk type breakdown
                 int dynamicDisks = 0;
@@ -4288,16 +4293,16 @@ Management:
 
                     // Disk sizes
                     var maxSize = row.Cells["Max Size (GB)"].Value?.ToString();
-                    if (!string.IsNullOrEmpty(maxSize) && double.TryParse(maxSize, out double maxGB))
-                        totalMaxSizeGB += maxGB;
+                    if (!string.IsNullOrEmpty(maxSize) && double.TryParse(maxSize, out double maxGb))
+                        totalMaxSizeGb += maxGb;
 
                     var fileSize = row.Cells["File Size (GB)"].Value?.ToString();
-                    if (!string.IsNullOrEmpty(fileSize) && double.TryParse(fileSize, out double filGB))
-                        totalFileSizeGB += filGB;
+                    if (!string.IsNullOrEmpty(fileSize) && double.TryParse(fileSize, out double filGb))
+                        totalFileSizeGb += filGb;
 
                     var usedSpace = row.Cells["Used Space (GB)"].Value?.ToString();
-                    if (!string.IsNullOrEmpty(usedSpace) && double.TryParse(usedSpace, out double usedGB))
-                        totalUsedSpaceGB += usedGB;
+                    if (!string.IsNullOrEmpty(usedSpace) && double.TryParse(usedSpace, out double usedGb))
+                        totalUsedSpaceGb += usedGb;
 
                     // Disk Type
                     var diskType = row.Cells["Disk Type"].Value?.ToString();
@@ -4374,8 +4379,8 @@ Management:
                     ? Math.Round(fragmentationValues.Average(), 1)
                     : 0;
 
-                double spaceEfficiency = totalMaxSizeGB > 0
-                    ? Math.Round((totalFileSizeGB / totalMaxSizeGB) * 100, 1)
+                double spaceEfficiency = totalMaxSizeGb > 0
+                    ? Math.Round((totalFileSizeGb / totalMaxSizeGb) * 100, 1)
                     : 0;
 
                 // Get cluster information if available
@@ -4403,7 +4408,7 @@ Management:
 • Clustered Disks: {clusteredDisks}";
                 }
 
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 // Create summary message
                 string summaryText = $@"Virtual Disk Overview Summary - {SessionContext.ServerName}
@@ -4415,10 +4420,10 @@ Management:
 • Disks on Stopped VMs: {disksOnStoppedVMs}
 
 💾 Storage Capacity:
-• Total Allocated Space: {Math.Round(totalMaxSizeGB, 1):N1} GB
-• Actual File Size: {Math.Round(totalFileSizeGB, 1):N1} GB
+• Total Allocated Space: {Math.Round(totalMaxSizeGb, 1):N1} GB
+• Actual File Size: {Math.Round(totalFileSizeGb, 1):N1} GB
 • Space Efficiency: {spaceEfficiency}%
-• Potential Savings: {Math.Round(totalMaxSizeGB - totalFileSizeGB, 1):N1} GB
+• Potential Savings: {Math.Round(totalMaxSizeGb - totalFileSizeGb, 1):N1} GB
 
 📁 Disk Type Breakdown:
 • Dynamic: {dynamicDisks}
@@ -4444,7 +4449,7 @@ Management:
 💡 Recommendations:
 {GetDiskRecommendations(dynamicDisks, fixedDisks, spaceEfficiency, avgFragmentation, vhdDisks)}";
 
-                Message($"Virtual disk summary generated - Total Disks: {totalDisks}, Total Size: {totalMaxSizeGB:F1} GB",
+                Message($"Virtual disk summary generated - Total Disks: {totalDisks}, Total Size: {totalMaxSizeGb:F1} GB",
                     EventType.Information, 5044);
 
                 // Show summary message
@@ -4455,7 +4460,7 @@ Management:
             }
             catch (Exception ex)
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
 
                 string errorMsg = $"Error generating virtual disk summary: {ex.Message}";
                 Message(errorMsg, EventType.Error, 5045);
@@ -4627,12 +4632,12 @@ Management:
                             EventType.Information, 2103);
 
                         // Show progress cursor
-                        this.Cursor = Cursors.WaitCursor;
+                        Cursor = Cursors.WaitCursor;
 
                         try
                         {
                             // Get VM Groups data
-                            var vmGroups = VMGroups.GetHyperVVMGroups(cmd => ExecutePowerShellCommand(cmd));
+                            var vmGroups = VmGroups.GetHyperVvmGroups(cmd => ExecutePowerShellCommand(cmd));
 
                             // Export based on file extension
                             bool success = false;
@@ -4690,7 +4695,7 @@ Would you like to open the file location?",
                         }
                         finally
                         {
-                            this.Cursor = Cursors.Default;
+                            Cursor = Cursors.Default;
                         }
                     }
                     else
