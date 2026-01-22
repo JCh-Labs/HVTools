@@ -175,7 +175,7 @@
             tabpagehvOverview.Padding = new Padding(3);
             tabpagehvOverview.Size = new Size(1613, 844);
             tabpagehvOverview.TabIndex = 0;
-            tabpagehvOverview.Text = "hvView";
+            tabpagehvOverview.Text = "vmOverview";
             tabpagehvOverview.UseVisualStyleBackColor = true;
             // 
             // buttonSummaryhvOverviewView
@@ -828,8 +828,8 @@
             // allVMDataToolStripMenuItem
             // 
             allVMDataToolStripMenuItem.Name = "allVMDataToolStripMenuItem";
-            allVMDataToolStripMenuItem.Size = new Size(135, 22);
-            allVMDataToolStripMenuItem.Text = "All VM data";
+            allVMDataToolStripMenuItem.Size = new Size(254, 22);
+            allVMDataToolStripMenuItem.Text = "Data for selected VM´s in overview";
             allVMDataToolStripMenuItem.Click += allVMDataToolStripMenuItem_Click;
             // 
             // aboutToolStripMenuItem

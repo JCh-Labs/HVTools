@@ -523,6 +523,8 @@ namespace HyperView
 
                 // Create DataTable with enhanced columns
                 var dataTable = new DataTable();
+                // Add checkbox column for export selection (first column)
+                dataTable.Columns.Add("Export", typeof(bool));
                 dataTable.Columns.Add("VM Name");
                 dataTable.Columns.Add("VM Id");
                 dataTable.Columns.Add("State");
@@ -554,6 +556,8 @@ namespace HyperView
                 foreach (var vm in results)
                 {
                     var row = dataTable.NewRow();
+                    // Set checkbox to checked by default for all VMs
+                    row["Export"] = true;
                     var vmName = vm.Properties["Name"]?.Value?.ToString() ?? "";
                     row["VM Name"] = vmName;
 
@@ -721,10 +725,64 @@ namespace HyperView
                 datagridviewVMOverView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 datagridviewVMOverView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 datagridviewVMOverView.MultiSelect = false;
-                datagridviewVMOverView.ReadOnly = true;
+                datagridviewVMOverView.ReadOnly = false; // Allow checkbox editing
                 datagridviewVMOverView.AllowUserToAddRows = false;
                 datagridviewVMOverView.AllowUserToDeleteRows = false;
                 datagridviewVMOverView.RowHeadersVisible = false;
+
+                // Replace the auto-generated Export column with a proper checkbox column
+                int exportColumnIndex = -1;
+                for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
+                {
+                    var col = datagridviewVMOverView.Columns[i];
+                    if (col.Name == "Export" || col.DataPropertyName == "Export")
+                    {
+                        exportColumnIndex = i;
+                        break;
+                    }
+                }
+
+                if (exportColumnIndex >= 0)
+                {
+                    // Remove the auto-generated column
+                    datagridviewVMOverView.Columns.RemoveAt(exportColumnIndex);
+
+                    // Create a proper checkbox column
+                    DataGridViewCheckBoxColumn checkboxColumn = new DataGridViewCheckBoxColumn
+                    {
+                        Name = "Export",
+                        DataPropertyName = "Export",
+                        HeaderText = "☑",
+                        Width = 40,
+                        TrueValue = true,
+                        FalseValue = false,
+                        // ... other properties
+                    };
+
+                    // Insert at the beginning
+                    datagridviewVMOverView.Columns.Insert(0, checkboxColumn);
+                    
+                    Message("Export checkbox column created and inserted successfully",
+                        EventType.Debug, 2174);
+                }
+                else
+                {
+                    Message("Warning: Export column not found in DataGridView",
+                        EventType.Warning, 2175);
+                }
+
+                // Make all columns except "Export" read-only
+                foreach (DataGridViewColumn column in datagridviewVMOverView.Columns)
+                {
+                    if (column.Name != "Export" && column.DataPropertyName != "Export")
+                    {
+                        column.ReadOnly = true;
+                    }
+                }
+
+                // Add column header click event to toggle all checkboxes (only once)
+                datagridviewVMOverView.ColumnHeaderMouseClick -= DatagridviewVMOverView_ColumnHeaderMouseClick; // Remove existing
+                datagridviewVMOverView.ColumnHeaderMouseClick += DatagridviewVMOverView_ColumnHeaderMouseClick;
 
                 // Color coding will be applied automatically via DataBindingComplete event
 
@@ -2060,15 +2118,90 @@ namespace HyperView
                     return;
                 }
 
-                Message($"Export All VM Data requested - {datagridviewVMOverView.Rows.Count} VMs available",
+                // Force DataGridView to commit any pending edits (checkbox changes)
+                // This ensures that checkbox changes are written to the underlying data before we read them
+                datagridviewVMOverView.EndEdit();
+                datagridviewVMOverView.CurrentCell = null; // Clear current cell to commit changes
+                Application.DoEvents(); // Process pending UI events
+#if DEBUG
+                Message("Forcing DataGridView to commit pending checkbox changes", EventType.Debug, 2234);
+#endif
+                // Count how many VMs are selected for export
+                int selectedCount = 0;
+                
+                // Find the Export column index
+                int exportColumnIndex = -1;
+                for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
+                {
+                    var col = datagridviewVMOverView.Columns[i];
+                    if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == "☑" || col.HeaderText == "☐")
+                    {
+                        exportColumnIndex = i;
+#if DEBUG
+                        Message($"Validation: Found Export column at index {i}", EventType.Debug, 2232);
+#endif
+                        break;
+                    }
+                }
+
+                if (exportColumnIndex >= 0)
+                {
+                    foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                    {
+                        var cell = row.Cells[exportColumnIndex];
+                        bool isChecked = false;
+                        
+                        if (cell.Value != null)
+                        {
+                            if (cell.Value is bool boolValue)
+                            {
+                                isChecked = boolValue;
+                            }
+                            else if (cell.Value is int intValue)
+                            {
+                                isChecked = intValue != 0;
+                            }
+                            else if (bool.TryParse(cell.Value.ToString(), out bool parsedValue))
+                            {
+                                isChecked = parsedValue;
+                            }
+                        }
+                        
+                        if (isChecked)
+                        {
+                            selectedCount++;
+                        }
+                    }
+                    
+                    Message($"Validation: {selectedCount} of {datagridviewVMOverView.Rows.Count} VMs are checked for export",
+                        EventType.Information, 2233);
+                }
+                else
+                {
+                    // If Export column not found, export all VMs
+                    selectedCount = datagridviewVMOverView.Rows.Count;
+                    Message("Validation: Export column not found - will export all VMs",
+                        EventType.Warning, 2226);
+                }
+
+                if (selectedCount == 0)
+                {
+                    MessageBox.Show(@"No VMs selected for export. Please check at least one VM in the Export column.",
+                        @"No VMs Selected",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                Message($"Export VM Data requested - {selectedCount} of {datagridviewVMOverView.Rows.Count} VMs selected for export",
                     EventType.Information, 2102);
 
                 // Show SaveFileDialog with format options
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    saveFileDialog.Title = "Export All VM Data";
-                    saveFileDialog.FileName = $"HyperV_AllVMData_{SessionContext.ServerName}_{DateTime.Now:yyyyMMdd_HHmmss}";
-                    saveFileDialog.Filter = "JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|XML Files (*.xml)|*.xml|Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                    saveFileDialog.Title = @"Export data for selected VM´s";
+                    saveFileDialog.FileName = $"Exported_VMData_{SessionContext.ServerName}_{DateTime.Now:yyyyMMdd_HHmmss}";
+                    saveFileDialog.Filter = @"JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|XML Files (*.xml)|*.xml|Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
                     saveFileDialog.FilterIndex = 1;
                     saveFileDialog.RestoreDirectory = true;
 
@@ -2077,7 +2210,7 @@ namespace HyperView
                         string filePath = saveFileDialog.FileName;
                         string fileExtension = Path.GetExtension(filePath).ToLower();
 
-                        Message($"Exporting VM data to: {filePath} (Format: {fileExtension})",
+                        Message($"Exporting VM data to: '{filePath}', (Format: {fileExtension})",
                             EventType.Information, 2103);
 
                         // Show progress cursor
@@ -2115,7 +2248,7 @@ namespace HyperView
 
                             if (success)
                             {
-                                Message($"VM data export completed successfully: {filePath}",
+                                Message($"VM data export completed successfully: '{filePath}'",
                                     EventType.Information, 2104);
 
                                 // Show success message with option to open file location
@@ -2409,18 +2542,102 @@ Would you like to open the file location?",
         {
             var vmData = new List<Dictionary<string, string>>();
 
+            // Find the Export column index
+            int exportColumnIndex = -1;
+            for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
+            {
+                var col = datagridviewVMOverView.Columns[i];
+                if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == "☑" || col.HeaderText == "☐")
+                {
+                    exportColumnIndex = i;
+#if DEBUG
+                    Message($"Validation: Found Export column at index {i}", EventType.Information, 2232);
+#endif
+                    break;
+                }
+            }
+
+            if (exportColumnIndex < 0)
+            {
+                Message("Export column not found - exporting all VMs", EventType.Warning, 2227);
+            }
+
+            int rowIndex = 0;
             foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
             {
+                // Check if this row is selected for export
+                bool isSelected = true; // Default to true if column doesn't exist
+
+                // Try to find and check the Export column value
+                if (exportColumnIndex >= 0 && exportColumnIndex < row.Cells.Count)
+                {
+                    var cell = row.Cells[exportColumnIndex];
+                    var vmName = row.Cells["VM Name"]?.Value?.ToString() ?? $"Row{rowIndex}";
+
+#if DEBUG
+                    Message($"Row {rowIndex} ({vmName}): Cell.Value = {cell.Value ?? "NULL"}, Cell.Value Type = {cell.Value?.GetType().Name ?? "NULL"}",
+                        EventType.Information, 2228);
+#endif
+                    if (cell.Value != null)
+                    {
+                        // Try to parse the value as boolean
+                        if (cell.Value is bool boolValue)
+                        {
+                            isSelected = boolValue;
+                        }
+                        else if (cell.Value is int intValue)
+                        {
+                            // Sometimes checkboxes store 0/1 instead of bool
+                            isSelected = intValue != 0;
+                        }
+                        else if (bool.TryParse(cell.Value.ToString(), out bool parsedValue))
+                        {
+                            isSelected = parsedValue;
+                        }
+                        else
+                        {
+                            // Unknown value type - log it and default to true
+                            Message($"Unknown checkbox value type for row {rowIndex}: {cell.Value} ({cell.Value.GetType().Name})",
+                                EventType.Warning, 2229);
+                        }
+                    }
+                    else
+                    {
+                        // Null value - treat as unchecked
+                        isSelected = false;
+                        Message($"Row {rowIndex} ({vmName}): NULL value - treating as unchecked",
+                            EventType.Information, 2230);
+                    }
+
+                    Message($"Row {rowIndex} ({vmName}): Export checkbox is {(isSelected ? "CHECKED" : "UNCHECKED")}",
+                        EventType.Information, 2224);
+                }
+
+                // Skip rows that are not selected for export
+                if (!isSelected)
+                {
+                    Message($"Skipping row {rowIndex} - checkbox unchecked - not selected for export", EventType.Information, 2231);
+                    rowIndex++;
+                    continue;
+                }
+
                 var vmInfo = new Dictionary<string, string>();
 
                 foreach (DataGridViewColumn column in datagridviewVMOverView.Columns)
                 {
+                    // Skip the Export checkbox column in the exported data
+                    if (column.Name == "Export" || column.DataPropertyName == "Export" || column.HeaderText == "☑" || column.HeaderText == "☐")
+                        continue;
+
                     var value = row.Cells[column.Index].Value?.ToString() ?? "";
                     vmInfo[column.HeaderText] = value;
                 }
 
                 vmData.Add(vmInfo);
+                rowIndex++;
             }
+
+            Message($"Total VMs selected for export: {vmData.Count} out of {datagridviewVMOverView.Rows.Count} total rows", EventType.Information, 2225);
 
             return vmData;
         }
@@ -2996,19 +3213,82 @@ Management:
 
                 // Show details in a message box
                 MessageBox.Show(details,
-                    @"VM Details",
+                    $@"VM Details - {vmName}",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                string errorMsg = $"Error showing VM details: {ex.Message}";
-                Message(errorMsg, EventType.Error, 2162);
+                Message($"Error showing VM details: {ex.Message}",
+                    EventType.Error, 2162);
 
-                MessageBox.Show(errorMsg,
+                MessageBox.Show($"Error showing VM details: {ex.Message}",
                     @"Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Handles clicking on column headers to toggle all Export checkboxes
+        /// </summary>
+        private void DatagridviewVMOverView_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            try
+            {
+                if (e.ColumnIndex < 0) return;
+
+                var clickedColumn = datagridviewVMOverView.Columns[e.ColumnIndex];
+                
+                // Check if the Export column header was clicked
+                if (clickedColumn.Name == "Export" || clickedColumn.DataPropertyName == "Export" || clickedColumn.HeaderText == "☑" || clickedColumn.HeaderText == "☐")
+                {
+                    Message("User clicked Export column header to toggle all checkboxes",
+                        EventType.Information, 2220);
+
+                    // End any pending edits first
+                    datagridviewVMOverView.EndEdit();
+
+                    // Determine if we should check or uncheck all
+                    // If any are unchecked, check all. If all are checked, uncheck all.
+                    int checkedCount = 0;
+                    int totalRows = datagridviewVMOverView.Rows.Count;
+
+                    foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                    {
+                        var cell = row.Cells[e.ColumnIndex];
+                        if (cell.Value != null && cell.Value is bool boolValue && boolValue)
+                        {
+                            checkedCount++;
+                        }
+                    }
+
+                    // If all are checked, uncheck all. Otherwise, check all.
+                    bool newValue = checkedCount < totalRows;
+
+                    foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                    {
+                        row.Cells[e.ColumnIndex].Value = newValue;
+                    }
+
+                    // Update header text to reflect state
+                    clickedColumn.HeaderText = newValue ? "☑" : "☐";
+
+                    Message($"All VM export checkboxes set to: {(newValue ? "checked" : "unchecked")}",
+                        EventType.Information, 2221);
+
+                    // Commit all changes
+                    datagridviewVMOverView.EndEdit();
+                    datagridviewVMOverView.CurrentCell = null;
+
+                    // Refresh the grid to show changes
+                    datagridviewVMOverView.Refresh();
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error toggling export checkboxes: {ex.Message}",
+                    EventType.Error, 2222);
             }
         }
 
@@ -3050,8 +3330,6 @@ Management:
 
                 // Get cluster information
                 var clusterInfo = Cluster.GetClusterInformation(cmd => ExecutePowerShellCommand(cmd));
-
-                this.Cursor = Cursors.Default;
 
                 if (clusterInfo == null)
                 {
@@ -3230,8 +3508,7 @@ Management:
                         // Update the DataGridView
                         UpdateHostsDataGridView(hostDetails);
 
-                        string message = hostDetails.Count == 1 ? "Ready - 1 host loaded" : $"Ready - {hostDetails.Count} hosts loaded";
-                        toolStripStatusLabelTextMainForm.Text = message;
+                        toolStripStatusLabelTextMainForm.Text = $"Host details refreshed - {hostDetails.Count} host(s)";
 
                         /*MessageBox.Show($"Host details refreshed successfully.\n\nFound {hostDetails.Count} host(s).",
                             "Refresh Complete",
@@ -4282,7 +4559,7 @@ Management:
                     {
                         var fragStr = fragmentation.Replace("%", "").Trim();
                         if (double.TryParse(fragStr, out double fragValue))
-                        {
+ {
                             fragmentationValues.Add(fragValue);
                         }
                     }

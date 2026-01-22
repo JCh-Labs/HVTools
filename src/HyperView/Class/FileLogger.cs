@@ -47,6 +47,7 @@ namespace HyperView.Class
             Warning,
             Error,
             Information,
+            Debug
         }
 
         // Add message
