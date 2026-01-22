@@ -858,7 +858,7 @@ namespace HyperView.Forms
                     nodeIndex++;
                     try
                     {
-                        Message($"Getting VMs from cluster node {nodeIndex} of {clusterNodes.Count}: {node}",
+                        Message($"Getting VMs from cluster node {nodeIndex} of {clusterNodes.Count}: '{node}'",
                             EventType.Information, 2177);
 
                         // Get VMs with all detailed properties in one call per node
@@ -944,7 +944,7 @@ namespace HyperView.Forms
                             {
                                 allVMs.Add(vm);
                             }
-                            Message($"Added {nodeVMs.Count} VMs from cluster node: {node}",
+                            Message($"Added {nodeVMs.Count} VMs from cluster node: '{node}'",
                                 EventType.Information, 2178);
                         }
                         else
