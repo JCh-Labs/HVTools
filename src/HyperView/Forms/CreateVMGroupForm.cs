@@ -22,7 +22,7 @@ namespace HyperView.Forms
 
         private int _originalFormHeight;
         private int _expandedFormHeight;
-        private VmGroupTemplate _selectedTemplate;
+        private VmGroupTemplate? _selectedTemplate;
 
         public CreateVmGroupForm()
         {
@@ -250,7 +250,7 @@ namespace HyperView.Forms
                     textboxDescription.Text = "";
 
                 if (labelSelected != null)
-                    labelSelected.Text = "No template selected";
+                    labelSelected.Text = @"No template selected";
 
                 // Force refresh
                 treeviewTemplates.Refresh();
@@ -312,7 +312,7 @@ namespace HyperView.Forms
             // Update button text and form size based on visibility
             if (groupboxRecommended.Visible)
             {
-                buttonRecommended.Text = "Hide Templates";
+                buttonRecommended.Text = @"Hide Templates";
                 // Expand the form to show templates section
                 Height = _expandedFormHeight;
 
@@ -324,7 +324,7 @@ namespace HyperView.Forms
             }
             else
             {
-                buttonRecommended.Text = "Templates...";
+                buttonRecommended.Text = @"Templates...";
                 // Collapse the form to original size
                 Height = _originalFormHeight;
 
@@ -340,7 +340,7 @@ namespace HyperView.Forms
             if (selectedNode != null && selectedNode.Tag is VmGroupTemplate group)
             {
                 if (labelSelected != null)
-                    labelSelected.Text = $"Selected: {group.Name}";
+                    labelSelected.Text = $@"Selected: {group.Name}";
 
                 if (textboxDescription != null)
                     textboxDescription.Text = group.Description;
@@ -357,7 +357,7 @@ namespace HyperView.Forms
             else
             {
                 if (labelSelected != null)
-                    labelSelected.Text = "No template selected";
+                    labelSelected.Text = @"No template selected";
 
                 if (textboxDescription != null)
                     textboxDescription.Text = "";
@@ -396,7 +396,7 @@ namespace HyperView.Forms
 
             // Update button text
             if (buttonRecommended != null)
-                buttonRecommended.Text = "Templates...";
+                buttonRecommended.Text = @"Templates...";
 
             // Collapse the form to original size
             Height = _originalFormHeight;

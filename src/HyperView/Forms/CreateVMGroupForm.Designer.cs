@@ -124,9 +124,9 @@
             // 
             // buttonUseSelectedTemplate
             // 
-            buttonUseSelectedTemplate.Location = new Point(282, 260);
+            buttonUseSelectedTemplate.Location = new Point(259, 260);
             buttonUseSelectedTemplate.Name = "buttonUseSelectedTemplate";
-            buttonUseSelectedTemplate.Size = new Size(186, 23);
+            buttonUseSelectedTemplate.Size = new Size(209, 23);
             buttonUseSelectedTemplate.TabIndex = 4;
             buttonUseSelectedTemplate.Text = "Use selected Template";
             buttonUseSelectedTemplate.UseVisualStyleBackColor = true;
@@ -134,17 +134,17 @@
             // 
             // textboxDescription
             // 
-            textboxDescription.Location = new Point(282, 42);
+            textboxDescription.Location = new Point(259, 42);
             textboxDescription.Multiline = true;
             textboxDescription.Name = "textboxDescription";
             textboxDescription.ReadOnly = true;
-            textboxDescription.Size = new Size(186, 215);
+            textboxDescription.Size = new Size(209, 215);
             textboxDescription.TabIndex = 3;
             // 
             // labelSelected
             // 
             labelSelected.AutoSize = true;
-            labelSelected.Location = new Point(287, 19);
+            labelSelected.Location = new Point(259, 19);
             labelSelected.Name = "labelSelected";
             labelSelected.Size = new Size(87, 15);
             labelSelected.TabIndex = 2;
@@ -163,11 +163,11 @@
             // 
             treeviewTemplates.Location = new Point(6, 42);
             treeviewTemplates.Name = "treeviewTemplates";
-            treeviewTemplates.Size = new Size(270, 241);
+            treeviewTemplates.Size = new Size(247, 241);
             treeviewTemplates.TabIndex = 0;
             treeviewTemplates.AfterSelect += TreeviewTemplates_AfterSelect;
             // 
-            // CreateVMGroupForm
+            // CreateVmGroupForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;

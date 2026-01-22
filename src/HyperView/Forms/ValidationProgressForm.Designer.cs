@@ -53,6 +53,8 @@
             StartPosition = FormStartPosition.CenterParent;
             Text = "Loading data, please wait...";
             TopMost = true;
+            Load += ValidationProgressForm_Load;
+            Shown += ValidationProgressForm_Shown;
             ResumeLayout(false);
         }
 

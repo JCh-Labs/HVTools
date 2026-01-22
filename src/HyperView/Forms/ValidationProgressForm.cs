@@ -5,10 +5,6 @@
         public ValidationProgressForm()
         {
             InitializeComponent();
-            
-            // Ensure the progress bar animates
-            Load += ValidationProgressForm_Load;
-            Shown += ValidationProgressForm_Shown;
         }
 
         private void ValidationProgressForm_Load(object sender, EventArgs e)
