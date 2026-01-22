@@ -318,12 +318,49 @@ namespace HyperView.Class
                 {
                     vmCount = Convert.ToInt32(hashtable["VMCount"] ?? 0);
 
-                    if (hashtable["VMNames"] != null && hashtable["VMNames"] is System.Collections.IEnumerable enumerable)
+                    if (hashtable["VMNames"] != null)
                     {
-                        foreach (var item in enumerable)
+                        // Unwrap PSObject if present (common in remote connections)
+                        object vmNamesValue = hashtable["VMNames"];
+                        if (vmNamesValue is PSObject psObj)
                         {
-                            if (item != null && !string.IsNullOrWhiteSpace(item.ToString()))
-                                vmNames.Add(item.ToString());
+                            vmNamesValue = psObj.BaseObject;
+#if debug
+                            FileLogger.Message($"Unwrapped PSObject for VMNames - BaseObject type: {vmNamesValue?.GetType().FullName ?? "null"}",
+                                FileLogger.EventType.Debug, 2082);
+#endif
+                        }
+
+                        // Handle different collection types
+                        if (vmNamesValue is System.Collections.IEnumerable enumerable && !(vmNamesValue is string))
+                        {
+                            foreach (var item in enumerable)
+                            {
+                                if (item != null)
+                                {
+                                    // Unwrap PSObject items if needed
+                                    object actualItem = item;
+                                    if (item is PSObject psItem)
+                                    {
+                                        actualItem = psItem.BaseObject;
+                                    }
+
+                                    string vmName = actualItem.ToString();
+                                    if (!string.IsNullOrWhiteSpace(vmName))
+                                    {
+                                        vmNames.Add(vmName);
+                                        FileLogger.Message($"Extracted VM name from group check: '{vmName}'",
+                                            FileLogger.EventType.Information, 2083);
+                                    }
+                                }
+                            }
+                        }
+                        else if (vmNamesValue is string strValue && !string.IsNullOrWhiteSpace(strValue))
+                        {
+                            // Handle single string value
+                            vmNames.Add(strValue);
+                            FileLogger.Message($"Extracted single VM name from group check: '{strValue}'",
+                                FileLogger.EventType.Information, 2084);
                         }
                     }
                 }

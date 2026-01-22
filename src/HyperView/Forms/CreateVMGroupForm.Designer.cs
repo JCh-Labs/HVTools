@@ -49,7 +49,7 @@
             // 
             buttonOK.Location = new Point(411, 12);
             buttonOK.Name = "buttonOK";
-            buttonOK.Size = new Size(75, 23);
+            buttonOK.Size = new Size(149, 23);
             buttonOK.TabIndex = 0;
             buttonOK.Text = "Create VM Group";
             buttonOK.UseVisualStyleBackColor = true;
@@ -117,16 +117,16 @@
             groupboxRecommended.Controls.Add(treeviewTemplates);
             groupboxRecommended.Location = new Point(12, 71);
             groupboxRecommended.Name = "groupboxRecommended";
-            groupboxRecommended.Size = new Size(474, 289);
+            groupboxRecommended.Size = new Size(548, 289);
             groupboxRecommended.TabIndex = 7;
             groupboxRecommended.TabStop = false;
             groupboxRecommended.Text = "Recommended VM Groups";
             // 
             // buttonUseSelectedTemplate
             // 
-            buttonUseSelectedTemplate.Location = new Point(259, 260);
+            buttonUseSelectedTemplate.Location = new Point(382, 260);
             buttonUseSelectedTemplate.Name = "buttonUseSelectedTemplate";
-            buttonUseSelectedTemplate.Size = new Size(209, 23);
+            buttonUseSelectedTemplate.Size = new Size(160, 23);
             buttonUseSelectedTemplate.TabIndex = 4;
             buttonUseSelectedTemplate.Text = "Use selected Template";
             buttonUseSelectedTemplate.UseVisualStyleBackColor = true;
@@ -138,7 +138,7 @@
             textboxDescription.Multiline = true;
             textboxDescription.Name = "textboxDescription";
             textboxDescription.ReadOnly = true;
-            textboxDescription.Size = new Size(209, 215);
+            textboxDescription.Size = new Size(283, 212);
             textboxDescription.TabIndex = 3;
             // 
             // labelSelected
@@ -171,7 +171,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(498, 372);
+            ClientSize = new Size(572, 372);
             Controls.Add(groupboxRecommended);
             Controls.Add(comboboxGroupType);
             Controls.Add(textboxGroupName);
