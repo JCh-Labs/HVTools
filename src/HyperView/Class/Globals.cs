@@ -27,6 +27,8 @@
             internal static string URLMyBlog = @"https://blog.sonnes.cloud";
             internal static string URLMyWebPage = @"https://sonnes.cloud";
             internal static string URLBuyMeaCoffie = @"https://buymeacoffee.com/sonnes";
+            internal static string URLLinkedIn = @"https://www.linkedin.com/in/michaelmsonne/";
+            internal static string URLGitHub = @"https://github.com/michaelmsonne/";
         }
 
         internal class ToolProperties

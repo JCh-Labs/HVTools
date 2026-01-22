@@ -10,6 +10,8 @@ namespace HyperView
         [STAThread]
         static void Main()
         {
+            HighDpi.Enable();
+
             // Write startup banner to log
             FileLogger.WriteStartupBanner();
 

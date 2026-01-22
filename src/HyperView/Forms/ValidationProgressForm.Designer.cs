@@ -34,10 +34,10 @@
             // ProgressBar
             // 
             ProgressBar.Location = new Point(1, 1);
+            ProgressBar.MarqueeAnimationSpeed = 30;
             ProgressBar.Name = "ProgressBar";
             ProgressBar.Size = new Size(470, 23);
             ProgressBar.Style = ProgressBarStyle.Marquee;
-            ProgressBar.MarqueeAnimationSpeed = 30;
             ProgressBar.TabIndex = 0;
             // 
             // ValidationProgressForm
@@ -49,6 +49,7 @@
             Controls.Add(ProgressBar);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "ValidationProgressForm";
+            ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
             Text = "Loading data, please wait...";
             TopMost = true;
