@@ -2680,6 +2680,9 @@ namespace HyperView
                     return;
                 }
 
+                //this.Cursor = Cursors.WaitCursor;
+                toolStripStatusLabelTextMainForm.Text = @"Starting VM overview refresh...";
+
                 Message("Starting VM overview refresh...",
                     EventType.Information, 2152);
 

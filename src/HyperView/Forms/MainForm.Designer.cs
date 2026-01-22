@@ -360,7 +360,7 @@
             datagridviewhvHosts.AllowUserToDeleteRows = false;
             datagridviewhvHosts.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             datagridviewhvHosts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            datagridviewhvHosts.Location = new Point(9, 38);
+            datagridviewhvHosts.Location = new Point(6, 35);
             datagridviewhvHosts.Name = "datagridviewhvHosts";
             datagridviewhvHosts.ReadOnly = true;
             datagridviewhvHosts.Size = new Size(1601, 803);
