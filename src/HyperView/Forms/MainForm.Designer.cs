@@ -458,7 +458,7 @@
             // labelSharedVolumesValue
             // 
             labelSharedVolumesValue.AutoSize = true;
-            labelSharedVolumesValue.Location = new Point(150, 169);
+            labelSharedVolumesValue.Location = new Point(164, 169);
             labelSharedVolumesValue.Name = "labelSharedVolumesValue";
             labelSharedVolumesValue.Size = new Size(12, 15);
             labelSharedVolumesValue.TabIndex = 9;
@@ -477,7 +477,7 @@
             // labelClusterNetworksValue
             // 
             labelClusterNetworksValue.AutoSize = true;
-            labelClusterNetworksValue.Location = new Point(150, 139);
+            labelClusterNetworksValue.Location = new Point(164, 139);
             labelClusterNetworksValue.Name = "labelClusterNetworksValue";
             labelClusterNetworksValue.Size = new Size(12, 15);
             labelClusterNetworksValue.TabIndex = 7;
@@ -496,7 +496,7 @@
             // labelCurrentNodeValue
             // 
             labelCurrentNodeValue.AutoSize = true;
-            labelCurrentNodeValue.Location = new Point(150, 109);
+            labelCurrentNodeValue.Location = new Point(164, 109);
             labelCurrentNodeValue.Name = "labelCurrentNodeValue";
             labelCurrentNodeValue.Size = new Size(12, 15);
             labelCurrentNodeValue.TabIndex = 5;
@@ -515,7 +515,7 @@
             // labelTotalNodesValue
             // 
             labelTotalNodesValue.AutoSize = true;
-            labelTotalNodesValue.Location = new Point(150, 79);
+            labelTotalNodesValue.Location = new Point(164, 79);
             labelTotalNodesValue.Name = "labelTotalNodesValue";
             labelTotalNodesValue.Size = new Size(12, 15);
             labelTotalNodesValue.TabIndex = 3;
@@ -534,22 +534,22 @@
             // labelClusterNameValue
             // 
             labelClusterNameValue.AutoSize = true;
-            labelClusterNameValue.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            labelClusterNameValue.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Bold);
             labelClusterNameValue.ForeColor = Color.DarkBlue;
-            labelClusterNameValue.Location = new Point(150, 40);
+            labelClusterNameValue.Location = new Point(162, 40);
             labelClusterNameValue.Name = "labelClusterNameValue";
-            labelClusterNameValue.Size = new Size(125, 21);
+            labelClusterNameValue.Size = new Size(150, 24);
             labelClusterNameValue.TabIndex = 1;
             labelClusterNameValue.Text = "Not Connected";
             // 
             // labelClusterName
             // 
             labelClusterName.AutoSize = true;
-            labelClusterName.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            labelClusterName.Font = new Font("Microsoft Sans Serif", 14.25F, FontStyle.Bold);
             labelClusterName.ForeColor = Color.DarkBlue;
-            labelClusterName.Location = new Point(16, 44);
+            labelClusterName.Location = new Point(14, 40);
             labelClusterName.Name = "labelClusterName";
-            labelClusterName.Size = new Size(85, 15);
+            labelClusterName.Size = new Size(142, 24);
             labelClusterName.TabIndex = 0;
             labelClusterName.Text = "Cluster Name:";
             // 
