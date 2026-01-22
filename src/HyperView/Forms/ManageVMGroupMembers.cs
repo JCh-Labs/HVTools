@@ -27,7 +27,7 @@ namespace HyperView.Forms
 
             if (!string.IsNullOrEmpty(GroupName))
             {
-                Text = $"Manage VM Group Members - {GroupName}";
+                Text = $@"Manage VM Group Members - {GroupName}";
                 UpdateMemberLists();
             }
         }
