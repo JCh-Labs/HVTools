@@ -419,7 +419,7 @@ namespace HyperView.Class
                 var clusterDetails = new ClusterInformation
                 {
                     ClusterName = clusterTest.ClusterName,
-                    CurrentNode = SessionContext.ServerName
+                    CurrentNode = SessionContext.HostName ?? SessionContext.ServerName
                 };
 
                 // Get cluster nodes

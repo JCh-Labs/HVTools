@@ -50,14 +50,14 @@ namespace HyperView
                     progressForm = new ValidationProgressForm();
                     progressForm.StartPosition = FormStartPosition.CenterScreen;
                     progressForm.TopMost = true;
-                    
+
                     // Signal that the form is created
                     progressFormReady.Set();
-                    
+
                     // Run message loop for this form on this thread
                     Application.Run(progressForm);
                 });
-                
+
                 progressThread.SetApartmentState(ApartmentState.STA);
                 progressThread.IsBackground = true;
                 progressThread.Start();
@@ -761,9 +761,10 @@ namespace HyperView
 
                     // Insert at the beginning
                     datagridviewVMOverView.Columns.Insert(0, checkboxColumn);
-                    
+#if DEBUG
                     Message("Export checkbox column created and inserted successfully",
                         EventType.Debug, 2174);
+#endif
                 }
                 else
                 {
@@ -860,7 +861,7 @@ namespace HyperView
                         string getDetailedVMsScript = @"
                             $vmList = Get-VM -ErrorAction SilentlyContinue
                             foreach ($vm in $vmList) {
-                                # Get all detailed properties on this node where the VM exists
+# Get all detailed properties on this node where the VM exists
                                 $vmProcessor = Get-VMProcessor -VMName $vm.Name -ErrorAction SilentlyContinue
                                 $vmMemory = Get-VMMemory -VMName $vm.Name -ErrorAction SilentlyContinue
                                 $vmNetworkAdapters = @(Get-VMNetworkAdapter -VMName $vm.Name -ErrorAction SilentlyContinue)
@@ -868,7 +869,7 @@ namespace HyperView
                                 $vmCheckpoints = @(Get-VMSnapshot -VMName $vm.Name -ErrorAction SilentlyContinue)
                                 $vmIntegrationServices = @(Get-VMIntegrationService -VMName $vm.Name -ErrorAction SilentlyContinue)
 
-                                # Calculate total disk size
+# Calculate total disk size
                                 $totalDiskSizeGB = 0
                                 foreach ($drive in $vmHardDrives) {
                                     if ($drive.Path -and (Test-Path $drive.Path -ErrorAction SilentlyContinue)) {
@@ -879,7 +880,7 @@ namespace HyperView
                                     }
                                 }
 
-                                # Format integration services
+# Format integration services
                                 $enabledServices = @()
                                 $totalServiceCount = 0
                                 foreach ($svc in $vmIntegrationServices) {
@@ -898,7 +899,7 @@ namespace HyperView
                                     }
                                 } else { 'No services' }
 
-                                # Create custom object with all details
+# Create custom object with all details
                                 [PSCustomObject]@{
                                     Name = $vm.Name
                                     VMId = $vm.VMId
@@ -2093,210 +2094,7 @@ namespace HyperView
 
         private void allVMDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try
-            {
-                Message("User requested VM data export",
-                    EventType.Information, 2101);
-
-                // Check if there's an active Hyper-V connection
-                if (!SessionContext.IsSessionActive())
-                {
-                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
-                        @"Connection Required",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Exclamation);
-                    return;
-                }
-
-                // Check if we have VM data
-                if (datagridviewVMOverView == null || datagridviewVMOverView.Rows.Count == 0)
-                {
-                    MessageBox.Show(@"No VM data available. Please load VMs first.",
-                        @"No Data",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Exclamation);
-                    return;
-                }
-
-                // Force DataGridView to commit any pending edits (checkbox changes)
-                // This ensures that checkbox changes are written to the underlying data before we read them
-                datagridviewVMOverView.EndEdit();
-                datagridviewVMOverView.CurrentCell = null; // Clear current cell to commit changes
-                Application.DoEvents(); // Process pending UI events
-#if DEBUG
-                Message("Forcing DataGridView to commit pending checkbox changes", EventType.Debug, 2234);
-#endif
-                // Count how many VMs are selected for export
-                int selectedCount = 0;
-                
-                // Find the Export column index
-                int exportColumnIndex = -1;
-                for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
-                {
-                    var col = datagridviewVMOverView.Columns[i];
-                    if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == "☑" || col.HeaderText == "☐")
-                    {
-                        exportColumnIndex = i;
-#if DEBUG
-                        Message($"Validation: Found Export column at index {i}", EventType.Debug, 2232);
-#endif
-                        break;
-                    }
-                }
-
-                if (exportColumnIndex >= 0)
-                {
-                    foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
-                    {
-                        var cell = row.Cells[exportColumnIndex];
-                        bool isChecked = false;
-                        
-                        if (cell.Value != null)
-                        {
-                            if (cell.Value is bool boolValue)
-                            {
-                                isChecked = boolValue;
-                            }
-                            else if (cell.Value is int intValue)
-                            {
-                                isChecked = intValue != 0;
-                            }
-                            else if (bool.TryParse(cell.Value.ToString(), out bool parsedValue))
-                            {
-                                isChecked = parsedValue;
-                            }
-                        }
-                        
-                        if (isChecked)
-                        {
-                            selectedCount++;
-                        }
-                    }
-                    
-                    Message($"Validation: {selectedCount} of {datagridviewVMOverView.Rows.Count} VMs are checked for export",
-                        EventType.Information, 2233);
-                }
-                else
-                {
-                    // If Export column not found, export all VMs
-                    selectedCount = datagridviewVMOverView.Rows.Count;
-                    Message("Validation: Export column not found - will export all VMs",
-                        EventType.Warning, 2226);
-                }
-
-                if (selectedCount == 0)
-                {
-                    MessageBox.Show(@"No VMs selected for export. Please check at least one VM in the Export column.",
-                        @"No VMs Selected",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Exclamation);
-                    return;
-                }
-
-                Message($"Export VM Data requested - {selectedCount} of {datagridviewVMOverView.Rows.Count} VMs selected for export",
-                    EventType.Information, 2102);
-
-                // Show SaveFileDialog with format options
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-                {
-                    saveFileDialog.Title = @"Export data for selected VM´s";
-                    saveFileDialog.FileName = $"Exported_VMData_{SessionContext.ServerName}_{DateTime.Now:yyyyMMdd_HHmmss}";
-                    saveFileDialog.Filter = @"JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|XML Files (*.xml)|*.xml|Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-                    saveFileDialog.FilterIndex = 1;
-                    saveFileDialog.RestoreDirectory = true;
-
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        string filePath = saveFileDialog.FileName;
-                        string fileExtension = Path.GetExtension(filePath).ToLower();
-
-                        Message($"Exporting VM data to: '{filePath}', (Format: {fileExtension})",
-                            EventType.Information, 2103);
-
-                        // Show progress cursor
-                        this.Cursor = Cursors.WaitCursor;
-
-                        try
-                        {
-                            // Get VM Groups data
-                            var vmGroups = VMGroups.GetHyperVVMGroups(cmd => ExecutePowerShellCommand(cmd));
-
-                            // Export based on file extension
-                            bool success = false;
-                            switch (fileExtension)
-                            {
-                                case ".json":
-                                    success = ExportToJson(filePath, vmGroups);
-                                    break;
-
-                                case ".csv":
-                                    success = ExportToCsv(filePath, vmGroups);
-                                    break;
-
-                                case ".xml":
-                                    success = ExportToXml(filePath, vmGroups);
-                                    break;
-
-                                case ".txt":
-                                    success = ExportToText(filePath, vmGroups);
-                                    break;
-
-                                default:
-                                    success = ExportToJson(filePath, vmGroups);
-                                    break;
-                            }
-
-                            if (success)
-                            {
-                                Message($"VM data export completed successfully: '{filePath}'",
-                                    EventType.Information, 2104);
-
-                                // Show success message with option to open file location
-                                var result = MessageBox.Show(
-                                    $@"VM data exported successfully to:
-{filePath}
-
-Would you like to open the file location?",
-                                    @"Export Complete",
-                                    MessageBoxButtons.YesNo,
-                                    MessageBoxIcon.Information);
-
-                                if (result == DialogResult.Yes)
-                                {
-                                    try
-                                    {
-                                        Process.Start("explorer.exe", $"/select,\"{filePath}\"");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Message($"Could not open file location: {ex.Message}",
-                                            EventType.Warning, 2105);
-                                    }
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            this.Cursor = Cursors.Default;
-                        }
-                    }
-                    else
-                    {
-                        Message("Export dialog cancelled by user",
-                            EventType.Information, 2106);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string errorMsg = $"Error exporting VM data: {ex.Message}";
-                Message(errorMsg, EventType.Error, 2107);
-
-                MessageBox.Show(errorMsg,
-                    @"Export Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
+            
         }
 
         private bool ExportToJson(string filePath, List<VMGroupInfo> vmGroups)
@@ -2551,7 +2349,7 @@ Would you like to open the file location?",
                 {
                     exportColumnIndex = i;
 #if DEBUG
-                    Message($"Validation: Found Export column at index {i}", EventType.Information, 2232);
+                    Message($"Validation: Found Export column at index {i}", EventType.Debug, 2232);
 #endif
                     break;
                 }
@@ -2576,7 +2374,7 @@ Would you like to open the file location?",
 
 #if DEBUG
                     Message($"Row {rowIndex} ({vmName}): Cell.Value = {cell.Value ?? "NULL"}, Cell.Value Type = {cell.Value?.GetType().Name ?? "NULL"}",
-                        EventType.Information, 2228);
+                        EventType.Debug, 2228);
 #endif
                     if (cell.Value != null)
                     {
@@ -3239,7 +3037,7 @@ Management:
                 if (e.ColumnIndex < 0) return;
 
                 var clickedColumn = datagridviewVMOverView.Columns[e.ColumnIndex];
-                
+
                 // Check if the Export column header was clicked
                 if (clickedColumn.Name == "Export" || clickedColumn.DataPropertyName == "Export" || clickedColumn.HeaderText == "☑" || clickedColumn.HeaderText == "☐")
                 {
@@ -3486,6 +3284,9 @@ Management:
                     return;
                 }
 
+                //this.Cursor = Cursors.WaitCursor;
+                toolStripStatusLabelTextMainForm.Text = @"Loading Hyper-V host information...";
+
                 Message("Retrieving Hyper-V host details...",
                     EventType.Information, 4011);
 
@@ -3508,7 +3309,7 @@ Management:
                         // Update the DataGridView
                         UpdateHostsDataGridView(hostDetails);
 
-                        toolStripStatusLabelTextMainForm.Text = $"Host details refreshed - {hostDetails.Count} host(s)";
+                        toolStripStatusLabelTextMainForm.Text = $@"Host details refreshed - {hostDetails.Count} host(s)";
 
                         /*MessageBox.Show($"Host details refreshed successfully.\n\nFound {hostDetails.Count} host(s).",
                             "Refresh Complete",
@@ -3519,7 +3320,7 @@ Management:
                     {
                         Message("No host details retrieved",
                             EventType.Warning, 4013);
-                        toolStripStatusLabelTextMainForm.Text = "No host data available";
+                        toolStripStatusLabelTextMainForm.Text = @"No host data available";
 
                         MessageBox.Show(@"No host details found or error retrieving details.",
                             @"Refresh Complete",
@@ -3539,7 +3340,7 @@ Management:
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
-                toolStripStatusLabelTextMainForm.Text = "Error loading host details";
+                toolStripStatusLabelTextMainForm.Text = @"Error loading host details";
             }
         }
 
@@ -3732,17 +3533,17 @@ Management:
                 // Check if connected to a cluster
                 if (!SessionContext.IsCluster)
                 {
-                    labelClusterNameValue.Text = "Not a Cluster";
+                    labelClusterNameValue.Text = @"Not a Cluster";
                     labelClusterNameValue.ForeColor = Color.Gray;
                     labelTotalNodesValue.Text = "-";
                     labelCurrentNodeValue.Text = "-";
                     labelClusterNetworksValue.Text = "-";
                     labelSharedVolumesValue.Text = "-";
-                    labelClusterNodes.Text = "Cluster Nodes (0 total)";
-                    labelClusterVMs.Text = "Highly Available VMs (0 VMs)";
+                    labelClusterNodes.Text = @"Cluster Nodes (0 total)";
+                    labelClusterVMs.Text = @"Highly Available VMs (0 VMs)";
 
                     MessageBox.Show($"The connected host '{SessionContext.ServerName}' is not part of a cluster.\n\n" +
-                                  "This is a standalone Hyper-V host.",
+                                  @"This is a standalone Hyper-V host.",
                         @"Not a Cluster",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -3750,7 +3551,7 @@ Management:
                 }
 
                 this.Cursor = Cursors.WaitCursor;
-                toolStripStatusLabelTextMainForm.Text = "Loading cluster information...";
+                toolStripStatusLabelTextMainForm.Text = @"Loading cluster information...";
 
                 Message("Retrieving detailed cluster information...",
                     EventType.Information, 4021);
@@ -3798,7 +3599,7 @@ Management:
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
-                toolStripStatusLabelTextMainForm.Text = "Error loading cluster information";
+                toolStripStatusLabelTextMainForm.Text = @"Error loading cluster information";
             }
             finally
             {
@@ -3985,7 +3786,7 @@ Management:
                 }
 
                 this.Cursor = Cursors.WaitCursor;
-                toolStripStatusLabelTextMainForm.Text = "Loading virtual disk information...";
+                toolStripStatusLabelTextMainForm.Text = @"Loading virtual disk information...";
 
                 Message("Retrieving virtual disk details...",
                     EventType.Information, 5031);
@@ -4559,7 +4360,7 @@ Management:
                     {
                         var fragStr = fragmentation.Replace("%", "").Trim();
                         if (double.TryParse(fragStr, out double fragValue))
- {
+                        {
                             fragmentationValues.Add(fragValue);
                         }
                     }
@@ -4698,6 +4499,214 @@ Management:
             return recommendations.Count > 0
                 ? string.Join("\n", recommendations)
                 : "• Disk configuration looks optimal";
-        }        
+        }
+
+        private void buttonExportVMvmOverviewView_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Message("User requested VM data export",
+                    EventType.Information, 2101);
+
+                // Check if there's an active Hyper-V connection
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show(@"Please connect to a Hyper-V server first.",
+                        @"Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Check if we have VM data
+                if (datagridviewVMOverView == null || datagridviewVMOverView.Rows.Count == 0)
+                {
+                    MessageBox.Show(@"No VM data available. Please load VMs first.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Force DataGridView to commit any pending edits (checkbox changes)
+                // This ensures that checkbox changes are written to the underlying data before we read them
+                datagridviewVMOverView.EndEdit();
+                datagridviewVMOverView.CurrentCell = null; // Clear current cell to commit changes
+                Application.DoEvents(); // Process pending UI events
+#if DEBUG
+                Message("Forcing DataGridView to commit pending checkbox changes", EventType.Debug, 2234);
+#endif
+                // Count how many VMs are selected for export
+                int selectedCount = 0;
+
+                // Find the Export column index
+                int exportColumnIndex = -1;
+                for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
+                {
+                    var col = datagridviewVMOverView.Columns[i];
+                    if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == "☑" || col.HeaderText == "☐")
+                    {
+                        exportColumnIndex = i;
+#if DEBUG
+                        Message($"Validation: Found Export column at index {i}", EventType.Debug, 2232);
+#endif
+                        break;
+                    }
+                }
+
+                if (exportColumnIndex >= 0)
+                {
+                    foreach (DataGridViewRow row in datagridviewVMOverView.Rows)
+                    {
+                        var cell = row.Cells[exportColumnIndex];
+                        bool isChecked = false;
+
+                        if (cell.Value != null)
+                        {
+                            if (cell.Value is bool boolValue)
+                            {
+                                isChecked = boolValue;
+                            }
+                            else if (cell.Value is int intValue)
+                            {
+                                isChecked = intValue != 0;
+                            }
+                            else if (bool.TryParse(cell.Value.ToString(), out bool parsedValue))
+                            {
+                                isChecked = parsedValue;
+                            }
+                        }
+
+                        if (isChecked)
+                        {
+                            selectedCount++;
+                        }
+                    }
+
+                    Message($"Validation: {selectedCount} of {datagridviewVMOverView.Rows.Count} VMs are checked for export",
+                        EventType.Information, 2233);
+                }
+                else
+                {
+                    // If Export column not found, export all VMs
+                    selectedCount = datagridviewVMOverView.Rows.Count;
+                    Message("Validation: Export column not found - will export all VMs",
+                        EventType.Warning, 2226);
+                }
+
+                if (selectedCount == 0)
+                {
+                    MessageBox.Show(@"No VMs selected for export. Please check at least one VM in the Export column.",
+                        @"No VMs Selected",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                Message($"Export VM Data requested - {selectedCount} of {datagridviewVMOverView.Rows.Count} VMs selected for export",
+                    EventType.Information, 2102);
+
+                // Show SaveFileDialog with format options
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                {
+                    saveFileDialog.Title = @"Export data for selected VM´s";
+                    saveFileDialog.FileName = $"Exported_VMData_{SessionContext.ServerName}_{DateTime.Now:yyyyMMdd_HHmmss}";
+                    saveFileDialog.Filter = @"JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|XML Files (*.xml)|*.xml|Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                    saveFileDialog.FilterIndex = 1;
+                    saveFileDialog.RestoreDirectory = true;
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string filePath = saveFileDialog.FileName;
+                        string fileExtension = Path.GetExtension(filePath).ToLower();
+
+                        Message($"Exporting VM data to: '{filePath}', (Format: {fileExtension})",
+                            EventType.Information, 2103);
+
+                        // Show progress cursor
+                        this.Cursor = Cursors.WaitCursor;
+
+                        try
+                        {
+                            // Get VM Groups data
+                            var vmGroups = VMGroups.GetHyperVVMGroups(cmd => ExecutePowerShellCommand(cmd));
+
+                            // Export based on file extension
+                            bool success = false;
+                            switch (fileExtension)
+                            {
+                                case ".json":
+                                    success = ExportToJson(filePath, vmGroups);
+                                    break;
+
+                                case ".csv":
+                                    success = ExportToCsv(filePath, vmGroups);
+                                    break;
+
+                                case ".xml":
+                                    success = ExportToXml(filePath, vmGroups);
+                                    break;
+
+                                case ".txt":
+                                    success = ExportToText(filePath, vmGroups);
+                                    break;
+
+                                default:
+                                    success = ExportToJson(filePath, vmGroups);
+                                    break;
+                            }
+
+                            if (success)
+                            {
+                                Message($"VM data export completed successfully: '{filePath}'",
+                                    EventType.Information, 2104);
+
+                                // Show success message with option to open file location
+                                var result = MessageBox.Show(
+                                    $@"VM data exported successfully to:
+{filePath}
+
+Would you like to open the file location?",
+                                    @"Export Complete",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Information);
+
+                                if (result == DialogResult.Yes)
+                                {
+                                    try
+                                    {
+                                        Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Message($"Could not open file location: {ex.Message}",
+                                            EventType.Warning, 2105);
+                                    }
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            this.Cursor = Cursors.Default;
+                        }
+                    }
+                    else
+                    {
+                        Message("Export dialog cancelled by user",
+                            EventType.Information, 2106);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"Error exporting VM data: {ex.Message}";
+                Message(errorMsg, EventType.Error, 2107);
+
+                MessageBox.Show(errorMsg,
+                    @"Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
     }
 }

@@ -32,6 +32,7 @@
             datagridviewVMOverView = new DataGridView();
             tabcontrolMainForm = new TabControl();
             tabpagehvOverview = new TabPage();
+            buttonExportVMvmOverviewView = new Button();
             buttonSummaryhvOverviewView = new Button();
             buttonLoadVMsrefresh = new Button();
             labelOverviewHelpText = new Label();
@@ -98,7 +99,6 @@
             downloadLastestReleaseFromGitHubToolStripMenuItem = new ToolStripMenuItem();
             changelogToolStripMenuItem = new ToolStripMenuItem();
             exportDataToolStripMenuItem = new ToolStripMenuItem();
-            allVMDataToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
             pictureboxSupportMe = new PictureBox();
@@ -166,6 +166,7 @@
             // 
             // tabpagehvOverview
             // 
+            tabpagehvOverview.Controls.Add(buttonExportVMvmOverviewView);
             tabpagehvOverview.Controls.Add(buttonSummaryhvOverviewView);
             tabpagehvOverview.Controls.Add(buttonLoadVMsrefresh);
             tabpagehvOverview.Controls.Add(labelOverviewHelpText);
@@ -177,6 +178,17 @@
             tabpagehvOverview.TabIndex = 0;
             tabpagehvOverview.Text = "vmOverview";
             tabpagehvOverview.UseVisualStyleBackColor = true;
+            // 
+            // buttonExportVMvmOverviewView
+            // 
+            buttonExportVMvmOverviewView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonExportVMvmOverviewView.Location = new Point(1329, 6);
+            buttonExportVMvmOverviewView.Name = "buttonExportVMvmOverviewView";
+            buttonExportVMvmOverviewView.Size = new Size(81, 23);
+            buttonExportVMvmOverviewView.TabIndex = 4;
+            buttonExportVMvmOverviewView.Text = "Export VM´s";
+            buttonExportVMvmOverviewView.UseVisualStyleBackColor = true;
+            buttonExportVMvmOverviewView.Click += buttonExportVMvmOverviewView_Click;
             // 
             // buttonSummaryhvOverviewView
             // 
@@ -820,17 +832,9 @@
             // 
             // exportDataToolStripMenuItem
             // 
-            exportDataToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { allVMDataToolStripMenuItem });
             exportDataToolStripMenuItem.Name = "exportDataToolStripMenuItem";
             exportDataToolStripMenuItem.Size = new Size(273, 22);
             exportDataToolStripMenuItem.Text = "Export data";
-            // 
-            // allVMDataToolStripMenuItem
-            // 
-            allVMDataToolStripMenuItem.Name = "allVMDataToolStripMenuItem";
-            allVMDataToolStripMenuItem.Size = new Size(254, 22);
-            allVMDataToolStripMenuItem.Text = "Data for selected VM´s in overview";
-            allVMDataToolStripMenuItem.Click += allVMDataToolStripMenuItem_Click;
             // 
             // aboutToolStripMenuItem
             // 
@@ -1004,7 +1008,6 @@
         private GroupBox groupBox2;
         private Button buttonManageServerMembers;
         private Label toolstripstatuslabelMain_CreatedBy;
-        private ToolStripMenuItem allVMDataToolStripMenuItem;
         private Button buttonSummaryClustersOverviewView;
         private Label label1;
         private DataGridView datagridviewhvHosts;
@@ -1031,5 +1034,6 @@
         private Button buttonLoadvDiskrefresh;
         private Label labelvDiskOverviewText;
         private DataGridView datagridviewvDiskOverView;
+        private Button buttonExportVMvmOverviewView;
     }
 }
