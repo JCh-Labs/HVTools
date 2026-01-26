@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using HyperView.Class;
+using HVTools.Class;
 
-namespace HyperView.Forms
+namespace HVTools.Forms
 {
     public partial class RenameVmGroupForm : Form
     {

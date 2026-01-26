@@ -1,6 +1,6 @@
 ﻿using System.Management.Automation;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     public class VmGroupInfo
     {

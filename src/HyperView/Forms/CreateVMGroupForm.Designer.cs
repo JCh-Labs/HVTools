@@ -1,4 +1,4 @@
-﻿namespace HyperView.Forms
+﻿namespace HVTools.Forms
 {
     partial class CreateVmGroupForm
     {

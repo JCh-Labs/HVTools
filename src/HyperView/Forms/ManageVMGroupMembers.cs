@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Management.Automation;
-using HyperView.Class;
+using HVTools.Class;
 
-namespace HyperView.Forms
+namespace HVTools.Forms
 {
     public partial class ManageVmGroupMembers : Form
     {

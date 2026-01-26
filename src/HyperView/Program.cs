@@ -1,6 +1,6 @@
-using HyperView.Class;
+using HVTools.Class;
 
-namespace HyperView
+namespace HVTools
 {
     internal static class Program
     {

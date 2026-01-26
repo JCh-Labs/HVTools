@@ -1,9 +1,9 @@
-# Post-Build Script for HyperView
+# Post-Build Script for HVTools
 # Renames the output file with version and timestamp, creates SHA-256 hash, and archives old builds
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$TargetPath,      # Full path to the built .exe file (e.g., bin\Release\net10.0-windows\hyperview.exe)
+    [string]$TargetPath,      # Full path to the built .exe file (e.g., bin\Release\net10.0-windows\HVTools.exe)
     
     [Parameter(Mandatory=$true)]
     [string]$TargetDir,       # Directory containing the built .exe (e.g., bin\Release\net10.0-windows\)
@@ -24,7 +24,7 @@ if ($targetExtension -eq ".dll") {
     Write-Warning "WARNING: Target is a DLL, not an EXE. Looking for executable in the same directory..."
     
     # Try to find the actual executable in the target directory
-    $possibleExeNames = @("HyperView.exe", "hyperview.exe")
+    $possibleExeNames = @("HVTools.exe", "HVTools.exe")
     $foundExe = $null
     
     foreach ($exeName in $possibleExeNames) {
@@ -37,7 +37,7 @@ if ($targetExtension -eq ".dll") {
     }
     
     if ($null -eq $foundExe) {
-        Write-Error "ERROR: Could not find HyperView.exe or hyperview.exe in: $TargetDir"
+        Write-Error "ERROR: Could not find HVTools.exe or HVTools.exe in: $TargetDir"
         Write-Error "Please ensure this post-build event is attached to the main executable project, not a library project."
         exit 1
     }
@@ -117,7 +117,7 @@ try {
     $hashFileName = Join-Path $TargetDir "$([System.IO.Path]::GetFileNameWithoutExtension($newFileName)).sha256"
     
     $hashFileContent = @"
-HyperView Build Hash
+HVTools Build Hash
 ====================
 File: $newFileName
 Version: $FileVersion

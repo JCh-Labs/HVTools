@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     internal class HighDpi
     {

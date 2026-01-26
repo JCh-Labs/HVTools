@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     // Struct layout attribute to define the structure layout for P/Invoke, with sequential layout and Unicode character set
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

@@ -2,7 +2,7 @@ using System.Management.Automation;
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     /// <summary>
     /// Represents detailed information about a Hyper-V host
@@ -293,7 +293,7 @@ namespace HyperView.Class
                 string script = GetWmiHostDetailsScript();
                 
                 // Create a temporary script file
-                string tempScriptPath = Path.Combine(Path.GetTempPath(), $"HyperView_HostDetails_{Guid.NewGuid():N}.ps1");
+                string tempScriptPath = Path.Combine(Path.GetTempPath(), $"HVTools_HostDetails_{Guid.NewGuid():N}.ps1");
                 File.WriteAllText(tempScriptPath, script);
                 
                 FileLogger.Message($"Created temp script: '{tempScriptPath}'",

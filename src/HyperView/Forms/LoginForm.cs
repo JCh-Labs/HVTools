@@ -1,4 +1,4 @@
-﻿using HyperView.Class;
+﻿using HVTools.Class;
 using System.Management;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -9,7 +9,7 @@ using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
 
-namespace HyperView.Forms
+namespace HVTools.Forms
 {
     public partial class LoginForm : Form
     {

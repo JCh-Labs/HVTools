@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using HyperView.Class;
-using static HyperView.Class.FileLogger;
+using HVTools.Class;
+using static HVTools.Class.FileLogger;
 
-namespace HyperView.Forms
+namespace HVTools.Forms
 {
     public partial class MainForm : Form
     {
@@ -2176,7 +2176,7 @@ namespace HyperView.Forms
                         HyperVHost = SessionContext.ServerName,
                         ConnectionType = SessionContext.IsLocal ? "Local" : "Remote",
                         TotalVMs = datagridviewVMOverView.Rows.Count,
-                        ApplicationVersion = "HyperView v1.0.0.0"
+                        ApplicationVersion = "HVTools v1.0.0.0"
                     },
                     VMData = GetVmDataFromGrid(),
                     VMGroups = vmGroups
@@ -2341,7 +2341,7 @@ namespace HyperView.Forms
                 var textOutput = new List<string>();
 
                 textOutput.Add(new string('=', 80));
-                textOutput.Add("HYPERVIEW - ALL VM DATA EXPORT");
+                textOutput.Add("HVTools - ALL VM DATA EXPORT");
                 textOutput.Add(new string('=', 80));
                 textOutput.Add($"Export Date/Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
                 textOutput.Add($"Exported By: {Environment.UserName}");

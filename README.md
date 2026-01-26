@@ -1,14 +1,14 @@
-# HyperView
+# HVTools
 
 <p align="center">
   <a href="https://www.linkedin.com/in/michaelmsonne/"><img alt="Made by" src="https://img.shields.io/static/v1?label=made%20by&message=Michael%20Morten%20Sonne&color=04D361"></a>
-  <a href="https://github.com/michaelmsonne/HyperView"><img src="https://img.shields.io/github/languages/top/HyperView/GitHubBackupTool.svg"></a>
-  <a href="https://github.com/michaelmsonne/HyperView"><img src="https://img.shields.io/github/languages/code-size/HyperView/GitHubBackupTool.svg"></a>
+  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/top/HVTools/GitHubBackupTool.svg"></a>
+  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/code-size/HVTools/GitHubBackupTool.svg"></a>
   <img src="https://img.shields.io/badge/C%23-239120?logo=csharp&logoColor=white" alt="C#"></a>
   <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet" alt=".NET 10"></a>
   <img src="https://img.shields.io/badge/Platform-Windows-0078D7" alt="Platform"></a>
-  <a href="https://github.com/michaelmsonne/HyperView/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://github.com/michaelmsonne/HyperView"><img src="https://img.shields.io/github/downloads/michaelmsonne/HyperView/total.svg"></a><br>
+  <a href="https://github.com/michaelmsonne/HVTools/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/downloads/michaelmsonne/HVTools/total.svg"></a><br>
   <a href="https://www.buymeacoffee.com/sonnes" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 117px !important;"></a>
   
 </p>
@@ -17,11 +17,11 @@
 [//]: #https://img.shields.io/badge/PowerShell-5.1%2B-blue
 
 <div align="center">
-  <a href="https://github.com/michaelmsonne/HyperView/issues/new?assignees=&labels=bug&HyperView=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
+  <a href="https://github.com/michaelmsonne/HVTools/issues/new?assignees=&labels=bug&HVTools=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
   ·
-  <a href="https://github.com/michaelmsonne/HyperView/issues/new?assignees=&labels=enhancement&HyperView=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
+  <a href="https://github.com/michaelmsonne/HVTools/issues/new?assignees=&labels=enhancement&HVTools=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
   .
-  <a href="https://github.com/michaelmsonne/HyperView/discussions">Ask a Question</a>
+  <a href="https://github.com/michaelmsonne/HVTools/discussions">Ask a Question</a>
 </div>
 
 <div align="center">
@@ -48,11 +48,11 @@
 - [Credits](#credit)
 
 # Introduction
-**HyperView** is a comprehensive inventory, documentation, and management tool for Microsoft Hyper-V environments - the equivalent of RVTools for VMware environments. 
+**HVTools** is a comprehensive inventory, documentation, and management tool for Microsoft Hyper-V environments - the equivalent of RVTools for VMware environments. 
 
-Just as RVTools helps VMware administrators document and inventory their vSphere infrastructure, HyperView provides detailed information about your Hyper-V hosts, virtual machines, clusters, and configurations, with powerful export capabilities for reporting and documentation purposes.
+Just as RVTools helps VMware administrators document and inventory their vSphere infrastructure, HVTools provides detailed information about your Hyper-V hosts, virtual machines, clusters, and configurations, with powerful export capabilities for reporting and documentation purposes.
 
-### Why HyperView?
+### Why HVTools?
 
 - **Complete Inventory** - Document your entire Hyper-V infrastructure
 - **Cluster-Aware** - Full support for Failover Clusters and standalone hosts
@@ -71,10 +71,10 @@ Outline the file contents of the repository. It helps users navigate the codebas
 | `src`             | Source code.                                |
 | `.gitignore`      | Define what to ignore at commit time.       |
 | `CHANGELOG.md`    | List of changes to the sample.              |
-| `CONTRIBUTING.md` | Guidelines for contributing to the HyperView.|
+| `CONTRIBUTING.md` | Guidelines for contributing to the HVTools.|
 | `README.md`       | This README file.                           |
 | `SECURITY.md`     | This README file.                           |
-| `LICENSE`         | The license for the HyperView.               |
+| `LICENSE`         | The license for the HVTools.               |
 
 ## 🚀 Features
 
@@ -102,7 +102,7 @@ Outline the file contents of the repository. It helps users navigate the codebas
 
 # 🔧 How to Use
 
-1. Download and install HyperView
+1. Download and install HVTools
 2. Run as Administrator (for local Hyper-V) or with appropriate credentials
 3. Connect to your Hyper-V host or cluster
 4. Explore VMs, Hosts, and Clusters tabs´and much more comming
@@ -151,7 +151,7 @@ Thanks.
 
 Reach out to the maintainer at one of the following places:
 
-- [GitHub discussions](https://github.com/michaelmsonne/HyperView/discussions)
+- [GitHub discussions](https://github.com/michaelmsonne/HVTools/discussions)
 - The email which is located [in GitHub profile](https://github.com/michaelmsonne)
 
 # 📄 License
@@ -166,7 +166,7 @@ Made with ❤️ **Michael Morten Sonne**
 
 ## Star This Project
 
-If **HyperView** helps you document and manage your Hyper-V environment, please consider giving it a star!
+If **HVTools** helps you document and manage your Hyper-V environment, please consider giving it a star!
 
 # 🙏 Credits / Acknowledgments
 

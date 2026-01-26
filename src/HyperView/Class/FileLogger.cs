@@ -2,7 +2,7 @@
 using System.Security;
 using System.Text;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     internal class FileLogger
     {

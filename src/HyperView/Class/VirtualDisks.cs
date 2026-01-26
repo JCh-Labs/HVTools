@@ -1,6 +1,6 @@
 using System.Management.Automation;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     /// <summary>
     /// Represents detailed information about a virtual disk (VHD/VHDX)

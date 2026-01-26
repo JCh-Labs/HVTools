@@ -1,11 +1,11 @@
-﻿namespace HyperView.Class
+﻿namespace HVTools.Class
 {
     internal class Globals
     {
         internal class ToolName
         {
-            internal static string ShortName = "HyperView";
-            internal static string FullName = "HyperView GUI";
+            internal static string ShortName = "HVTools";
+            internal static string FullName = "HVTools GUI";
         }
 
         internal class MsgBox

@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="textBoxDescription.Text" xml:space="preserve">
-    <value>HyperView (name for now) is a comprehensive GUI application designed to simplify and enhance Hyper-V virtual machine management. Built with .Net, this tool provides an intuitive interface for virtual machines across both local and remote Hyper-V hosts, Clusters and Azure Local.
+    <value>HVTools is a comprehensive GUI application designed to simplify and enhance Hyper-V virtual machine management. Built with .Net, this tool provides an intuitive interface for virtual machines across both local and remote Hyper-V hosts, Clusters and Azure Local.
 
 This tool is my contribution to the community ❤️</value>
   </data>

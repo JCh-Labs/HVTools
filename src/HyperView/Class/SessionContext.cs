@@ -1,6 +1,6 @@
 using System.Management.Automation;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     /// <summary>
     /// Global session context to store connection credentials and information

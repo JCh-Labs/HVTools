@@ -1,4 +1,4 @@
-﻿namespace HyperView.Class
+﻿namespace HVTools.Class
 {
     internal class FileManager
     {

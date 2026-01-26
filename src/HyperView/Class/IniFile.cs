@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     public class IniFile
     {

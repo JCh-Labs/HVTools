@@ -3,5 +3,5 @@
     <File Path="../README.md" />
     <File Path="HyperView/Scripts/RenameOutputAndCleanup.ps1" />
   </Folder>
-  <Project Path="HyperView/HyperView.csproj" />
+  <Project Path="HyperView/HVTools.csproj" />
 </Solution>

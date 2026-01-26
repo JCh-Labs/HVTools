@@ -2,9 +2,9 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
-using HyperView.Class;
+using HVTools.Class;
 
-namespace HyperView.Forms
+namespace HVTools.Forms
 {
     partial class AboutForm : Form
     {

@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 
-namespace HyperView.Class
+namespace HVTools.Class
 {
     internal class ApplicationFunctions
     {
