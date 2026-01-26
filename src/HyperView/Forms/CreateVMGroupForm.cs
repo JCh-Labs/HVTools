@@ -6,16 +6,16 @@ namespace HyperView.Forms
     {
         private class VmGroupTemplate
         {
-            public string Name { get; set; }
-            public string Type { get; set; }
-            public string Description { get; set; }
-            public string Category { get; set; }
+            public string? Name { get; set; }
+            public string? Type { get; set; }
+            public string? Description { get; set; }
+            public string? Category { get; set; }
         }
 
         public class VmGroupResult
         {
-            public string GroupName { get; set; }
-            public string GroupType { get; set; }
+            public string? GroupName { get; set; }
+            public string? GroupType { get; set; }
         }
 
         public VmGroupResult Result { get; private set; }
@@ -383,7 +383,7 @@ namespace HyperView.Forms
             {
                 for (int i = 0; i < comboboxGroupType.Items.Count; i++)
                 {
-                    if (comboboxGroupType.Items[i].ToString() == _selectedTemplate.Type)
+                    if (comboboxGroupType.Items[i]!.ToString() == _selectedTemplate.Type)
                     {
                         comboboxGroupType.SelectedIndex = i;
                         break;
