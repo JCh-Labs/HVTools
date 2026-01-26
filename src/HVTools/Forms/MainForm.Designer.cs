@@ -972,7 +972,7 @@
             MainMenuStrip = menuStripTopMainForm;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "MainForm";
+            Text = "HVTools";
             FormClosing += MainForm_FormClosing;
             Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).EndInit();
