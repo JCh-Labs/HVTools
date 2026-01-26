@@ -13,7 +13,7 @@ namespace HyperView.Forms
 {
     public partial class LoginForm : Form
     {
-        public LoginResult Result { get; private set; }
+        public LoginResult Result { get; private set; } = null!;
         private string _lastServerChecked = string.Empty;
         private readonly bool _isInitializing;
         private bool _isConnecting; // Prevent double login attempts
@@ -138,7 +138,7 @@ namespace HyperView.Forms
                 $"Connect using your current Windows credentials: {WindowsIdentity.GetCurrent().Name}");
 
             // Update UI based on initial selection
-            RadioAuth_CheckedChanged(null, null);
+            RadioAuth_CheckedChanged(null!, null!);
         }
 
         #region Hyper-V Detection Methods
@@ -225,7 +225,7 @@ namespace HyperView.Forms
                     foreach (var o in searcher.Get())
                     {
                         var feature = (ManagementObject)o;
-                        string featureName = feature["Name"]?.ToString();
+                        string? featureName = feature["Name"]?.ToString();
                         uint installState = Convert.ToUInt32(feature["InstallState"]);
 
                         // InstallState values: 1 = Enabled, 2 = Disabled, 3 = Absent
@@ -282,7 +282,7 @@ namespace HyperView.Forms
                     foreach (var o in searcher.Get())
                     {
                         var feature = (ManagementObject)o;
-                        string featureName = feature["Name"]?.ToString();
+                        string? featureName = feature["Name"]?.ToString();
                         
                         FileLogger.Message($"Hyper-V role detected on Windows Server: {featureName}",
                             FileLogger.EventType.Information, 1063);
@@ -361,7 +361,7 @@ namespace HyperView.Forms
 
         #region Tests
 
-        private async Task<ConnectionTestResult> TestHyperVConnection(string serverName, PSCredential credential)
+        private async Task<ConnectionTestResult> TestHyperVConnection(string serverName, PSCredential? credential)
         {
             return await Task.Run(() =>
             {
@@ -531,7 +531,7 @@ namespace HyperView.Forms
 
                         if (!isAdmin)
                         {
-                            FileLogger.Message("Administrator privileges required for local Hyper-V access",
+                            FileLogger.Message("Administrator privileges required for local Hyper-V access if not member of 'Hyper-V Administrators' Group",
                                 FileLogger.EventType.Warning, 1087);
                         }
 
@@ -539,7 +539,7 @@ namespace HyperView.Forms
                         FileLogger.Message("Checking Hyper-V Virtual Machine Management service...",
                             FileLogger.EventType.Information, 1088);
 
-                        using (ServiceController sc = new ServiceController("vmms"))
+                        using (ServiceController sc = new ServiceController(@"vmms"))
                         {
                             var status = sc.Status;
 
@@ -625,7 +625,7 @@ namespace HyperView.Forms
                             FileLogger.EventType.Information, 1093);
 
                         // Get Hyper-V version
-                        string hyperVVersion = "Unknown";
+                        string? hyperVVersion = "Unknown";
                         try
                         {
                             var versionProperty = vmHost.Properties["HyperVVersion"]?.Value;
@@ -666,7 +666,7 @@ namespace HyperView.Forms
 
                         // Check for cluster configuration
                         bool isCluster = false;
-                        string clusterName = null;
+                        string? clusterName = null;
 
                         try
                         {
@@ -690,9 +690,9 @@ namespace HyperView.Forms
 
                             if (clusterResult != null && clusterResult.Count > 0)
                             {
-                                var clusterInfo = (PSObject)clusterResult[0];
+                                var clusterInfo = clusterResult[0];
                                 var hashtable = (System.Collections.Hashtable)clusterInfo.BaseObject;
-                                isCluster = (bool)hashtable["IsCluster"];
+                                isCluster = (bool)hashtable["IsCluster"]!;
 
                                 if (isCluster)
                                 {
@@ -776,10 +776,10 @@ namespace HyperView.Forms
             }
         }
 
-        private ConnectionTestResult TestRemoteHyperV(string serverName, PSCredential credential)
+        private ConnectionTestResult TestRemoteHyperV(string serverName, PSCredential? credential)
         {
-            Runspace tempRunspace = null;
-            PSObject tempSession = null;
+            Runspace? tempRunspace = null;
+            PSObject? tempSession = null;
 
             try
             {
@@ -957,10 +957,10 @@ namespace HyperView.Forms
 
                     if (hyperVResult != null && hyperVResult.Count > 0)
                     {
-                        var result = (PSObject)hyperVResult[0];
+                        var result = hyperVResult[0];
                         var hashtable = (System.Collections.Hashtable)result.BaseObject;
 
-                        bool available = (bool)hashtable["Available"];
+                        bool available = (bool)hashtable["Available"]!;
 
                         if (!available)
                         {
@@ -984,7 +984,7 @@ namespace HyperView.Forms
                         double memoryGb = Convert.ToDouble(hashtable["MemoryGB"] ?? 0);
                         string hyperVVersion = hashtable["HyperVVersion"]?.ToString() ?? "Unknown";
                         bool isCluster = Convert.ToBoolean(hashtable["IsCluster"] ?? false);
-                        string clusterName = hashtable["ClusterName"]?.ToString();
+                        string clusterName = hashtable["ClusterName"]?.ToString()!;
 
                         FileLogger.Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
                             FileLogger.EventType.Information, 1105);
@@ -1097,8 +1097,8 @@ namespace HyperView.Forms
 
         private class SavedCredential
         {
-            public string Username { get; set; }
-            public string Password { get; set; }
+            public string? Username { get; set; }
+            public string? Password { get; set; }
         }
 
         private void SaveCredentials(string server, string username, string password)
@@ -1153,7 +1153,7 @@ namespace HyperView.Forms
                 string credFile = Path.Combine(FileManager.ProgramDataFilePath, $"cred_{safeServerName}.dat");
 
                 if (!File.Exists(credFile))
-                    return null;
+                    return null!;
 
                 using (FileStream fs = new FileStream(credFile, FileMode.Open, FileAccess.Read))
                 using (BinaryReader reader = new BinaryReader(fs))
@@ -1178,7 +1178,7 @@ namespace HyperView.Forms
                     {
                         FileLogger.Message($"Server name mismatch in credential file for '{serverName}'",
                             FileLogger.EventType.Warning, 1020);
-                        return null;
+                        return null!;
                     }
 
                     return new SavedCredential
@@ -1192,7 +1192,7 @@ namespace HyperView.Forms
             {
                 FileLogger.Message($"Failed to load credentials for '{serverName}': {ex.Message}",
                     FileLogger.EventType.Warning, 1013);
-                return null;
+                return null!;
             }
         }
 
@@ -1244,7 +1244,10 @@ namespace HyperView.Forms
                         FileLogger.Message("Migrated credentials to new server-specific format",
                             FileLogger.EventType.Information, 1021);
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
             catch (Exception ex)
@@ -1465,7 +1468,7 @@ namespace HyperView.Forms
 
             // Disable UI and show progress (button already disabled above)
             string originalText = ButtonLogin.Text;
-            ButtonLogin.Text = "Connecting...";
+            ButtonLogin.Text = @"Connecting...";
             Cursor = Cursors.WaitCursor;
 
             FileLogger.Message($"Starting connection test to '{serverName}'",
@@ -1474,7 +1477,7 @@ namespace HyperView.Forms
             try
             {
                 bool useWindowsAuth = radioWindows.Checked;
-                PSCredential credentials = null;
+                PSCredential? credentials = null;
 
                 if (!useWindowsAuth)
                 {
@@ -1605,11 +1608,16 @@ namespace HyperView.Forms
 
                             // Show alternative if user declines elevation
                             MessageBox.Show(
-                                "Unable to connect without proper permissions.\n\n" +
-                                "Alternative solutions:\n" +
-                                "  • Right-click the application and select 'Run as administrator'\n" +
-                                "  • Ask your administrator to add you to the 'Hyper-V Administrators' group\n" +
-                                "  • Connect to a remote Hyper-V host instead of localhost",
+                                @"Unable to connect without proper permissions.
+
+" +
+                                @"Alternative solutions:
+" +
+                                @"  • Right-click the application and select 'Run as administrator'
+" +
+                                @"  • Ask your administrator to add you to the 'Hyper-V Administrators' group
+" +
+                                @"  • Connect to a remote Hyper-V host instead of localhost",
                                 @"Connection Failed",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }

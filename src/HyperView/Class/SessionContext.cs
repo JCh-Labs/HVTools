@@ -29,11 +29,11 @@ namespace HyperView.Class
         /// <summary>
         /// Initialize the session context with login information
         /// </summary>
-        public static void Initialize(string serverName, bool useWindowsAuth, PSCredential credentials, 
+        public static void Initialize(string serverName, bool useWindowsAuth, PSCredential? credentials, 
             string connectedUser, string connectionType, int vmCount, bool isLocal,
-            string hostName = null, string hyperVVersion = null, int logicalProcessorCount = 0,
-            double totalMemoryGb = 0, bool isCluster = false, string clusterName = null,
-            string fullyQualifiedDomainName = null)
+            string? hostName = null, string? hyperVVersion = null, int logicalProcessorCount = 0,
+            double totalMemoryGb = 0, bool isCluster = false, string? clusterName = null,
+            string? fullyQualifiedDomainName = null)
         {
             ServerName = serverName;
             UseWindowsAuth = useWindowsAuth;
