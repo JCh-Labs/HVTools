@@ -36,16 +36,6 @@
             buttonSummaryhvOverviewView = new Button();
             buttonLoadVMsrefresh = new Button();
             labelOverviewHelpText = new Label();
-            tabpageVMGroups = new TabPage();
-            groupBox2 = new GroupBox();
-            buttonManageServerMembers = new Button();
-            groupBox1 = new GroupBox();
-            buttonRenameSelectedVMGrou = new Button();
-            buttonDeleteSelectedVMGrou = new Button();
-            buttonCreateANewVMGroup = new Button();
-            buttonLoadGroupsrefresh = new Button();
-            labelThisViewProvidesOver = new Label();
-            datagridviewVMGroups = new DataGridView();
             tabpagehvHosts = new TabPage();
             buttonLoadHostsrefresh = new Button();
             datagridviewhvHosts = new DataGridView();
@@ -85,6 +75,16 @@
             tabpagehvCompliance = new TabPage();
             tabpagehvInventory = new TabPage();
             tabpageCreateVM = new TabPage();
+            tabpageVMGroups = new TabPage();
+            groupBox2 = new GroupBox();
+            buttonManageServerMembers = new Button();
+            groupBox1 = new GroupBox();
+            buttonRenameSelectedVMGrou = new Button();
+            buttonDeleteSelectedVMGrou = new Button();
+            buttonCreateANewVMGroup = new Button();
+            buttonLoadGroupsrefresh = new Button();
+            labelThisViewProvidesOver = new Label();
+            datagridviewVMGroups = new DataGridView();
             tabpageHealthOverview = new TabPage();
             menuStripTopMainForm = new MenuStrip();
             menuToolStripMenuItem = new ToolStripMenuItem();
@@ -110,10 +110,6 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
-            tabpageVMGroups.SuspendLayout();
-            groupBox2.SuspendLayout();
-            groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).BeginInit();
             tabpagehvHosts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewhvHosts).BeginInit();
             tabpagehvClusters.SuspendLayout();
@@ -122,6 +118,10 @@
             groupBoxClusterInfo.SuspendLayout();
             tabPagehvDisks.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).BeginInit();
+            tabpageVMGroups.SuspendLayout();
+            groupBox2.SuspendLayout();
+            groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).BeginInit();
             menuStripTopMainForm.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).BeginInit();
             statusStripMainForm.SuspendLayout();
@@ -221,116 +221,6 @@
             labelOverviewHelpText.TabIndex = 1;
             labelOverviewHelpText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VMs and other data that\r\nextends that functionality over multiple servers.";
             // 
-            // tabpageVMGroups
-            // 
-            tabpageVMGroups.Controls.Add(groupBox2);
-            tabpageVMGroups.Controls.Add(groupBox1);
-            tabpageVMGroups.Controls.Add(buttonLoadGroupsrefresh);
-            tabpageVMGroups.Controls.Add(labelThisViewProvidesOver);
-            tabpageVMGroups.Controls.Add(datagridviewVMGroups);
-            tabpageVMGroups.Location = new Point(4, 24);
-            tabpageVMGroups.Name = "tabpageVMGroups";
-            tabpageVMGroups.Padding = new Padding(3);
-            tabpageVMGroups.Size = new Size(1613, 844);
-            tabpageVMGroups.TabIndex = 1;
-            tabpageVMGroups.Text = "hvVMGroups";
-            tabpageVMGroups.UseVisualStyleBackColor = true;
-            // 
-            // groupBox2
-            // 
-            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            groupBox2.Controls.Add(buttonManageServerMembers);
-            groupBox2.Location = new Point(1407, 211);
-            groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(200, 73);
-            groupBox2.TabIndex = 5;
-            groupBox2.TabStop = false;
-            groupBox2.Text = "Manage VM Group";
-            // 
-            // buttonManageServerMembers
-            // 
-            buttonManageServerMembers.Location = new Point(6, 22);
-            buttonManageServerMembers.Name = "buttonManageServerMembers";
-            buttonManageServerMembers.Size = new Size(188, 43);
-            buttonManageServerMembers.TabIndex = 2;
-            buttonManageServerMembers.Text = "Manage server members";
-            buttonManageServerMembers.UseVisualStyleBackColor = true;
-            buttonManageServerMembers.Click += buttonManageServerMembers_Click;
-            // 
-            // groupBox1
-            // 
-            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            groupBox1.Controls.Add(buttonRenameSelectedVMGrou);
-            groupBox1.Controls.Add(buttonDeleteSelectedVMGrou);
-            groupBox1.Controls.Add(buttonCreateANewVMGroup);
-            groupBox1.Location = new Point(1407, 35);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(200, 170);
-            groupBox1.TabIndex = 4;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "Group management";
-            // 
-            // buttonRenameSelectedVMGrou
-            // 
-            buttonRenameSelectedVMGrou.Location = new Point(6, 120);
-            buttonRenameSelectedVMGrou.Name = "buttonRenameSelectedVMGrou";
-            buttonRenameSelectedVMGrou.Size = new Size(188, 43);
-            buttonRenameSelectedVMGrou.TabIndex = 2;
-            buttonRenameSelectedVMGrou.Text = "Rename selected VM group";
-            buttonRenameSelectedVMGrou.UseVisualStyleBackColor = true;
-            buttonRenameSelectedVMGrou.Click += buttonRenameSelectedVMGrou_Click;
-            // 
-            // buttonDeleteSelectedVMGrou
-            // 
-            buttonDeleteSelectedVMGrou.BackColor = Color.LightCoral;
-            buttonDeleteSelectedVMGrou.Location = new Point(6, 71);
-            buttonDeleteSelectedVMGrou.Name = "buttonDeleteSelectedVMGrou";
-            buttonDeleteSelectedVMGrou.Size = new Size(188, 43);
-            buttonDeleteSelectedVMGrou.TabIndex = 1;
-            buttonDeleteSelectedVMGrou.Text = "Delete selected VM group";
-            buttonDeleteSelectedVMGrou.UseVisualStyleBackColor = false;
-            buttonDeleteSelectedVMGrou.Click += buttonDeleteSelectedVMGrou_Click;
-            // 
-            // buttonCreateANewVMGroup
-            // 
-            buttonCreateANewVMGroup.BackColor = Color.LightGreen;
-            buttonCreateANewVMGroup.Location = new Point(6, 22);
-            buttonCreateANewVMGroup.Name = "buttonCreateANewVMGroup";
-            buttonCreateANewVMGroup.Size = new Size(188, 43);
-            buttonCreateANewVMGroup.TabIndex = 0;
-            buttonCreateANewVMGroup.Text = "Create a new VM Group";
-            buttonCreateANewVMGroup.UseVisualStyleBackColor = false;
-            buttonCreateANewVMGroup.Click += buttonCreateANewVMGroup_Click;
-            // 
-            // buttonLoadGroupsrefresh
-            // 
-            buttonLoadGroupsrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonLoadGroupsrefresh.Location = new Point(1475, 6);
-            buttonLoadGroupsrefresh.Name = "buttonLoadGroupsrefresh";
-            buttonLoadGroupsrefresh.Size = new Size(132, 23);
-            buttonLoadGroupsrefresh.TabIndex = 3;
-            buttonLoadGroupsrefresh.Text = "&Load Groups/refresh";
-            buttonLoadGroupsrefresh.UseVisualStyleBackColor = true;
-            buttonLoadGroupsrefresh.Click += buttonLoadGroupsrefresh_Click;
-            // 
-            // labelThisViewProvidesOver
-            // 
-            labelThisViewProvidesOver.AutoSize = true;
-            labelThisViewProvidesOver.Location = new Point(6, 3);
-            labelThisViewProvidesOver.Name = "labelThisViewProvidesOver";
-            labelThisViewProvidesOver.Size = new Size(712, 30);
-            labelThisViewProvidesOver.TabIndex = 2;
-            labelThisViewProvidesOver.Text = "This view provides overview and core functionality within the Hyper-V space for management of VM Groups for VMs that extends that\r\nfunctionality over multiple servers.";
-            // 
-            // datagridviewVMGroups
-            // 
-            datagridviewVMGroups.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            datagridviewVMGroups.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            datagridviewVMGroups.Location = new Point(6, 35);
-            datagridviewVMGroups.Name = "datagridviewVMGroups";
-            datagridviewVMGroups.Size = new Size(1395, 803);
-            datagridviewVMGroups.TabIndex = 0;
-            // 
             // tabpagehvHosts
             // 
             tabpagehvHosts.Controls.Add(buttonLoadHostsrefresh);
@@ -346,7 +236,7 @@
             // buttonLoadHostsrefresh
             // 
             buttonLoadHostsrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonLoadHostsrefresh.Location = new Point(1490, 8);
+            buttonLoadHostsrefresh.Location = new Point(1487, 6);
             buttonLoadHostsrefresh.Name = "buttonLoadHostsrefresh";
             buttonLoadHostsrefresh.Size = new Size(120, 23);
             buttonLoadHostsrefresh.TabIndex = 2;
@@ -556,7 +446,7 @@
             // buttonRefreshClusterInfo
             // 
             buttonRefreshClusterInfo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonRefreshClusterInfo.Location = new Point(1486, 3);
+            buttonRefreshClusterInfo.Location = new Point(1483, 6);
             buttonRefreshClusterInfo.Name = "buttonRefreshClusterInfo";
             buttonRefreshClusterInfo.Size = new Size(124, 23);
             buttonRefreshClusterInfo.TabIndex = 6;
@@ -576,7 +466,7 @@
             // buttonSummaryClustersOverviewView
             // 
             buttonSummaryClustersOverviewView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSummaryClustersOverviewView.Location = new Point(1405, 3);
+            buttonSummaryClustersOverviewView.Location = new Point(1402, 6);
             buttonSummaryClustersOverviewView.Name = "buttonSummaryClustersOverviewView";
             buttonSummaryClustersOverviewView.Size = new Size(75, 23);
             buttonSummaryClustersOverviewView.TabIndex = 4;
@@ -735,6 +625,116 @@
             tabpageCreateVM.TabIndex = 14;
             tabpageCreateVM.Text = "Create VM´s";
             tabpageCreateVM.UseVisualStyleBackColor = true;
+            // 
+            // tabpageVMGroups
+            // 
+            tabpageVMGroups.Controls.Add(groupBox2);
+            tabpageVMGroups.Controls.Add(groupBox1);
+            tabpageVMGroups.Controls.Add(buttonLoadGroupsrefresh);
+            tabpageVMGroups.Controls.Add(labelThisViewProvidesOver);
+            tabpageVMGroups.Controls.Add(datagridviewVMGroups);
+            tabpageVMGroups.Location = new Point(4, 24);
+            tabpageVMGroups.Name = "tabpageVMGroups";
+            tabpageVMGroups.Padding = new Padding(3);
+            tabpageVMGroups.Size = new Size(1613, 844);
+            tabpageVMGroups.TabIndex = 1;
+            tabpageVMGroups.Text = "hvVMGroups";
+            tabpageVMGroups.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox2.Controls.Add(buttonManageServerMembers);
+            groupBox2.Location = new Point(1407, 211);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(200, 73);
+            groupBox2.TabIndex = 5;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Manage VM Group";
+            // 
+            // buttonManageServerMembers
+            // 
+            buttonManageServerMembers.Location = new Point(6, 22);
+            buttonManageServerMembers.Name = "buttonManageServerMembers";
+            buttonManageServerMembers.Size = new Size(188, 43);
+            buttonManageServerMembers.TabIndex = 2;
+            buttonManageServerMembers.Text = "Manage server members";
+            buttonManageServerMembers.UseVisualStyleBackColor = true;
+            buttonManageServerMembers.Click += buttonManageServerMembers_Click;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(buttonRenameSelectedVMGrou);
+            groupBox1.Controls.Add(buttonDeleteSelectedVMGrou);
+            groupBox1.Controls.Add(buttonCreateANewVMGroup);
+            groupBox1.Location = new Point(1407, 35);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(200, 170);
+            groupBox1.TabIndex = 4;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Group management";
+            // 
+            // buttonRenameSelectedVMGrou
+            // 
+            buttonRenameSelectedVMGrou.Location = new Point(6, 120);
+            buttonRenameSelectedVMGrou.Name = "buttonRenameSelectedVMGrou";
+            buttonRenameSelectedVMGrou.Size = new Size(188, 43);
+            buttonRenameSelectedVMGrou.TabIndex = 2;
+            buttonRenameSelectedVMGrou.Text = "Rename selected VM group";
+            buttonRenameSelectedVMGrou.UseVisualStyleBackColor = true;
+            buttonRenameSelectedVMGrou.Click += buttonRenameSelectedVMGrou_Click;
+            // 
+            // buttonDeleteSelectedVMGrou
+            // 
+            buttonDeleteSelectedVMGrou.BackColor = Color.LightCoral;
+            buttonDeleteSelectedVMGrou.Location = new Point(6, 71);
+            buttonDeleteSelectedVMGrou.Name = "buttonDeleteSelectedVMGrou";
+            buttonDeleteSelectedVMGrou.Size = new Size(188, 43);
+            buttonDeleteSelectedVMGrou.TabIndex = 1;
+            buttonDeleteSelectedVMGrou.Text = "Delete selected VM group";
+            buttonDeleteSelectedVMGrou.UseVisualStyleBackColor = false;
+            buttonDeleteSelectedVMGrou.Click += buttonDeleteSelectedVMGrou_Click;
+            // 
+            // buttonCreateANewVMGroup
+            // 
+            buttonCreateANewVMGroup.BackColor = Color.LightGreen;
+            buttonCreateANewVMGroup.Location = new Point(6, 22);
+            buttonCreateANewVMGroup.Name = "buttonCreateANewVMGroup";
+            buttonCreateANewVMGroup.Size = new Size(188, 43);
+            buttonCreateANewVMGroup.TabIndex = 0;
+            buttonCreateANewVMGroup.Text = "Create a new VM Group";
+            buttonCreateANewVMGroup.UseVisualStyleBackColor = false;
+            buttonCreateANewVMGroup.Click += buttonCreateANewVMGroup_Click;
+            // 
+            // buttonLoadGroupsrefresh
+            // 
+            buttonLoadGroupsrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonLoadGroupsrefresh.Location = new Point(1475, 6);
+            buttonLoadGroupsrefresh.Name = "buttonLoadGroupsrefresh";
+            buttonLoadGroupsrefresh.Size = new Size(132, 23);
+            buttonLoadGroupsrefresh.TabIndex = 3;
+            buttonLoadGroupsrefresh.Text = "&Load Groups/refresh";
+            buttonLoadGroupsrefresh.UseVisualStyleBackColor = true;
+            buttonLoadGroupsrefresh.Click += buttonLoadGroupsrefresh_Click;
+            // 
+            // labelThisViewProvidesOver
+            // 
+            labelThisViewProvidesOver.AutoSize = true;
+            labelThisViewProvidesOver.Location = new Point(6, 3);
+            labelThisViewProvidesOver.Name = "labelThisViewProvidesOver";
+            labelThisViewProvidesOver.Size = new Size(712, 30);
+            labelThisViewProvidesOver.TabIndex = 2;
+            labelThisViewProvidesOver.Text = "This view provides overview and core functionality within the Hyper-V space for management of VM Groups for VMs that extends that\r\nfunctionality over multiple servers.";
+            // 
+            // datagridviewVMGroups
+            // 
+            datagridviewVMGroups.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            datagridviewVMGroups.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            datagridviewVMGroups.Location = new Point(6, 35);
+            datagridviewVMGroups.Name = "datagridviewVMGroups";
+            datagridviewVMGroups.Size = new Size(1395, 803);
+            datagridviewVMGroups.TabIndex = 0;
             // 
             // tabpageHealthOverview
             // 
@@ -929,11 +929,6 @@
             tabcontrolMainForm.ResumeLayout(false);
             tabpagehvOverview.ResumeLayout(false);
             tabpagehvOverview.PerformLayout();
-            tabpageVMGroups.ResumeLayout(false);
-            tabpageVMGroups.PerformLayout();
-            groupBox2.ResumeLayout(false);
-            groupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).EndInit();
             tabpagehvHosts.ResumeLayout(false);
             tabpagehvHosts.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewhvHosts).EndInit();
@@ -946,6 +941,11 @@
             tabPagehvDisks.ResumeLayout(false);
             tabPagehvDisks.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).EndInit();
+            tabpageVMGroups.ResumeLayout(false);
+            tabpageVMGroups.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).EndInit();
             menuStripTopMainForm.ResumeLayout(false);
             menuStripTopMainForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).EndInit();
