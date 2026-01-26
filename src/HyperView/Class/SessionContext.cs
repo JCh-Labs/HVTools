@@ -8,22 +8,22 @@ namespace HyperView.Class
     /// </summary>
     public static class SessionContext
     {
-        public static string ServerName { get; set; }
+        public static string? ServerName { get; set; }
         public static bool UseWindowsAuth { get; set; }
-        public static PSCredential Credentials { get; set; }
-        public static string ConnectedUser { get; set; }
-        public static string ConnectionType { get; set; }
+        public static PSCredential? Credentials { get; set; }
+        public static string? ConnectedUser { get; set; }
+        public static string? ConnectionType { get; set; }
         public static int VmCount { get; set; }
         public static bool IsLocal { get; set; }
         
         // Enhanced properties
-        public static string HostName { get; set; }
-        public static string HyperVVersion { get; set; }
+        public static string? HostName { get; set; }
+        public static string? HyperVVersion { get; set; }
         public static int LogicalProcessorCount { get; set; }
         public static double TotalMemoryGb { get; set; }
         public static bool IsCluster { get; set; }
-        public static string ClusterName { get; set; }
-        public static string FullyQualifiedDomainName { get; set; }
+        public static string? ClusterName { get; set; }
+        public static string? FullyQualifiedDomainName { get; set; }
         public static DateTime ConnectedAt { get; set; }
 
         /// <summary>
