@@ -48,4 +48,20 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release' and '$(OutputType)' == 'WinExe'">
+    <PropertyGroup>
+      <ExePath>$(TargetDir)$(AssemblyName).exe</ExePath>
+      <CleanTargetDir>$(TargetDir.TrimEnd('\'))</CleanTargetDir>
+      <CleanProjectDir>$(ProjectDir.TrimEnd('\'))</CleanProjectDir>
+    </PropertyGroup>
+    <Message Text="=== Post-Build: HyperView Release Build ===" Importance="High" />
+    <Message Text="Executable: $(ExePath)" Importance="High" />
+    <Exec Command="echo Signing $(AssemblyName).exe..." />
+    <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe&quot; sign /n &quot;Michael Morten Sonne&quot; /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /as /v &quot;$(ExePath)&quot;" />
+    <Exec Command="echo Signing completed." />
+    <Exec Command="echo Running rename and cleanup script..." />
+    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(ProjectDir)Scripts\RenameOutputAndCleanup.ps1&quot; -TargetPath &quot;$(ExePath)&quot; -TargetDir &quot;$(CleanTargetDir)&quot; -ProjectDir &quot;$(CleanProjectDir)&quot;" />
+    <Message Text="=== Post-Build Complete ===" Importance="High" />
+  </Target>
+
 </Project>
