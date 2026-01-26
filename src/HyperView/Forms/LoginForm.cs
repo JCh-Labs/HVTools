@@ -13,6 +13,11 @@ namespace HyperView.Forms
 {
     public partial class LoginForm : Form
     {
+        public LoginResult Result { get; private set; }
+        private string _lastServerChecked = string.Empty;
+        private readonly bool _isInitializing;
+        private bool _isConnecting; // Prevent double login attempts
+
         public class LoginResult
         {
             public bool Success { get; set; }
@@ -24,12 +29,7 @@ namespace HyperView.Forms
             public string? ConnectionType { get; set; }
             public int VmCount { get; set; }
         }
-
-        public LoginResult Result { get; private set; }
-        private string _lastServerChecked = string.Empty;
-        private readonly bool _isInitializing;
-        private bool _isConnecting; // Prevent double login attempts
-
+        
         private class ConnectionTestResult
         {
             public bool Success { get; set; }
