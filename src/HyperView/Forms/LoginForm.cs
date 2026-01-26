@@ -1689,16 +1689,31 @@ Error: {connectionResult.Error}",
                 // Try to load server-specific credentials
                 var savedCreds = LoadServerCredentials(serverName);
 
-                // Add username to UI
-                textboxUsername.Text = savedCreds.Username;
-                textboxPassword.Text = savedCreds.Password;
+                if (savedCreds != null)
+                {
+                    // Add username to UI
+                    textboxUsername.Text = savedCreds.Username;
+                    textboxPassword.Text = savedCreds.Password;
 
-                // Update UI
-                checkboxRemember.Checked = true;
+                    // Update UI
+                    checkboxRemember.Checked = true;
 
-                // Log
-                FileLogger.Message($"Loading saved credentials for server '{serverName}' into application",
-                    FileLogger.EventType.Information, 1019);
+                    // Log
+                    FileLogger.Message($"Loading saved credentials for server '{serverName}' into application",
+                        FileLogger.EventType.Information, 1019);
+                }
+                else
+                {
+                    // Clear credentials if no saved credentials found
+                    if (!string.IsNullOrEmpty(textboxUsername.Text) || !string.IsNullOrEmpty(textboxPassword.Text))
+                    {
+                        textboxUsername.Text = string.Empty;
+                        textboxPassword.Text = string.Empty;
+                    }
+
+                    // Update UI
+                    checkboxRemember.Checked = false;
+                }
             }
             else if (serverName.Length <= 2)
             {
