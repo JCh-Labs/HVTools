@@ -1689,6 +1689,7 @@ Error: {connectionResult.Error}",
                 // Try to load server-specific credentials
                 var savedCreds = LoadServerCredentials(serverName);
 
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract - else it closes the case in first run
                 if (savedCreds != null)
                 {
                     // Add username to UI
