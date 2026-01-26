@@ -27,7 +27,7 @@ namespace HyperView.Forms
 
         public LoginResult Result { get; private set; }
         private string _lastServerChecked = string.Empty;
-        private bool _isInitializing = true;
+        private readonly bool _isInitializing;
         private bool _isConnecting = false; // Prevent double login attempts
 
         private class ConnectionTestResult
