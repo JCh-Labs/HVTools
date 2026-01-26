@@ -4986,7 +4986,7 @@ Would you like to open the file location?",
                 int totalCheckpoints = datagridviewCheckpointOverView.Rows.Count;
                 int standardCheckpoints = 0;
                 int productionCheckpoints = 0;
-                long totalSizeMb = 0;
+                double totalSizeMb = 0;
                 var uniqueVMs = new HashSet<string>();
                 var oldestCheckpoint = DateTime.MaxValue;
                 var newestCheckpoint = DateTime.MinValue;
@@ -5012,9 +5012,9 @@ Would you like to open the file location?",
                     else if (type == "Production")
                         productionCheckpoints++;
 
-                    // Size
+                    // Size (stored as decimal string like "50.25")
                     var sizeStr = row.Cells["Size (MB)"]?.Value?.ToString();
-                    if (!string.IsNullOrEmpty(sizeStr) && long.TryParse(sizeStr, out long sizeMb))
+                    if (!string.IsNullOrEmpty(sizeStr) && double.TryParse(sizeStr, out double sizeMb))
                         totalSizeMb += sizeMb;
 
                     // Dates
@@ -5140,20 +5140,70 @@ Would you like to open the file location?",
                                     $sizeBytes = 0
                                 }
                                 
-                                # Output the object (PowerShell will collect all outputs automatically)
+                                # Count complex arrays
+                                $hardDrivesCount = if ($checkpoint.HardDrives) { @($checkpoint.HardDrives).Count } else { 0 }
+                                $networkAdaptersCount = if ($checkpoint.NetworkAdapters) { @($checkpoint.NetworkAdapters).Count } else { 0 }
+                                $dvdDrivesCount = if ($checkpoint.DVDDrives) { @($checkpoint.DVDDrives).Count } else { 0 }
+
+                                # Output the object with ALL detailed properties from Get-VMSnapshot
                                 [PSCustomObject]@{
+                                    # VM Information
                                     VMName = $vm.Name
                                     VMId = $vm.VMId
                                     VMState = $vm.State
+                                    VMGeneration = $vm.Generation
+                                    
+                                    # Checkpoint Basic Information
                                     CheckpointName = $checkpoint.Name
                                     CheckpointId = $checkpoint.Id
+                                    CheckpointType = if ($checkpoint.PSObject.Properties['CheckpointType']) { $checkpoint.CheckpointType } else { $checkpoint.SnapshotType }
                                     SnapshotType = $checkpoint.SnapshotType
+                                    IsAutomaticCheckpoint = if ($checkpoint.PSObject.Properties['IsAutomaticCheckpoint']) { $checkpoint.IsAutomaticCheckpoint } else { $false }
+                                    State = if ($checkpoint.PSObject.Properties['State']) { $checkpoint.State } else { 'Unknown' }
                                     CreationTime = $checkpoint.CreationTime
+                                    
+                                    # Hierarchy
                                     ParentCheckpointName = $checkpoint.ParentSnapshotName
                                     ParentCheckpointId = $checkpoint.ParentSnapshotId
+                                    
+                                    # Storage
                                     Path = $checkpoint.Path
                                     SizeBytes = $sizeBytes
+                                    SizeOfSystemFiles = if ($checkpoint.PSObject.Properties['SizeOfSystemFiles']) { $checkpoint.SizeOfSystemFiles } else { 0 }
+                                    
+                                    # Version
+                                    Version = if ($checkpoint.PSObject.Properties['Version']) { $checkpoint.Version } else { 'N/A' }
+                                    
+                                    # Notes
                                     Notes = $checkpoint.Notes
+                                    
+                                    # Processor Configuration
+                                    ProcessorCount = if ($checkpoint.PSObject.Properties['ProcessorCount']) { $checkpoint.ProcessorCount } else { 0 }
+                                    
+                                    # Memory Configuration
+                                    MemoryStartup = if ($checkpoint.PSObject.Properties['MemoryStartup']) { $checkpoint.MemoryStartup } else { 0 }
+                                    MemoryMinimum = if ($checkpoint.PSObject.Properties['MemoryMinimum']) { $checkpoint.MemoryMinimum } else { 0 }
+                                    MemoryMaximum = if ($checkpoint.PSObject.Properties['MemoryMaximum']) { $checkpoint.MemoryMaximum } else { 0 }
+                                    DynamicMemoryEnabled = if ($checkpoint.PSObject.Properties['DynamicMemoryEnabled']) { $checkpoint.DynamicMemoryEnabled } else { $false }
+                                    
+                                    # Hardware Configuration
+                                    HardDrivesCount = $hardDrivesCount
+                                    NetworkAdaptersCount = $networkAdaptersCount
+                                    DVDDrivesCount = $dvdDrivesCount
+                                    
+                                    # Advanced Properties
+                                    BatteryPassthroughEnabled = if ($checkpoint.PSObject.Properties['BatteryPassthroughEnabled']) { $checkpoint.BatteryPassthroughEnabled } else { $false }
+                                    IsClustered = if ($checkpoint.PSObject.Properties['IsClustered']) { $checkpoint.IsClustered } else { $false }
+                                    IsDeleted = if ($checkpoint.PSObject.Properties['IsDeleted']) { $checkpoint.IsDeleted } else { $false }
+                                    LockOnDisconnect = if ($checkpoint.PSObject.Properties['LockOnDisconnect']) { $checkpoint.LockOnDisconnect } else { 'Off' }
+                                    
+                                    # Memory Mapped IO (Advanced)
+                                    LowMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['LowMemoryMappedIoSpace']) { $checkpoint.LowMemoryMappedIoSpace } else { 0 }
+                                    HighMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoSpace']) { $checkpoint.HighMemoryMappedIoSpace } else { 0 }
+                                    HighMemoryMappedIoBaseAddress = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoBaseAddress']) { $checkpoint.HighMemoryMappedIoBaseAddress } else { 0 }
+                                    GuestControlledCacheTypes = if ($checkpoint.PSObject.Properties['GuestControlledCacheTypes']) { $checkpoint.GuestControlledCacheTypes } else { $false }
+                                    
+                                    # Host Information
                                     ComputerName = $env:COMPUTERNAME
                                 }
                             }
@@ -5267,33 +5317,84 @@ Would you like to open the file location?",
                 Message($"Retrieved {results.Count} checkpoints, processing...",
                     EventType.Information, 6060);
 
-                // Create DataTable with checkpoint columns
+                // Create DataTable with comprehensive checkpoint columns
                 var dataTable = new DataTable();
+                
+                // VM Information
                 dataTable.Columns.Add("VM Name", typeof(string));
                 dataTable.Columns.Add("VM State", typeof(string));
+                dataTable.Columns.Add("VM Generation", typeof(string));
+                dataTable.Columns.Add("VM ID", typeof(string));
+                
+                // Checkpoint Basic Information
                 dataTable.Columns.Add("Checkpoint Name", typeof(string));
                 dataTable.Columns.Add("Checkpoint Type", typeof(string));
+                dataTable.Columns.Add("State", typeof(string));
+                dataTable.Columns.Add("Is Automatic", typeof(string));
                 dataTable.Columns.Add("Created", typeof(string));
                 dataTable.Columns.Add("Age (Days)", typeof(string));
+                
+                // Hierarchy
                 dataTable.Columns.Add("Parent Checkpoint", typeof(string));
+                
+                // Storage
                 dataTable.Columns.Add("Size (MB)", typeof(string));
+                dataTable.Columns.Add("System Files (MB)", typeof(string));
                 dataTable.Columns.Add("Path", typeof(string));
+                
+                // Version & Notes
+                dataTable.Columns.Add("Version", typeof(string));
                 dataTable.Columns.Add("Notes", typeof(string));
+                
+                // Processor Configuration
+                dataTable.Columns.Add("Processor Count", typeof(string));
+                
+                // Memory Configuration
+                dataTable.Columns.Add("Memory Startup (MB)", typeof(string));
+                dataTable.Columns.Add("Memory Minimum (MB)", typeof(string));
+                dataTable.Columns.Add("Memory Maximum (MB)", typeof(string));
+                dataTable.Columns.Add("Dynamic Memory", typeof(string));
+                
+                // Hardware Configuration
+                dataTable.Columns.Add("Hard Drives", typeof(string));
+                dataTable.Columns.Add("Network Adapters", typeof(string));
+                dataTable.Columns.Add("DVD Drives", typeof(string));
+                
+                // Advanced Properties
+                dataTable.Columns.Add("Battery Passthrough", typeof(string));
+                dataTable.Columns.Add("Is Clustered", typeof(string));
+                dataTable.Columns.Add("Is Deleted", typeof(string));
+                dataTable.Columns.Add("Lock On Disconnect", typeof(string));
+                
+                // Advanced Memory Mapped IO
+                dataTable.Columns.Add("Low MMIO Space", typeof(string));
+                dataTable.Columns.Add("High MMIO Space", typeof(string));
+                dataTable.Columns.Add("High MMIO Base Address", typeof(string));
+                dataTable.Columns.Add("Guest Controlled Cache", typeof(string));
+                
+                // Host Information
                 dataTable.Columns.Add("Host", typeof(string));
                 dataTable.Columns.Add("Checkpoint ID", typeof(string));
-                dataTable.Columns.Add("VM ID", typeof(string));
 
                 foreach (var checkpoint in results)
                 {
                     var row = dataTable.NewRow();
                     
+                    // VM Information
                     row["VM Name"] = checkpoint.Properties["VMName"]?.Value?.ToString() ?? "";
                     row["VM State"] = checkpoint.Properties["VMState"]?.Value?.ToString() ?? "";
+                    row["VM Generation"] = checkpoint.Properties["VMGeneration"]?.Value?.ToString() ?? "";
+                    row["VM ID"] = checkpoint.Properties["VMId"]?.Value?.ToString() ?? "";
+                    
+                    // Checkpoint Basic Information
                     row["Checkpoint Name"] = checkpoint.Properties["CheckpointName"]?.Value?.ToString() ?? "";
+                    row["Checkpoint Type"] = checkpoint.Properties["SnapshotType"]?.Value?.ToString() ?? "";
+                    row["State"] = checkpoint.Properties["State"]?.Value?.ToString() ?? "";
                     
-                    var snapshotType = checkpoint.Properties["SnapshotType"]?.Value?.ToString() ?? "";
-                    row["Checkpoint Type"] = snapshotType;
+                    var isAutomatic = checkpoint.Properties["IsAutomaticCheckpoint"]?.Value;
+                    row["Is Automatic"] = (isAutomatic != null && (bool)isAutomatic) ? "Yes" : "No";
                     
+                    // Creation Time and Age
                     var creationTime = checkpoint.Properties["CreationTime"]?.Value;
                     if (creationTime != null && creationTime is DateTime dt)
                     {
@@ -5306,8 +5407,10 @@ Would you like to open the file location?",
                         row["Age (Days)"] = "";
                     }
                     
+                    // Hierarchy
                     row["Parent Checkpoint"] = checkpoint.Properties["ParentCheckpointName"]?.Value?.ToString() ?? "None";
                     
+                    // Storage - Size Information
                     var sizeBytes = checkpoint.Properties["SizeBytes"]?.Value;
                     if (sizeBytes != null && long.TryParse(sizeBytes.ToString(), out long bytes))
                     {
@@ -5318,11 +5421,92 @@ Would you like to open the file location?",
                         row["Size (MB)"] = "0";
                     }
                     
+                    var sizeOfSystemFiles = checkpoint.Properties["SizeOfSystemFiles"]?.Value;
+                    if (sizeOfSystemFiles != null && long.TryParse(sizeOfSystemFiles.ToString(), out long systemFilesBytes))
+                    {
+                        row["System Files (MB)"] = Math.Round(systemFilesBytes / (1024.0 * 1024.0), 2).ToString();
+                    }
+                    else
+                    {
+                        row["System Files (MB)"] = "0";
+                    }
+                    
                     row["Path"] = checkpoint.Properties["Path"]?.Value?.ToString() ?? "";
+                    
+                    // Version & Notes
+                    row["Version"] = checkpoint.Properties["Version"]?.Value?.ToString() ?? "N/A";
                     row["Notes"] = checkpoint.Properties["Notes"]?.Value?.ToString() ?? "";
+                    
+                    // Processor Configuration
+                    row["Processor Count"] = checkpoint.Properties["ProcessorCount"]?.Value?.ToString() ?? "0";
+                    
+                    // Memory Configuration
+                    var memoryStartup = checkpoint.Properties["MemoryStartup"]?.Value;
+                    if (memoryStartup != null && long.TryParse(memoryStartup.ToString(), out long memStartupBytes))
+                    {
+                        row["Memory Startup (MB)"] = Math.Round(memStartupBytes / (1024.0 * 1024.0), 0).ToString();
+                    }
+                    else
+                    {
+                        row["Memory Startup (MB)"] = "0";
+                    }
+                    
+                    var memoryMinimum = checkpoint.Properties["MemoryMinimum"]?.Value;
+                    if (memoryMinimum != null && long.TryParse(memoryMinimum.ToString(), out long memMinBytes))
+                    {
+                        row["Memory Minimum (MB)"] = Math.Round(memMinBytes / (1024.0 * 1024.0), 0).ToString();
+                    }
+                    else
+                    {
+                        row["Memory Minimum (MB)"] = "0";
+                    }
+                    
+                    var memoryMaximum = checkpoint.Properties["MemoryMaximum"]?.Value;
+                    if (memoryMaximum != null && long.TryParse(memoryMaximum.ToString(), out long memMaxBytes))
+                    {
+                        row["Memory Maximum (MB)"] = Math.Round(memMaxBytes / (1024.0 * 1024.0), 0).ToString();
+                    }
+                    else
+                    {
+                        row["Memory Maximum (MB)"] = "0";
+                    }
+                    
+                    var dynamicMemory = checkpoint.Properties["DynamicMemoryEnabled"]?.Value;
+                    row["Dynamic Memory"] = (dynamicMemory != null && (bool)dynamicMemory) ? "Yes" : "No";
+                    
+                    // Hardware Configuration
+                    row["Hard Drives"] = checkpoint.Properties["HardDrivesCount"]?.Value?.ToString() ?? "0";
+                    row["Network Adapters"] = checkpoint.Properties["NetworkAdaptersCount"]?.Value?.ToString() ?? "0";
+                    row["DVD Drives"] = checkpoint.Properties["DVDDrivesCount"]?.Value?.ToString() ?? "0";
+                    
+                    // Advanced Properties
+                    var batteryPassthrough = checkpoint.Properties["BatteryPassthroughEnabled"]?.Value;
+                    row["Battery Passthrough"] = (batteryPassthrough != null && (bool)batteryPassthrough) ? "Yes" : "No";
+                    
+                    var isClustered = checkpoint.Properties["IsClustered"]?.Value;
+                    row["Is Clustered"] = (isClustered != null && (bool)isClustered) ? "Yes" : "No";
+                    
+                    var isDeleted = checkpoint.Properties["IsDeleted"]?.Value;
+                    row["Is Deleted"] = (isDeleted != null && (bool)isDeleted) ? "Yes" : "No";
+                    
+                    row["Lock On Disconnect"] = checkpoint.Properties["LockOnDisconnect"]?.Value?.ToString() ?? "Off";
+                    
+                    // Advanced Memory Mapped IO
+                    var lowMMIO = checkpoint.Properties["LowMemoryMappedIoSpace"]?.Value;
+                    row["Low MMIO Space"] = lowMMIO != null ? lowMMIO.ToString() : "0";
+                    
+                    var highMMIO = checkpoint.Properties["HighMemoryMappedIoSpace"]?.Value;
+                    row["High MMIO Space"] = highMMIO != null ? highMMIO.ToString() : "0";
+                    
+                    var highMMIOBase = checkpoint.Properties["HighMemoryMappedIoBaseAddress"]?.Value;
+                    row["High MMIO Base Address"] = highMMIOBase != null ? highMMIOBase.ToString() : "0";
+                    
+                    var guestCache = checkpoint.Properties["GuestControlledCacheTypes"]?.Value;
+                    row["Guest Controlled Cache"] = (guestCache != null && (bool)guestCache) ? "Yes" : "No";
+                    
+                    // Host Information
                     row["Host"] = checkpoint.Properties["ComputerName"]?.Value?.ToString() ?? SessionContext.ServerName;
                     row["Checkpoint ID"] = checkpoint.Properties["CheckpointId"]?.Value?.ToString() ?? "";
-                    row["VM ID"] = checkpoint.Properties["VMId"]?.Value?.ToString() ?? "";
 
                     dataTable.Rows.Add(row);
                 }
@@ -5364,6 +5548,19 @@ Would you like to open the file location?",
                     {
                         row.Cells["Checkpoint Type"].Style.BackColor = Color.LightGreen;
                     }
+                    
+                    // Color code automatic checkpoints
+                    var isAutomatic = row.Cells["Is Automatic"]?.Value?.ToString();
+                    if (isAutomatic == "Yes")
+                    {
+                        row.Cells["Is Automatic"].Style.BackColor = Color.LightYellow;
+                        row.Cells["Is Automatic"].Style.ForeColor = Color.DarkOrange;
+                    }
+                    else
+                    {
+                        row.Cells["Is Automatic"].Style.BackColor = Color.LightGreen;
+                        row.Cells["Is Automatic"].Style.ForeColor = Color.DarkGreen;
+                    }
 
                     // Color code age - highlight old checkpoints
                     var ageStr = row.Cells["Age (Days)"]?.Value?.ToString();
@@ -5390,6 +5587,43 @@ Would you like to open the file location?",
                     else if (state == "Off")
                     {
                         row.Cells["VM State"].Style.BackColor = Color.LightGray;
+                    }
+                    
+                    // Color code checkpoint state
+                    var checkpointState = row.Cells["State"]?.Value?.ToString();
+                    if (checkpointState == "Off")
+                    {
+                        row.Cells["State"].Style.BackColor = Color.LightGray;
+                    }
+                    else if (checkpointState == "Running")
+                    {
+                        row.Cells["State"].Style.BackColor = Color.LightGreen;
+                    }
+                    
+                    // Color code VM Generation
+                    var generation = row.Cells["VM Generation"]?.Value?.ToString();
+                    if (generation == "1")
+                    {
+                        row.Cells["VM Generation"].Style.BackColor = Color.LightBlue;
+                    }
+                    else if (generation == "2")
+                    {
+                        row.Cells["VM Generation"].Style.BackColor = Color.LightCyan;
+                    }
+                    
+                    // Color code Dynamic Memory
+                    var dynamicMemory = row.Cells["Dynamic Memory"]?.Value?.ToString();
+                    if (dynamicMemory == "Yes")
+                    {
+                        row.Cells["Dynamic Memory"].Style.BackColor = Color.LightBlue;
+                    }
+                    
+                    // Color code Is Deleted
+                    var isDeleted = row.Cells["Is Deleted"]?.Value?.ToString();
+                    if (isDeleted == "Yes")
+                    {
+                        row.Cells["Is Deleted"].Style.BackColor = Color.LightCoral;
+                        row.Cells["Is Deleted"].Style.ForeColor = Color.DarkRed;
                     }
                 }
 
@@ -5537,14 +5771,45 @@ Note: The checkpoint files will be merged in the background, which may take some
 VM Information:
 • VM Name: {selectedRow.Cells["VM Name"]?.Value}
 • VM State: {selectedRow.Cells["VM State"]?.Value}
+• VM Generation: {selectedRow.Cells["VM Generation"]?.Value}
 • VM ID: {selectedRow.Cells["VM ID"]?.Value}
 
 Checkpoint Information:
 • Name: {selectedRow.Cells["Checkpoint Name"]?.Value}
 • Type: {selectedRow.Cells["Checkpoint Type"]?.Value}
+• State: {selectedRow.Cells["State"]?.Value}
+• Is Automatic: {selectedRow.Cells["Is Automatic"]?.Value}
+• Version: {selectedRow.Cells["Version"]?.Value}
 • Created: {selectedRow.Cells["Created"]?.Value}
 • Age: {selectedRow.Cells["Age (Days)"]?.Value} days
-• Size: {selectedRow.Cells["Size (MB)"]?.Value} MB
+
+Size Information:
+• Total Size: {selectedRow.Cells["Size (MB)"]?.Value} MB
+• System Files: {selectedRow.Cells["System Files (MB)"]?.Value} MB
+
+VM Configuration at Checkpoint Time:
+• Processor Count: {selectedRow.Cells["Processor Count"]?.Value}
+• Memory Startup: {selectedRow.Cells["Memory Startup (MB)"]?.Value} MB
+• Memory Minimum: {selectedRow.Cells["Memory Minimum (MB)"]?.Value} MB
+• Memory Maximum: {selectedRow.Cells["Memory Maximum (MB)"]?.Value} MB
+• Dynamic Memory: {selectedRow.Cells["Dynamic Memory"]?.Value}
+
+Hardware Configuration:
+• Hard Drives: {selectedRow.Cells["Hard Drives"]?.Value}
+• Network Adapters: {selectedRow.Cells["Network Adapters"]?.Value}
+• DVD Drives: {selectedRow.Cells["DVD Drives"]?.Value}
+
+Advanced Properties:
+• Battery Passthrough: {selectedRow.Cells["Battery Passthrough"]?.Value}
+• Is Clustered: {selectedRow.Cells["Is Clustered"]?.Value}
+• Is Deleted: {selectedRow.Cells["Is Deleted"]?.Value}
+• Lock On Disconnect: {selectedRow.Cells["Lock On Disconnect"]?.Value}
+• Guest Controlled Cache: {selectedRow.Cells["Guest Controlled Cache"]?.Value}
+
+Advanced Memory Configuration:
+• Low MMIO Space: {selectedRow.Cells["Low MMIO Space"]?.Value}
+• High MMIO Space: {selectedRow.Cells["High MMIO Space"]?.Value}
+• High MMIO Base Address: {selectedRow.Cells["High MMIO Base Address"]?.Value}
 
 Hierarchy:
 • Parent Checkpoint: {selectedRow.Cells["Parent Checkpoint"]?.Value}
@@ -5572,7 +5837,7 @@ Notes:
         /// Generates recommendations based on checkpoint statistics
         /// </summary>
         private string GetCheckpointRecommendations(int totalCheckpoints, int standardCheckpoints, 
-            int productionCheckpoints, long totalSizeMb, DateTime oldestCheckpoint)
+            int productionCheckpoints, double totalSizeMb, DateTime oldestCheckpoint)
         {
             var recommendations = new List<string>();
 
