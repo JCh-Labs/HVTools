@@ -102,7 +102,9 @@ namespace HyperView.Forms
                 // Set default server name based on Hyper-V availability
                 if (hyperVInstalled)
                 {
+                    // Set to local machine name
                     textboxServer.Text = Environment.MachineName;
+
                     //UpdateStatusLabel("Ready - Local Hyper-V detected", isSuccess: true);
                     UpdateStatusLabel("Ready - Local Hyper-V detected");
                     FileLogger.Message($"Local Hyper-V installation detected - default server set to: '{Environment.MachineName}'",
@@ -110,7 +112,9 @@ namespace HyperView.Forms
                 }
                 else
                 {
+                    // No local Hyper-V, set to machine name anyway for now
                     textboxServer.Text = Environment.MachineName;
+
                     //UpdateStatusLabel("Ready - No local Hyper-V detected", isSuccess: false);
                     UpdateStatusLabel("Ready - No local Hyper-V detected");
                     FileLogger.Message("No local Hyper-V detected - default server set to current machine name",
@@ -145,6 +149,7 @@ namespace HyperView.Forms
 
         private bool TestLocalHyperVInstallation()
         {
+            // Show we are testing for Hyper-V status
             FileLogger.Message("Testing for local Hyper-V installation...",
                 FileLogger.EventType.Information, 1051);
 
@@ -160,6 +165,7 @@ namespace HyperView.Forms
             if (TestHyperVServerRole())
                 return true;
 
+            // If no methods detected Hyper-V, return false
             FileLogger.Message("No local Hyper-V installation detected",
                 FileLogger.EventType.Information, 1052);
             return false;
@@ -423,7 +429,7 @@ namespace HyperView.Forms
                         .SelectMany(ni => ni.GetIPProperties().UnicastAddresses)
                         .Where(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork)
                         .Select(addr => addr.Address.ToString())
-                        .Where(ip => !ip.StartsWith("169.254.")) // Exclude APIPA addresses
+                        .Where(ip => !ip.StartsWith("169.254.")) // Exclude APIPA addresses as they are not routable
                         .Distinct()
                         .ToList();
 
@@ -1158,15 +1164,19 @@ namespace HyperView.Forms
                 using (FileStream fs = new FileStream(credFile, FileMode.Open, FileAccess.Read))
                 using (BinaryReader reader = new BinaryReader(fs))
                 {
+                    // Read and decrypt credentials
                     int serverLength = reader.ReadInt32();
                     byte[] encryptedServer = reader.ReadBytes(serverLength);
 
+                    // Get username
                     int usernameLength = reader.ReadInt32();
                     byte[] encryptedUsername = reader.ReadBytes(usernameLength);
 
+                    // Get password
                     int passwordLength = reader.ReadInt32();
                     byte[] encryptedPassword = reader.ReadBytes(passwordLength);
 
+                    // Decrypt based on current user
                     byte[] serverBytes = ProtectedData.Unprotect(encryptedServer, null, DataProtectionScope.CurrentUser);
                     byte[] usernameBytes = ProtectedData.Unprotect(encryptedUsername, null, DataProtectionScope.CurrentUser);
                     byte[] passwordBytes = ProtectedData.Unprotect(encryptedPassword, null, DataProtectionScope.CurrentUser);
@@ -1181,6 +1191,7 @@ namespace HyperView.Forms
                         return null!;
                     }
 
+                    // Return the decrypted credentials
                     return new SavedCredential
                     {
                         Username = Encoding.UTF8.GetString(usernameBytes),
@@ -1206,29 +1217,37 @@ namespace HyperView.Forms
                 if (!File.Exists(credFile))
                     return;
 
+                // Get credentials from file and decrypt
                 using (FileStream fs = new FileStream(credFile, FileMode.Open, FileAccess.Read))
                 using (BinaryReader reader = new BinaryReader(fs))
                 {
+                    // Read and decrypt credentials
                     int serverLength = reader.ReadInt32();
                     byte[] encryptedServer = reader.ReadBytes(serverLength);
 
+                    // Read username
                     int usernameLength = reader.ReadInt32();
                     byte[] encryptedUsername = reader.ReadBytes(usernameLength);
 
+                    // Read password
                     int passwordLength = reader.ReadInt32();
                     byte[] encryptedPassword = reader.ReadBytes(passwordLength);
 
+                    // Decrypt based on current user
                     byte[] serverBytes = ProtectedData.Unprotect(encryptedServer, null, DataProtectionScope.CurrentUser);
                     byte[] usernameBytes = ProtectedData.Unprotect(encryptedUsername, null, DataProtectionScope.CurrentUser);
                     byte[] passwordBytes = ProtectedData.Unprotect(encryptedPassword, null, DataProtectionScope.CurrentUser);
 
+                    // Populate UI fields
                     textboxServer.Text = Encoding.UTF8.GetString(serverBytes);
                     textboxUsername.Text = Encoding.UTF8.GetString(usernameBytes);
                     textboxPassword.Text = Encoding.UTF8.GetString(passwordBytes);
 
+                    // Set UI state
                     radioCustom.Checked = true;
                     checkboxRemember.Checked = true;
 
+                    // Log
                     FileLogger.Message("Legacy credentials loaded", FileLogger.EventType.Information, 1012);
 
                     // Migrate to new format
@@ -1271,6 +1290,7 @@ namespace HyperView.Forms
                 string safeServerName = GetSafeFileName(serverName);
                 string credFile = Path.Combine(FileManager.ProgramDataFilePath, $"cred_{safeServerName}.dat");
 
+                // Check if file exists before attempting deletion
                 if (File.Exists(credFile))
                 {
                     File.Delete(credFile);
@@ -1332,6 +1352,7 @@ namespace HyperView.Forms
 
         private void RadioAuth_CheckedChanged(object sender, EventArgs e)
         {
+            // Set enabled state based on selected authentication method
             bool useCustomAuth = radioCustom.Checked;
             labelUsername.Enabled = useCustomAuth;
             textboxUsername.Enabled = useCustomAuth;
@@ -1339,6 +1360,7 @@ namespace HyperView.Forms
             textboxPassword.Enabled = useCustomAuth;
             checkboxRemember.Enabled = useCustomAuth;
 
+            // Uncheck "Remember Me" if switching to Windows Auth
             if (!useCustomAuth)
             {
                 checkboxRemember.Checked = false;
@@ -1347,6 +1369,7 @@ namespace HyperView.Forms
 
         private void TextboxServer_KeyDown(object sender, KeyEventArgs e)
         {
+            // Trigger login on Enter key
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
@@ -1368,6 +1391,7 @@ namespace HyperView.Forms
 
         private void TextboxUsername_KeyDown(object sender, KeyEventArgs e)
         {
+            // Trigger login on Enter key
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
@@ -1389,6 +1413,7 @@ namespace HyperView.Forms
 
         private void TextboxPassword_KeyDown(object sender, KeyEventArgs e)
         {
+            // Trigger login on Enter key
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
@@ -1411,12 +1436,14 @@ namespace HyperView.Forms
                 return;
             }
 
+            // Set flag to indicate connection in progress
             _isConnecting = true;
 
             // Immediately disable the button to prevent any possibility of re-entry
             ButtonLogin.Enabled = false;
             buttonCancel.Enabled = false;
 
+            // Get server name
             string serverName = textboxServer.Text.Trim();
 
             // Validate input
@@ -1431,6 +1458,7 @@ namespace HyperView.Forms
                 return;
             }
 
+            // Validate custom credentials if selected
             if (radioCustom.Checked)
             {
                 if (string.IsNullOrWhiteSpace(textboxUsername.Text))
@@ -1471,6 +1499,7 @@ namespace HyperView.Forms
             ButtonLogin.Text = @"Connecting...";
             Cursor = Cursors.WaitCursor;
 
+            // Log start of connection attempt
             FileLogger.Message($"Starting connection test to '{serverName}'",
                 FileLogger.EventType.Information, 1044);
 
@@ -1547,6 +1576,7 @@ namespace HyperView.Forms
                         FileLogger.Message($"MainForm created, showing dialog...",
                             FileLogger.EventType.Information, 1040);
 
+                        // Show main form as dialog
                         var mainResult = mainForm.ShowDialog();
 
                         FileLogger.Message($"MainForm closed with result: {mainResult}",
