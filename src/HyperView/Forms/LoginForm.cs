@@ -17,36 +17,36 @@ namespace HyperView.Forms
         {
             public bool Success { get; set; }
             public bool Cancelled { get; set; }
-            public string ServerName { get; set; }
+            public string? ServerName { get; set; }
             public bool UseWindowsAuth { get; set; }
-            public PSCredential Credentials { get; set; }
-            public string ConnectedUser { get; set; }
-            public string ConnectionType { get; set; }
+            public PSCredential? Credentials { get; set; }
+            public string? ConnectedUser { get; set; }
+            public string? ConnectionType { get; set; }
             public int VmCount { get; set; }
         }
 
         public LoginResult Result { get; private set; }
         private string _lastServerChecked = string.Empty;
         private readonly bool _isInitializing;
-        private bool _isConnecting = false; // Prevent double login attempts
+        private bool _isConnecting; // Prevent double login attempts
 
         private class ConnectionTestResult
         {
             public bool Success { get; set; }
-            public string Error { get; set; }
+            public string? Error { get; set; }
             public int VmCount { get; set; }
             public bool RequiresElevation { get; set; }
             public bool CanAutoElevate { get; set; }
             public bool IsLocal { get; set; }
 
             // Enhanced properties
-            public string HostName { get; set; }
-            public string HyperVVersion { get; set; }
+            public string? HostName { get; set; }
+            public string? HyperVVersion { get; set; }
             public int LogicalProcessorCount { get; set; }
             public double TotalMemoryGb { get; set; }
             public bool IsCluster { get; set; }
-            public string ClusterName { get; set; }
-            public string FullyQualifiedDomainName { get; set; }
+            public string? ClusterName { get; set; }
+            public string? FullyQualifiedDomainName { get; set; }
         }
 
         public LoginForm()
