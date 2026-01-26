@@ -142,7 +142,6 @@
             // 
             tabcontrolMainForm.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabcontrolMainForm.Controls.Add(tabpagehvOverview);
-            tabcontrolMainForm.Controls.Add(tabpageVMGroups);
             tabcontrolMainForm.Controls.Add(tabpagehvHosts);
             tabcontrolMainForm.Controls.Add(tabpagehvClusters);
             tabcontrolMainForm.Controls.Add(tabpagehvStorage);
@@ -157,6 +156,7 @@
             tabcontrolMainForm.Controls.Add(tabpagehvCompliance);
             tabcontrolMainForm.Controls.Add(tabpagehvInventory);
             tabcontrolMainForm.Controls.Add(tabpageCreateVM);
+            tabcontrolMainForm.Controls.Add(tabpageVMGroups);
             tabcontrolMainForm.Controls.Add(tabpageHealthOverview);
             tabcontrolMainForm.Location = new Point(12, 27);
             tabcontrolMainForm.Name = "tabcontrolMainForm";
