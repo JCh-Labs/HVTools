@@ -232,7 +232,71 @@ namespace HVTools.Forms
                 }
 
                 // Update form title with connection info
-                Text = $@"{Globals.ToolName.ShortName} - Connected to {SessionContext.ServerName} ({SessionContext.ConnectionType})";
+                string username;
+                if (SessionContext.Credentials != null)
+                {
+                    username = SessionContext.Credentials.UserName;
+                    // Ensure domain is included if not already present
+                    if (!username.Contains("\\") && !username.Contains("@"))
+                    {
+                        // Try to get domain from environment or credentials
+                        string domain = Environment.UserDomainName;
+                        if (!string.IsNullOrEmpty(domain) && domain != Environment.MachineName)
+                        {
+                            username = $"{domain}\\{username}";
+                        }
+                    }
+                }
+                else
+                {
+                    // Local connection - use current user with domain
+                    string currentUser = Environment.UserName;
+                    string domain = Environment.UserDomainName;
+                    
+                    if (!string.IsNullOrEmpty(domain) && domain != Environment.MachineName)
+                    {
+                        username = $"{domain}\\{currentUser}";
+                    }
+                    else
+                    {
+                        username = currentUser;
+                    }
+                }
+                
+                string clusterInfo = SessionContext.IsCluster ? " - Cluster" : " - Standalone";
+                
+                // Get hostname if connected via IP address
+                string? serverDisplay = SessionContext.ServerName;
+                if (System.Net.IPAddress.TryParse(SessionContext.ServerName?.Split('.')[0], out _))
+                {
+                    // Connected via IP - try to get hostname
+                    try
+                    {
+                        Message("Detected IP address connection, retrieving hostname...",
+                            EventType.Information, 2237);
+                        
+                        string getHostnameScript = "$env:COMPUTERNAME";
+                        var hostnameResult = ExecutePowerShellCommand(getHostnameScript);
+                        
+                        if (hostnameResult != null && hostnameResult.Count > 0)
+                        {
+                            string hostname = hostnameResult[0].BaseObject?.ToString();
+                            if (!string.IsNullOrEmpty(hostname))
+                            {
+                                serverDisplay = $"{SessionContext.ServerName} ({hostname})";
+                                Message($"Resolved hostname: {hostname} for IP: {SessionContext.ServerName}",
+                                    EventType.Information, 2238);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Message($"Could not retrieve hostname for IP {SessionContext.ServerName}: {ex.Message}",
+                            EventType.Warning, 2239);
+                    }
+                }
+                
+                Text = $@"{Globals.ToolName.ShortName} - Connected to {serverDisplay} as {username} ({SessionContext.ConnectionType}{clusterInfo})";
             }
             catch (Exception ex)
             {

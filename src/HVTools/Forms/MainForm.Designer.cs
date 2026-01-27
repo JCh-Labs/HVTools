@@ -109,7 +109,6 @@
             statusStripMainForm = new StatusStrip();
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
-            groupBoxMainFormServerDetails = new GroupBox();
             toolstripstatuslabelMain_CreatedBy = new Label();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
@@ -139,7 +138,7 @@
             datagridviewVMOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             datagridviewVMOverView.Location = new Point(6, 35);
             datagridviewVMOverView.Name = "datagridviewVMOverView";
-            datagridviewVMOverView.Size = new Size(1601, 803);
+            datagridviewVMOverView.Size = new Size(1601, 867);
             datagridviewVMOverView.TabIndex = 0;
             datagridviewVMOverView.CellContentDoubleClick += datagridviewVMOverView_CellContentDoubleClick;
             datagridviewVMOverView.DataBindingComplete += DatagridviewVMOverView_DataBindingComplete;
@@ -167,7 +166,7 @@
             tabcontrolMainForm.Location = new Point(12, 27);
             tabcontrolMainForm.Name = "tabcontrolMainForm";
             tabcontrolMainForm.SelectedIndex = 0;
-            tabcontrolMainForm.Size = new Size(1621, 872);
+            tabcontrolMainForm.Size = new Size(1621, 936);
             tabcontrolMainForm.TabIndex = 1;
             // 
             // tabpagehvOverview
@@ -180,7 +179,7 @@
             tabpagehvOverview.Location = new Point(4, 24);
             tabpagehvOverview.Name = "tabpagehvOverview";
             tabpagehvOverview.Padding = new Padding(3);
-            tabpagehvOverview.Size = new Size(1613, 844);
+            tabpagehvOverview.Size = new Size(1613, 908);
             tabpagehvOverview.TabIndex = 0;
             tabpagehvOverview.Text = "vmOverview";
             tabpagehvOverview.UseVisualStyleBackColor = true;
@@ -234,7 +233,7 @@
             tabpagehvHosts.Controls.Add(label1);
             tabpagehvHosts.Location = new Point(4, 24);
             tabpagehvHosts.Name = "tabpagehvHosts";
-            tabpagehvHosts.Size = new Size(1613, 844);
+            tabpagehvHosts.Size = new Size(1613, 908);
             tabpagehvHosts.TabIndex = 3;
             tabpagehvHosts.Text = "hvHosts";
             tabpagehvHosts.UseVisualStyleBackColor = true;
@@ -259,7 +258,7 @@
             datagridviewhvHosts.Location = new Point(6, 35);
             datagridviewhvHosts.Name = "datagridviewhvHosts";
             datagridviewhvHosts.ReadOnly = true;
-            datagridviewhvHosts.Size = new Size(1601, 803);
+            datagridviewhvHosts.Size = new Size(1601, 867);
             datagridviewhvHosts.TabIndex = 1;
             // 
             // label1
@@ -283,7 +282,7 @@
             tabpagehvClusters.Controls.Add(buttonSummaryClustersOverviewView);
             tabpagehvClusters.Location = new Point(4, 24);
             tabpagehvClusters.Name = "tabpagehvClusters";
-            tabpagehvClusters.Size = new Size(1613, 844);
+            tabpagehvClusters.Size = new Size(1613, 908);
             tabpagehvClusters.TabIndex = 4;
             tabpagehvClusters.Text = "hvClusters";
             tabpagehvClusters.UseVisualStyleBackColor = true;
@@ -294,17 +293,17 @@
             datagridviewClusterVMs.AllowUserToDeleteRows = false;
             datagridviewClusterVMs.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             datagridviewClusterVMs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            datagridviewClusterVMs.Location = new Point(6, 545);
+            datagridviewClusterVMs.Location = new Point(6, 542);
             datagridviewClusterVMs.Name = "datagridviewClusterVMs";
             datagridviewClusterVMs.ReadOnly = true;
-            datagridviewClusterVMs.Size = new Size(1604, 296);
+            datagridviewClusterVMs.Size = new Size(1601, 360);
             datagridviewClusterVMs.TabIndex = 13;
             // 
             // labelClusterVMs
             // 
             labelClusterVMs.AutoSize = true;
             labelClusterVMs.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelClusterVMs.Location = new Point(6, 527);
+            labelClusterVMs.Location = new Point(6, 524);
             labelClusterVMs.Name = "labelClusterVMs";
             labelClusterVMs.Size = new Size(167, 15);
             labelClusterVMs.TabIndex = 12;
@@ -319,7 +318,7 @@
             datagridviewClusterNodes.Location = new Point(6, 308);
             datagridviewClusterNodes.Name = "datagridviewClusterNodes";
             datagridviewClusterNodes.ReadOnly = true;
-            datagridviewClusterNodes.Size = new Size(1604, 200);
+            datagridviewClusterNodes.Size = new Size(1601, 200);
             datagridviewClusterNodes.TabIndex = 11;
             // 
             // labelClusterNodes
@@ -484,7 +483,7 @@
             // 
             tabpagehvStorage.Location = new Point(4, 24);
             tabpagehvStorage.Name = "tabpagehvStorage";
-            tabpagehvStorage.Size = new Size(1613, 844);
+            tabpagehvStorage.Size = new Size(1613, 908);
             tabpagehvStorage.TabIndex = 5;
             tabpagehvStorage.Text = "hvStorage";
             tabpagehvStorage.UseVisualStyleBackColor = true;
@@ -497,7 +496,7 @@
             tabPagehvDisks.Controls.Add(datagridviewvDiskOverView);
             tabPagehvDisks.Location = new Point(4, 24);
             tabPagehvDisks.Name = "tabPagehvDisks";
-            tabPagehvDisks.Size = new Size(1613, 844);
+            tabPagehvDisks.Size = new Size(1613, 908);
             tabPagehvDisks.TabIndex = 16;
             tabPagehvDisks.Text = "hvDisks";
             tabPagehvDisks.UseVisualStyleBackColor = true;
@@ -539,7 +538,7 @@
             datagridviewvDiskOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             datagridviewvDiskOverView.Location = new Point(6, 35);
             datagridviewvDiskOverView.Name = "datagridviewvDiskOverView";
-            datagridviewvDiskOverView.Size = new Size(1601, 803);
+            datagridviewvDiskOverView.Size = new Size(1601, 867);
             datagridviewvDiskOverView.TabIndex = 4;
             // 
             // tabpagehvCheckpoints
@@ -936,16 +935,6 @@
             toolStripStatusLabelTextMainForm.Size = new Size(67, 17);
             toolStripStatusLabelTextMainForm.Text = "%STATUS%";
             // 
-            // groupBoxMainFormServerDetails
-            // 
-            groupBoxMainFormServerDetails.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            groupBoxMainFormServerDetails.Location = new Point(12, 905);
-            groupBoxMainFormServerDetails.Name = "groupBoxMainFormServerDetails";
-            groupBoxMainFormServerDetails.Size = new Size(449, 58);
-            groupBoxMainFormServerDetails.TabIndex = 4;
-            groupBoxMainFormServerDetails.TabStop = false;
-            groupBoxMainFormServerDetails.Text = "Details";
-            // 
             // toolstripstatuslabelMain_CreatedBy
             // 
             toolstripstatuslabelMain_CreatedBy.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -963,7 +952,6 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1645, 999);
             Controls.Add(toolstripstatuslabelMain_CreatedBy);
-            Controls.Add(groupBoxMainFormServerDetails);
             Controls.Add(statusStripMainForm);
             Controls.Add(pictureboxSupportMe);
             Controls.Add(menuStripTopMainForm);
@@ -1046,7 +1034,6 @@
         private StatusStrip statusStripMainForm;
         private ToolStripStatusLabel toolStripStatusLabelMainForm;
         private ToolStripStatusLabel toolStripStatusLabelTextMainForm;
-        private GroupBox groupBoxMainFormServerDetails;
         private Label labelOverviewHelpText;
         private Button buttonSummaryhvOverviewView;
         private Button buttonLoadVMsrefresh;
