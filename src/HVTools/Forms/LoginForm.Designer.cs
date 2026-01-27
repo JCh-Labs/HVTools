@@ -63,7 +63,7 @@
             // 
             labelLoginFormToolName.AutoSize = true;
             labelLoginFormToolName.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelLoginFormToolName.Location = new Point(160, 83);
+            labelLoginFormToolName.Location = new Point(160, 85);
             labelLoginFormToolName.Name = "labelLoginFormToolName";
             labelLoginFormToolName.Size = new Size(135, 30);
             labelLoginFormToolName.TabIndex = 0;
@@ -72,7 +72,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = Properties.Resources.hyper_v;
-            pictureBox1.Location = new Point(49, 45);
+            pictureBox1.Location = new Point(49, 47);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(105, 106);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
@@ -82,7 +82,7 @@
             // labelServer
             // 
             labelServer.AutoSize = true;
-            labelServer.Location = new Point(21, 170);
+            labelServer.Location = new Point(21, 195);
             labelServer.Name = "labelServer";
             labelServer.Size = new Size(83, 15);
             labelServer.TabIndex = 2;
@@ -90,7 +90,7 @@
             // 
             // textboxServer
             // 
-            textboxServer.Location = new Point(110, 167);
+            textboxServer.Location = new Point(110, 192);
             textboxServer.Name = "textboxServer";
             textboxServer.Size = new Size(280, 23);
             textboxServer.TabIndex = 3;
@@ -109,7 +109,7 @@
             groupAuth.Controls.Add(radioCustom);
             groupAuth.Controls.Add(radioWindows);
             groupAuth.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupAuth.Location = new Point(12, 205);
+            groupAuth.Location = new Point(12, 230);
             groupAuth.Name = "groupAuth";
             groupAuth.Size = new Size(407, 209);
             groupAuth.TabIndex = 4;
@@ -214,7 +214,7 @@
             // 
             // buttonHelpConnectGuide
             // 
-            buttonHelpConnectGuide.Location = new Point(396, 167);
+            buttonHelpConnectGuide.Location = new Point(396, 192);
             buttonHelpConnectGuide.Name = "buttonHelpConnectGuide";
             buttonHelpConnectGuide.Size = new Size(23, 23);
             buttonHelpConnectGuide.TabIndex = 5;
@@ -225,7 +225,7 @@
             // statusStripLoginForm
             // 
             statusStripLoginForm.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelLoginForm, toolStripStatusLabelTextLoginForm });
-            statusStripLoginForm.Location = new Point(0, 428);
+            statusStripLoginForm.Location = new Point(0, 454);
             statusStripLoginForm.Name = "statusStripLoginForm";
             statusStripLoginForm.Size = new Size(432, 22);
             statusStripLoginForm.SizingGrip = false;
@@ -293,7 +293,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(432, 450);
+            ClientSize = new Size(432, 476);
             Controls.Add(pictureboxSupportMe);
             Controls.Add(statusStripLoginForm);
             Controls.Add(menuStripLoginForm);
