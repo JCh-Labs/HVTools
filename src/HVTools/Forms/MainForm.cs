@@ -239,11 +239,53 @@ namespace HVTools.Forms
                     // Ensure domain is included if not already present
                     if (!username.Contains("\\") && !username.Contains("@"))
                     {
-                        // Try to get domain from environment or credentials
-                        string domain = Environment.UserDomainName;
-                        if (!string.IsNullOrEmpty(domain) && domain != Environment.MachineName)
+                        // For remote connections, get the domain from the remote machine
+                        try
                         {
-                            username = $"{domain}\\{username}";
+                            Message("Retrieving domain information from remote machine...",
+                                EventType.Information, 2240);
+                            
+                            string getDomainScript = @"
+                                $computerSystem = Get-WmiObject -Class Win32_ComputerSystem
+                                if ($computerSystem.PartOfDomain) {
+                                    # Machine is domain-joined
+                                    $computerSystem.Domain
+                                } else {
+                                    # Machine is in workgroup - use computer name
+                                    $env:COMPUTERNAME
+                                }
+                            ";
+                            
+                            var domainResult = ExecutePowerShellCommand(getDomainScript);
+                            
+                            if (domainResult != null && domainResult.Count > 0)
+                            {
+                                string remoteDomain = domainResult[0].BaseObject?.ToString();
+                                if (!string.IsNullOrEmpty(remoteDomain))
+                                {
+                                    username = $"{remoteDomain}\\{username}";
+                                    Message($"Using remote domain/workgroup: {remoteDomain}",
+                                        EventType.Information, 2241);
+                                }
+                                else
+                                {
+                                    // Fallback: use just the username
+                                    Message("Could not determine remote domain, using username only",
+                                        EventType.Warning, 2242);
+                                }
+                            }
+                            else
+                            {
+                                // Fallback: use just the username
+                                Message("No domain result from remote machine, using username only",
+                                    EventType.Warning, 2243);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Message($"Error retrieving remote domain: {ex.Message}",
+                                EventType.Warning, 2244);
+                            // Fallback: use just the username without domain
                         }
                     }
                 }
