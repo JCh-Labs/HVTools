@@ -13,6 +13,7 @@ namespace HVTools.Forms
         private Runspace _persistentRunspace = null;
 
         private bool _initialLoadComplete = false;
+        private bool _exitConfirmed = false;
 
         public MainForm()
         {
@@ -1578,6 +1579,12 @@ namespace HVTools.Forms
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // If exit was already confirmed (e.g., from exit menu), skip confirmation
+            if (_exitConfirmed)
+            {
+                return;
+            }
+
             // Use the shared confirmation function
             if (!ConfirmDisconnectAndExit())
             {
@@ -2703,6 +2710,8 @@ namespace HVTools.Forms
             // Use the shared confirmation function
             if (ConfirmDisconnectAndExit())
             {
+                // Set flag to prevent duplicate confirmation in FormClosing event
+                _exitConfirmed = true;
                 Close();
             }
         }
