@@ -8,13 +8,13 @@ namespace HVTools.Forms
 {
     partial class AboutForm : Form
     {
-        public async void InitializeAsyncCertificateCheck()
+        private async Task InitializeAsyncCertificateCheck()
         {
             // TODO MOVE TO CLASS
             // Check the result and update UI accordingly based on the certificate thumbprint fetched from GitHub or the hardcoded one (if offline)
 
-            // Get the path of the current executable
-            string filePath = Assembly.GetExecutingAssembly().Location;
+            // Get the path of the current executable (use ProcessPath for modern .NET to get the actual .exe, not the .dll)
+            string filePath = Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule?.FileName ?? Assembly.GetExecutingAssembly().Location;
 
             // Initialize WINTRUST_FILE_INFO
             WintrustFileInfo fileInfo = new WintrustFileInfo
@@ -57,21 +57,16 @@ namespace HVTools.Forms
                     string currentThumbprint = await Globals.FetchCurrentCertificateThumbprintAsync();
                     
                     // Check if the thumbprint matches the current one from Michael Morten Sonne at GitHub or the hardcoded one (if offline)
+                    // After await, we're automatically back on the UI thread in modern .NET
                     if (certificate.Thumbprint != null && certificate.Thumbprint.Equals(currentThumbprint, StringComparison.OrdinalIgnoreCase))
                     {
-                        labelSignedBuildState.Invoke((System.Windows.Forms.MethodInvoker)delegate
-                        {
-                            labelSignedBuildState.Text = Globals.ToolStates.CodeSignedBuildMichael;
-                            labelSignedBuildState.ForeColor = Color.Green;
-                        });
+                        labelSignedBuildState.Text = Globals.ToolStates.CodeSignedBuildMichael;
+                        labelSignedBuildState.ForeColor = Color.Green;
                     }
                     else
                     {
-                        labelSignedBuildState.Invoke((System.Windows.Forms.MethodInvoker)delegate
-                        {
-                            labelSignedBuildState.Text = Globals.ToolStates.CodeSignedBuild;
-                            labelSignedBuildState.ForeColor = Color.Green;
-                        });
+                        labelSignedBuildState.Text = Globals.ToolStates.CodeSignedBuild;
+                        labelSignedBuildState.ForeColor = Color.Green;
                     }
                 }
                 catch (Exception ex)
@@ -81,25 +76,8 @@ namespace HVTools.Forms
             }
             else
             {
-                // Check if the handle for labelSignedBuildState has been created
-                if (labelSignedBuildState.IsHandleCreated)
-                {
-                    labelSignedBuildState.Invoke((System.Windows.Forms.MethodInvoker)delegate
-                    {
-                        labelSignedBuildState.Text = Globals.ToolStates.NotCodeSignedBuild;
-                        labelSignedBuildState.ForeColor = Color.Red;
-                    });
-                }
-                else
-                {
-                    // Handle the case where the control's handle is not yet created
-                    // One approach is to use the Load event of the form to ensure the code runs after the form is fully loaded
-                    Load += (sender, e) =>
-                    {
-                        labelSignedBuildState.Text = Globals.ToolStates.NotCodeSignedBuild;
-                        labelSignedBuildState.ForeColor = Color.Red;
-                    };
-                }
+                labelSignedBuildState.Text = Globals.ToolStates.NotCodeSignedBuild;
+                labelSignedBuildState.ForeColor = Color.Red;
             }
 
             // Free allocated memory
@@ -128,8 +106,8 @@ namespace HVTools.Forms
             // Set the tooltip text for pictureBoxBuyMeACoffee
             toolTipForPictureBox.SetToolTip(pictureBoxBuyMeACoffee, "Support me on Buy Me a Coffee!");
 
-            // Initialize the certificate check asynchronously and update GUI accordingly
-            InitializeAsyncCertificateCheck();
+            // Initialize the certificate check asynchronously after form is loaded
+            Load += async (sender, e) => await InitializeAsyncCertificateCheck();
         }
 
         public sealed override string Text
