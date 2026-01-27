@@ -47,16 +47,23 @@
             statusStripLoginForm = new StatusStrip();
             toolStripStatusLabelLoginForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextLoginForm = new ToolStripStatusLabel();
+            pictureboxSupportMe = new PictureBox();
+            menuStripLoginForm = new MenuStrip();
+            menuToolStripMenuItem = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             groupAuth.SuspendLayout();
             statusStripLoginForm.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).BeginInit();
+            menuStripLoginForm.SuspendLayout();
             SuspendLayout();
             // 
             // labelLoginFormToolName
             // 
             labelLoginFormToolName.AutoSize = true;
             labelLoginFormToolName.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelLoginFormToolName.Location = new Point(147, 68);
+            labelLoginFormToolName.Location = new Point(160, 83);
             labelLoginFormToolName.Name = "labelLoginFormToolName";
             labelLoginFormToolName.Size = new Size(135, 30);
             labelLoginFormToolName.TabIndex = 0;
@@ -65,7 +72,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = Properties.Resources.hyper_v;
-            pictureBox1.Location = new Point(36, 30);
+            pictureBox1.Location = new Point(49, 45);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(105, 106);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
@@ -238,12 +245,58 @@
             toolStripStatusLabelTextLoginForm.Size = new Size(67, 17);
             toolStripStatusLabelTextLoginForm.Text = "%STATUS%";
             // 
+            // pictureboxSupportMe
+            // 
+            pictureboxSupportMe.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            pictureboxSupportMe.BackColor = Color.Transparent;
+            pictureboxSupportMe.Image = (Image)resources.GetObject("pictureboxSupportMe.Image");
+            pictureboxSupportMe.Location = new Point(313, 12);
+            pictureboxSupportMe.Name = "pictureboxSupportMe";
+            pictureboxSupportMe.Size = new Size(107, 30);
+            pictureboxSupportMe.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureboxSupportMe.TabIndex = 7;
+            pictureboxSupportMe.TabStop = false;
+            pictureboxSupportMe.Click += pictureboxSupportMe_Click;
+            // 
+            // menuStripLoginForm
+            // 
+            menuStripLoginForm.BackColor = SystemColors.Control;
+            menuStripLoginForm.Items.AddRange(new ToolStripItem[] { menuToolStripMenuItem });
+            menuStripLoginForm.Location = new Point(0, 0);
+            menuStripLoginForm.Name = "menuStripLoginForm";
+            menuStripLoginForm.Size = new Size(432, 24);
+            menuStripLoginForm.TabIndex = 8;
+            menuStripLoginForm.Text = "menuStrip1";
+            // 
+            // menuToolStripMenuItem
+            // 
+            menuToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, exitToolStripMenuItem });
+            menuToolStripMenuItem.Name = "menuToolStripMenuItem";
+            menuToolStripMenuItem.Size = new Size(50, 20);
+            menuToolStripMenuItem.Text = "Menu";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new Size(107, 22);
+            aboutToolStripMenuItem.Text = "About";
+            aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
+            // 
+            // exitToolStripMenuItem
+            // 
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new Size(107, 22);
+            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(432, 450);
+            Controls.Add(pictureboxSupportMe);
             Controls.Add(statusStripLoginForm);
+            Controls.Add(menuStripLoginForm);
             Controls.Add(buttonHelpConnectGuide);
             Controls.Add(groupAuth);
             Controls.Add(textboxServer);
@@ -252,6 +305,7 @@
             Controls.Add(labelLoginFormToolName);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = menuStripLoginForm;
             MaximizeBox = false;
             Name = "LoginForm";
             StartPosition = FormStartPosition.CenterScreen;
@@ -261,6 +315,9 @@
             groupAuth.PerformLayout();
             statusStripLoginForm.ResumeLayout(false);
             statusStripLoginForm.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).EndInit();
+            menuStripLoginForm.ResumeLayout(false);
+            menuStripLoginForm.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -285,5 +342,10 @@
         private StatusStrip statusStripLoginForm;
         private ToolStripStatusLabel toolStripStatusLabelLoginForm;
         private ToolStripStatusLabel toolStripStatusLabelTextLoginForm;
+        private PictureBox pictureboxSupportMe;
+        private MenuStrip menuStripLoginForm;
+        private ToolStripMenuItem menuToolStripMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
     }
 }

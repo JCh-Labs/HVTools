@@ -222,9 +222,9 @@
             labelOverviewHelpText.AutoSize = true;
             labelOverviewHelpText.Location = new Point(6, 3);
             labelOverviewHelpText.Name = "labelOverviewHelpText";
-            labelOverviewHelpText.Size = new Size(705, 30);
+            labelOverviewHelpText.Size = new Size(601, 30);
             labelOverviewHelpText.TabIndex = 1;
-            labelOverviewHelpText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VMs and other data that\r\nextends that functionality over multiple servers.";
+            labelOverviewHelpText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VMs\r\nand other data that extends that functionality over multiple servers.";
             // 
             // tabpagehvHosts
             // 
@@ -466,9 +466,9 @@
             labelClustersHelpText.AutoSize = true;
             labelClustersHelpText.Location = new Point(6, 3);
             labelClustersHelpText.Name = "labelClustersHelpText";
-            labelClustersHelpText.Size = new Size(800, 15);
+            labelClustersHelpText.Size = new Size(418, 30);
             labelClustersHelpText.TabIndex = 5;
-            labelClustersHelpText.Text = "This view provides overview of Hyper-V Failover Cluster information including nodes, networks, shared volumes, and highly available virtual machines.";
+            labelClustersHelpText.Text = "This view provides overview of Hyper-V Failover Cluster information including\r\nnodes, networks, shared volumes, and highly available virtual machines.";
             // 
             // buttonSummaryClustersOverviewView
             // 
@@ -530,9 +530,9 @@
             labelvDiskOverviewText.AutoSize = true;
             labelvDiskOverviewText.Location = new Point(6, 3);
             labelvDiskOverviewText.Name = "labelvDiskOverviewText";
-            labelvDiskOverviewText.Size = new Size(705, 30);
+            labelvDiskOverviewText.Size = new Size(486, 30);
             labelvDiskOverviewText.TabIndex = 5;
-            labelvDiskOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VMs and other data that\r\nextends that functionality over multiple servers.";
+            labelvDiskOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for\r\ninformation about VMs and other data that extends that functionality over multiple servers.";
             // 
             // datagridviewvDiskOverView
             // 
@@ -583,9 +583,9 @@
             labelvCheckpointsOverviewText.AutoSize = true;
             labelvCheckpointsOverviewText.Location = new Point(6, 3);
             labelvCheckpointsOverviewText.Name = "labelvCheckpointsOverviewText";
-            labelvCheckpointsOverviewText.Size = new Size(767, 30);
+            labelvCheckpointsOverviewText.Size = new Size(548, 30);
             labelvCheckpointsOverviewText.TabIndex = 9;
-            labelvCheckpointsOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VM checkpoints and other data that\r\nextends that functionality over multiple servers.";
+            labelvCheckpointsOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for\r\ninformation about VM checkpoints and other data that extends that functionality over multiple servers.";
             // 
             // datagridviewCheckpointOverView
             // 
@@ -774,9 +774,9 @@
             labelThisViewProvidesOver.AutoSize = true;
             labelThisViewProvidesOver.Location = new Point(6, 3);
             labelThisViewProvidesOver.Name = "labelThisViewProvidesOver";
-            labelThisViewProvidesOver.Size = new Size(712, 30);
+            labelThisViewProvidesOver.Size = new Size(501, 30);
             labelThisViewProvidesOver.TabIndex = 2;
-            labelThisViewProvidesOver.Text = "This view provides overview and core functionality within the Hyper-V space for management of VM Groups for VMs that extends that\r\nfunctionality over multiple servers.";
+            labelThisViewProvidesOver.Text = "This view provides overview and core functionality within the Hyper-V space for management\r\nof VM Groups for VMs that extends that functionality over multiple servers.";
             // 
             // datagridviewVMGroups
             // 
@@ -903,12 +903,11 @@
             // 
             // pictureboxSupportMe
             // 
-            pictureboxSupportMe.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             pictureboxSupportMe.BackColor = Color.Transparent;
             pictureboxSupportMe.Image = (Image)resources.GetObject("pictureboxSupportMe.Image");
-            pictureboxSupportMe.Location = new Point(1520, 5);
+            pictureboxSupportMe.Location = new Point(61, 3);
             pictureboxSupportMe.Name = "pictureboxSupportMe";
-            pictureboxSupportMe.Size = new Size(119, 36);
+            pictureboxSupportMe.Size = new Size(77, 21);
             pictureboxSupportMe.SizeMode = PictureBoxSizeMode.Zoom;
             pictureboxSupportMe.TabIndex = 1;
             pictureboxSupportMe.TabStop = false;
@@ -942,7 +941,7 @@
             toolstripstatuslabelMain_CreatedBy.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             toolstripstatuslabelMain_CreatedBy.AutoSize = true;
             toolstripstatuslabelMain_CreatedBy.BackColor = Color.White;
-            toolstripstatuslabelMain_CreatedBy.Location = new Point(1327, 4);
+            toolstripstatuslabelMain_CreatedBy.Location = new Point(1451, 4);
             toolstripstatuslabelMain_CreatedBy.Name = "toolstripstatuslabelMain_CreatedBy";
             toolstripstatuslabelMain_CreatedBy.Size = new Size(190, 15);
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
@@ -953,9 +952,9 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1645, 999);
+            Controls.Add(pictureboxSupportMe);
             Controls.Add(toolstripstatuslabelMain_CreatedBy);
             Controls.Add(statusStripMainForm);
-            Controls.Add(pictureboxSupportMe);
             Controls.Add(menuStripTopMainForm);
             Controls.Add(tabcontrolMainForm);
             Icon = (Icon)resources.GetObject("$this.Icon");

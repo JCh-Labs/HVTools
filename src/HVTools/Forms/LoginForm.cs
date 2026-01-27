@@ -1,4 +1,5 @@
 ﻿using HVTools.Class;
+using System.Diagnostics;
 using System.Management;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -8,6 +9,7 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
+using static HVTools.Class.FileLogger;
 
 namespace HVTools.Forms
 {
@@ -29,7 +31,7 @@ namespace HVTools.Forms
             public string? ConnectionType { get; set; }
             public int VmCount { get; set; }
         }
-        
+
         private class ConnectionTestResult
         {
             public bool Success { get; set; }
@@ -93,7 +95,7 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message("Determining default Hyper-V server name...", 
+                FileLogger.Message("Determining default Hyper-V server name...",
                     FileLogger.EventType.Information, 1047);
 
                 // Check if local machine has Hyper-V role installed
@@ -289,7 +291,7 @@ namespace HVTools.Forms
                     {
                         var feature = (ManagementObject)o;
                         string? featureName = feature["Name"]?.ToString();
-                        
+
                         FileLogger.Message($"Hyper-V role detected on Windows Server: {featureName}",
                             FileLogger.EventType.Information, 1063);
 
@@ -305,7 +307,7 @@ namespace HVTools.Forms
                             return false;
                         }
                     }
-                    
+
                     FileLogger.Message("No Hyper-V server roles found in WMI",
                         FileLogger.EventType.Information, 1084);
                 }
@@ -1333,8 +1335,8 @@ namespace HVTools.Forms
                     // Update color based on status
                     if (isSuccess.HasValue)
                     {
-                        toolStripStatusLabelTextLoginForm.ForeColor = isSuccess.Value 
-                            ? Color.Green 
+                        toolStripStatusLabelTextLoginForm.ForeColor = isSuccess.Value
+                            ? Color.Green
                             : Color.Orange;
                     }
                     else
@@ -1708,7 +1710,7 @@ Error: {connectionResult.Error}",
                 return false;
             }
         }
-        
+
         private void textboxServer_TextChanged(object sender, EventArgs e)
         {
             // Skip during form initialization
@@ -1785,5 +1787,43 @@ Error: {connectionResult.Error}",
         }
 
         #endregion UI Handlers
+
+        private void pictureboxSupportMe_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Globals.ToolStings.UrlBuyMeaCoffie,
+                    UseShellExecute = true
+                });
+
+                // Log the opening of the URL message
+                Message("User clicked the 'Buy me a coffie' picture in MainForm to open the URL: '" + Globals.ToolStings.UrlBuyMeaCoffie + "'", EventType.Information, 1052);
+            }
+            catch (Exception ex)
+            {
+                // Show an error message if the URL could not be opened
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlBuyMeaCoffie + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Log the error message
+                Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
+            }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Log the user's action to open the About form
+            Message("User clicked the 'About' menu item to open the About form", EventType.Information, 1056);
+
+            // Open the About form
+            AboutForm f2 = new AboutForm();
+            f2.ShowDialog();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

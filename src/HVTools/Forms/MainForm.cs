@@ -2834,7 +2834,7 @@ namespace HVTools.Forms
             catch (Exception ex)
             {
                 // Show an error message if the URL could not be opened
-                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlBuyMeaCoffie + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlBuyMeaCoffie + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
