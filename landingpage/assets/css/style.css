@@ -667,6 +667,21 @@ section {
     transform: translateY(-3px);
 }
 
+.footer-mvp {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.footer-mvp a {
+    display: inline-block;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.footer-mvp a:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
 .footer-bottom {
     padding-top: 30px;
     text-align: center;
