@@ -315,6 +315,131 @@ Get-ClusterGroup -Cluster $clusterName | Where-Object { $_.GroupType -eq 'Virtua
         </div>
     </section>
 
+    <!-- Network Requirements Section -->
+    <section class="doc-section alt-bg">
+        <div class="container">
+            <div class="section-header">
+                <h2>🌐 Network Requirements</h2>
+                <p>Firewall ports and connectivity needed for remote management</p>
+            </div>
+            <div class="doc-content">
+                <div class="doc-card">
+                    <h3>Required Firewall Ports</h3>
+                    <p>The following ports must be open between HVTools client and target Hyper-V hosts:</p>
+                    <ul class="tech-list">
+                        <li>
+                            <span class="tech-badge">TCP 135</span>
+                            <span>RPC Endpoint Mapper - Required for WMI and DCOM connections</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">TCP 445</span>
+                            <span>SMB - File sharing and named pipes for remote management</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">TCP 5985</span>
+                            <span>WinRM HTTP - PowerShell remoting (default)</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">TCP 5986</span>
+                            <span>WinRM HTTPS - PowerShell remoting (encrypted)</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">TCP 49152-65535</span>
+                            <span>Dynamic RPC - High ports for WMI/DCOM callbacks</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="doc-card">
+                    <h3>Cluster-Specific Ports</h3>
+                    <p>Additional ports required when connecting to Hyper-V clusters:</p>
+                    <ul class="tech-list">
+                        <li>
+                            <span class="tech-badge">TCP 3343</span>
+                            <span>Cluster Network Communication</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">UDP 3343</span>
+                            <span>Cluster Heartbeat Traffic</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">TCP 445</span>
+                            <span>Cluster Shared Volumes (CSV) access</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="doc-card">
+                    <h3>Windows Firewall Rules</h3>
+                    <p>Enable these built-in Windows Firewall rules on target Hyper-V hosts:</p>
+                    <ul>
+                        <li>✅ <strong>Windows Remote Management (HTTP-In)</strong> - For PowerShell remoting</li>
+                        <li>✅ <strong>Windows Management Instrumentation (WMI)</strong> - All WMI rules</li>
+                        <li>✅ <strong>Remote Event Log Management</strong> - For event log queries</li>
+                        <li>✅ <strong>File and Printer Sharing</strong> - For SMB access</li>
+                        <li>✅ <strong>Hyper-V Management Clients</strong> - For VM management</li>
+                        <li>✅ <strong>Failover Cluster Manager</strong> - For cluster environments</li>
+                    </ul>
+                    <div class="code-block">
+                        <pre># Enable WinRM on target hosts (run as Administrator)
+Enable-PSRemoting -Force
+
+# Enable required firewall rules
+Enable-NetFirewallRule -DisplayGroup "Windows Remote Management"
+Enable-NetFirewallRule -DisplayGroup "Windows Management Instrumentation (WMI)"
+Enable-NetFirewallRule -DisplayGroup "Hyper-V Management Clients"</pre>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <h3>Network Protocols</h3>
+                    <p>HVTools uses the following protocols for communication:</p>
+                    <ul>
+                        <li>🔗 <strong>WMI/DCOM</strong> - Primary protocol for VM and host queries</li>
+                        <li>🔗 <strong>WS-Management (WinRM)</strong> - PowerShell remoting for advanced operations</li>
+                        <li>🔗 <strong>Kerberos</strong> - Preferred authentication in domain environments</li>
+                        <li>🔗 <strong>NTLM</strong> - Fallback authentication for workgroup scenarios</li>
+                        <li>🔗 <strong>SMB</strong> - For file operations and named pipe communication</li>
+                    </ul>
+                </div>
+
+                <div class="doc-card">
+                    <h3>Connectivity Requirements</h3>
+                    <p>Ensure the following connectivity requirements are met:</p>
+                    <ul>
+                        <li>🌐 <strong>DNS Resolution</strong> - Client must resolve Hyper-V host names</li>
+                        <li>🌐 <strong>Domain Membership</strong> - Recommended for seamless authentication</li>
+                        <li>🌐 <strong>Network Latency</strong> - Low latency recommended (&lt;100ms)</li>
+                        <li>🌐 <strong>No NAT</strong> - Direct IP connectivity required (no NAT between client and hosts)</li>
+                        <li>🌐 <strong>Same Forest</strong> - For cross-domain, ensure forest trust is configured</li>
+                    </ul>
+                </div>
+
+                <div class="doc-card full-width">
+                    <h3>Troubleshooting Connectivity</h3>
+                    <p>Use these commands to verify connectivity to target hosts:</p>
+                    <div class="code-block">
+                        <pre># Test basic connectivity
+Test-Connection -ComputerName "HyperVHost01" -Count 2
+
+# Test WinRM connectivity
+Test-WSMan -ComputerName "HyperVHost01"
+
+# Test WMI connectivity
+Get-WmiObject -Class Win32_OperatingSystem -ComputerName "HyperVHost01"
+
+# Test Hyper-V connectivity
+Get-VM -ComputerName "HyperVHost01"
+
+# Check open ports (requires Nmap or PowerShell 5.1+)
+Test-NetConnection -ComputerName "HyperVHost01" -Port 5985
+Test-NetConnection -ComputerName "HyperVHost01" -Port 135</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
