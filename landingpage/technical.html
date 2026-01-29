@@ -353,8 +353,6 @@ Get-ClusterGroup -Cluster $clusterName | Where-Object { $_.GroupType -eq 'Virtua
                             <br><em>Why:</em> Kerberos authentication requires a valid domain identity for secure, seamless authentication</li>
                         <li><strong>Delegation Rights</strong> (For multi-hop scenarios)
                             <br><em>Why:</em> If HVTools connects to a management server that then connects to hosts, constrained delegation must be configured</li>
-                        <li><strong>Service Account</strong> (Optional)
-                            <br><em>Why:</em> Recommended for automated/scheduled operations with dedicated credentials</li>
                     </ul>
                 </div>
 
