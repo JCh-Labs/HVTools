@@ -305,12 +305,23 @@ img {
     overflow: hidden;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 600px;
 }
 
 .hero-image-wrapper img {
     display: block;
-    max-width: 100%;
+    width: 200%;
+    max-width: none;
     border-radius: 12px;
+    object-fit: cover;
+    object-position: left center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.hero-image-wrapper img:hover {
+    transform: scale(1.02);
 }
 
 /* ===== Buttons ===== */
