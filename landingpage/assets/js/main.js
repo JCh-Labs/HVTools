@@ -136,3 +136,44 @@ console.log(`
 'background: linear-gradient(135deg, #0078d4, #00bcf2); color: white; padding: 10px 20px; font-size: 20px; font-weight: bold; border-radius: 5px;',
 'color: #0078d4; font-size: 14px;'
 );
+
+// ===== Image Modal =====
+const modal = document.getElementById('imageModal');
+const modalImg = document.getElementById('modalImage');
+const modalCaption = document.getElementById('modalCaption');
+const closeModal = document.querySelector('.modal-close');
+
+// Get all clickable images
+const clickableImages = document.querySelectorAll('.clickable-image');
+
+// Add click event to all clickable images
+clickableImages.forEach(img => {
+    img.addEventListener('click', function() {
+        modal.classList.add('active');
+        modalImg.src = this.src;
+        modalCaption.textContent = this.alt;
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    });
+});
+
+// Close modal when clicking the X
+closeModal.addEventListener('click', () => {
+    modal.classList.remove('active');
+    document.body.style.overflow = ''; // Re-enable scrolling
+});
+
+// Close modal when clicking outside the image
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Re-enable scrolling
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Re-enable scrolling
+    }
+});

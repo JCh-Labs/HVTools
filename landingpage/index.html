@@ -106,7 +106,7 @@
         </div>
         <div class="hero-image">
             <div class="hero-image-wrapper">
-                <img src="assets/images/screenshot-main.png" alt="HVTools Main Interface" loading="lazy">
+                <img src="assets/images/screenshot-dashboard.png" alt="HVTools Main Interface" class="clickable-image" loading="lazy">
             </div>
         </div>
     </header>
@@ -290,15 +290,15 @@
             </div>
             <div class="screenshots-gallery">
                 <div class="screenshot-item">
-                    <img src="assets/images/screenshot-1.png" alt="HVTools Dashboard" loading="lazy">
+                    <img src="assets/images/screenshot-dashboard.png" alt="HVTools Dashboard" class="clickable-image" loading="lazy">
                     <span class="screenshot-caption">Main Dashboard</span>
                 </div>
                 <div class="screenshot-item">
-                    <img src="assets/images/screenshot-2.png" alt="VM Management" loading="lazy">
-                    <span class="screenshot-caption">VM Management</span>
+                    <img src="assets/images/screenshot-host-view.png" alt="Host view" class="clickable-image" loading="lazy">
+                    <span class="screenshot-caption">Host view</span>
                 </div>
                 <div class="screenshot-item">
-                    <img src="assets/images/screenshot-3.png" alt="VM Groups" loading="lazy">
+                    <img src="assets/images/screenshot-vm-groups.png" alt="VM Groups" class="clickable-image" loading="lazy">
                     <span class="screenshot-caption">VM Groups</span>
                 </div>
             </div>
@@ -420,6 +420,13 @@
             </div>
         </div>
     </footer>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage" alt="Screenshot">
+        <div class="modal-caption" id="modalCaption"></div>
+    </div>
 
     <script src="assets/js/main.js"></script>
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="sonnes" data-description="Support me on Buy me a coffee!" data-message="Your support helps keep my tools and development going strong! Every contribution, no matter the size, fuels new features, bug fixes, and improvements ❤️" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
