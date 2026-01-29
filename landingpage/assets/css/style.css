@@ -440,6 +440,98 @@ section {
     line-height: 1.7;
 }
 
+/* ===== Data Insights Section ===== */
+.data-insights {
+    background: var(--bg-secondary);
+    padding: 80px 20px;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.insight-card {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-primary);
+}
+
+.insight-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insight-icon svg {
+    stroke: white;
+}
+
+.insight-card h3 {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.insight-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95em;
+}
+
+.export-info {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 16px;
+    padding: 40px;
+    color: white;
+    box-shadow: var(--shadow-lg);
+}
+
+.export-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.export-icon {
+    flex-shrink: 0;
+}
+
+.export-icon svg {
+    stroke: white;
+    opacity: 0.9;
+}
+
+.export-text h3 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.export-text p {
+    font-size: 1.1em;
+    line-height: 1.7;
+    opacity: 0.95;
+}
+
 /* ===== Screenshots Section ===== */
 .screenshots {
     background: var(--bg-primary);
@@ -696,6 +788,13 @@ section {
     color: var(--accent-primary);
 }
 
+.trademark-notice {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-top: 15px;
+    opacity: 0.8;
+}
+
 /* ===== Responsive Design ===== */
 @media (max-width: 1024px) {
     .hero {
@@ -787,9 +886,15 @@ section {
     }
 
     .features-grid,
+    .insights-grid,
     .screenshots-gallery,
     .requirements-grid {
         grid-template-columns: 1fr;
+    }
+
+    .export-content {
+        flex-direction: column;
+        text-align: center;
     }
 
     .support-content {
