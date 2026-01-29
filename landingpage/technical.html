@@ -301,14 +301,94 @@ Get-ClusterGroup -Cluster $clusterName | Where-Object { $_.GroupType -eq 'Virtua
                         <li>🔐 Session credentials cleared on application exit</li>
                     </ul>
                 </div>
-                <div class="doc-card">
+                <div class="doc-card full-width">
                     <h3>Required Permissions</h3>
-                    <p>HVTools requires the following permissions to function:</p>
+                    <p>HVTools requires specific permissions to query and manage Hyper-V environments. Below is a detailed breakdown:</p>
+                </div>
+                
+                <div class="doc-card">
+                    <h3>👤 Local Machine (Client)</h3>
+                    <p>Permissions needed on the machine running HVTools:</p>
                     <ul>
-                        <li>👤 Local Administrator on the machine running HVTools</li>
-                        <li>👤 Hyper-V Administrator role on target hosts</li>
-                        <li>👤 Cluster Reader/Administrator for cluster operations</li>
-                        <li>👤 WMI access to remote systems</li>
+                        <li><strong>'Local Administrator' or 'Hyper-V Administrators'</strong>
+                            <br><em>Why:</em> Required to establish WMI/DCOM connections and access Hyper-V management APIs</li>
+                        <li><strong>Run as Administrator</strong>
+                            <br><em>Why:</em> Elevated privileges needed for local management operations and firewall changes</li>
+                    </ul>
+                </div>
+
+                <div class="doc-card">
+                    <h3>🖥️ Hyper-V Host Permissions</h3>
+                    <p>Permissions needed on target Hyper-V hosts:</p>
+                    <ul>
+                        <li><strong>'Hyper-V Administrators' Group</strong>
+                            <br><em>Why:</em> Grants full access to Hyper-V WMI namespace (root\virtualization\v2) for VM queries, configuration reading, and management operations</li>
+                        <li><strong>'Remote Management Users' Group</strong>
+                            <br><em>Why:</em> Allows WinRM/PowerShell remoting connections for advanced operations and script execution</li>
+                        <li><strong>'Distributed COM Users' Group</strong>
+                            <br><em>Why:</em> Enables DCOM/WMI remote connections for querying VM and host information</li>
+                        <li><strong>Event Log Readers Group</strong> (Optional)
+                            <br><em>Why:</em> Allows reading Hyper-V event logs for troubleshooting and audit information</li>
+                    </ul>
+                </div>
+
+                <div class="doc-card">
+                    <h3>🔗 Failover Cluster Permissions</h3>
+                    <p>Additional permissions for cluster environments:</p>
+                    <ul>
+                        <li><strong>Cluster Readers</strong> (Minimum)
+                            <br><em>Why:</em> Read-only access to cluster configuration, node status, and clustered VM information</li>
+                        <li><strong>Cluster Administrators</strong> (Full access)
+                            <br><em>Why:</em> Required for VM group management, live migration operations, and cluster resource modifications</li>
+                        <li><strong>Access to Cluster Shared Volumes (CSV)</strong>
+                            <br><em>Why:</em> Needed to query storage information and virtual disk locations on shared storage</li>
+                    </ul>
+                </div>
+
+                <div class="doc-card">
+                    <h3>🔑 Active Directory Permissions</h3>
+                    <p>Domain-level requirements:</p>
+                    <ul>
+                        <li><strong>Domain User Account</strong>
+                            <br><em>Why:</em> Kerberos authentication requires a valid domain identity for secure, seamless authentication</li>
+                        <li><strong>Delegation Rights</strong> (For multi-hop scenarios)
+                            <br><em>Why:</em> If HVTools connects to a management server that then connects to hosts, constrained delegation must be configured</li>
+                        <li><strong>Service Account</strong> (Optional)
+                            <br><em>Why:</em> Recommended for automated/scheduled operations with dedicated credentials</li>
+                    </ul>
+                </div>
+
+                <div class="doc-card full-width">
+                    <h3>📋 Permission Setup Commands</h3>
+                    <p>Run these commands on target Hyper-V hosts to grant the necessary permissions:</p>
+                    <div class="code-block">
+                        <pre># Add user to Hyper-V Administrators group
+Add-LocalGroupMember -Group "Hyper-V Administrators" -Member "DOMAIN\Username"
+
+# Add user to Remote Management Users group  
+Add-LocalGroupMember -Group "Remote Management Users" -Member "DOMAIN\Username"
+
+# Add user to Distributed COM Users group
+Add-LocalGroupMember -Group "Distributed COM Users" -Member "DOMAIN\Username"
+
+# For cluster environments - grant cluster permissions
+Grant-ClusterAccess -User "DOMAIN\Username" -Full
+
+# Verify group memberships
+Get-LocalGroupMember -Group "Hyper-V Administrators"
+Get-LocalGroupMember -Group "Remote Management Users"</pre>
+                    </div>
+                </div>
+
+                <div class="doc-card full-width">
+                    <h3>⚠️ Least Privilege Recommendations</h3>
+                    <p>For security best practices, consider these recommendations:</p>
+                    <ul>
+                        <li>✅ <strong>Apply minimum required permissions</strong> - Only grant Cluster Administrators if cluster management is needed</li>
+                        <li>✅ <strong>Use group-based access</strong> - Create a security group (e.g., "HVTools-Users") and manage membership centrally</li>
+                        <li>✅ <strong>Audit access regularly</strong> - Review who has permissions to Hyper-V environments</li>
+                        <li>✅ <strong>Consider read-only mode</strong> - For reporting/monitoring only, Hyper-V Administrators with read intent is sufficient</li>
+                        <li>✅ <strong>Enable auditing</strong> - Configure Windows Security event logging for accountability</li>
                     </ul>
                 </div>
             </div>
@@ -346,25 +426,6 @@ Get-ClusterGroup -Cluster $clusterName | Where-Object { $_.GroupType -eq 'Virtua
                         <li>
                             <span class="tech-badge">TCP 49152-65535</span>
                             <span>Dynamic RPC - High ports for WMI/DCOM callbacks</span>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="doc-card">
-                    <h3>Cluster-Specific Ports</h3>
-                    <p>Additional ports required when connecting to Hyper-V clusters:</p>
-                    <ul class="tech-list">
-                        <li>
-                            <span class="tech-badge">TCP 3343</span>
-                            <span>Cluster Network Communication</span>
-                        </li>
-                        <li>
-                            <span class="tech-badge">UDP 3343</span>
-                            <span>Cluster Heartbeat Traffic</span>
-                        </li>
-                        <li>
-                            <span class="tech-badge">TCP 445</span>
-                            <span>Cluster Shared Volumes (CSV) access</span>
                         </li>
                     </ul>
                 </div>
