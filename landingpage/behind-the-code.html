@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Behind the Tool - The story, development journey, and insights into building HVTools.">
+    <meta name="keywords" content="Hyper-V, Development, Journey, Story, Open Source, HVTools">
+    <meta name="author" content="Michael Morten Sonne">
+    <meta name="theme-color" content="#0078d4">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="HVTools - Behind the Tool">
+    <meta property="og:description" content="The story and development journey of HVTools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hvtools.app/behind-the-code">
+    <meta property="og:image" content="assets/images/og-image.png">
+    
+    <title>Behind the Tool - HVTools</title>
+    
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="assets/images/logo.png" alt="HVTools Logo" class="logo-img">
+                <span>HVTools</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="technical.html">Technical</a></li>
+                <li><a href="behind-the-code.html" class="active">Behind the Tool</a></li>
+                <li><a href="index.html#download">Download</a></li>
+                <li><a href="https://blog.sonnes.cloud" target="_blank" rel="noopener">My Blog</a></li>
+                <li><a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener">GitHub</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Behind the Tool</h1>
+            <p>The story, journey, and insights into building HVTools</p>
+        </div>
+    </header>
+
+    <!-- Origin Story Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>💡 The Origin Story</h2>
+                <p>Why HVTools exists</p>
+            </div>
+            <div class="story-content">
+                <div class="story-card">
+                    <div class="story-icon">🎯</div>
+                    <h3>The Problem</h3>
+                    <p>As a Microsoft MVP and IT professional working with Hyper-V environments and a lot more daily, I noticed a gap in the tooling landscape. While VMware administrators had RVTools for comprehensive VM inventory and reporting, Hyper-V administrators lacked a similar solution.</p>
+                    <p>Existing options were either too complex, expensive, or didn't provide the quick overview needed for daily operations and reporting.</p>
+                </div>
+                <div class="story-card">
+                    <div class="story-icon">💭</div>
+                    <h3>The Idea</h3>
+                    <p>What if there was a tool that could provide instant visibility into Hyper-V environments - just like RVTools does for VMware? A tool that's free, easy to use, and provides comprehensive data export capabilities.</p>
+                    <p>HVTools was born from this idea - to give Hyper-V administrators the visibility they deserve.</p>
+                </div>
+                <div class="story-card">
+                    <div class="story-icon">🚀</div>
+                    <h3>The Journey</h3>
+                    <p>Development started as a personal project to scratch my own itch. What began as simple scripts evolved into a full Windows Forms application with support for standalone hosts, clusters, and Azure Local.</p>
+                    <p>The decision to make it open source came naturally - the community deserves access to quality tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Development Timeline -->
+    <section class="doc-section alt-bg">
+        <div class="container">
+            <div class="section-header">
+                <h2>📅 Development Timeline</h2>
+                <p>Key milestones in the HVTools journey</p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">Start Dec. 2025</span>
+                        <h3>Initial Concept</h3>
+                        <p>First PowerShell scripts for Hyper-V inventory collection. Basic features and CSV export.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">End Dec. 2025</span>
+                        <h3>Windows Forms UI</h3>
+                        <p>Transition from scripts to a proper GUI application. Added tabbed interface and grid views for data.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">Start Jan. 2026</span>
+                        <h3>Cluster Support</h3>
+                        <p>Added support for Hyper-V clusters and failover scenarios. Implemented multi-host querying.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">February 2026</span>
+                        <h3>Public Release</h3>
+                        <p>Open source release on GitHub. Landing page planned to be launched. Community feedback integration begins.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker active"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">Now</span>
+                        <h3>Active Development</h3>
+                        <p>Continuous improvements, bug fixes, and new features based on community feedback. Azure Local support enhanced.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Design Decisions Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🎨 Design Decisions</h2>
+                <p>Why certain choices were made</p>
+            </div>
+            <div class="decisions-grid">
+                <div class="decision-card">
+                    <h3>Why Windows Forms?</h3>
+                    <p>While WPF and other frameworks exist, Windows Forms was chosen for:</p>
+                    <ul>
+                        <li>🚀 Fast startup time</li>
+                        <li>📊 Excellent DataGridView for tabular data</li>
+                        <li>💾 Smaller application size</li>
+                        <li>🔧 Simpler maintenance (and easy for me to create as I have used that over a longer time)</li>
+                        <li>👴 Familiar to IT administrators</li>
+                    </ul>
+                </div>
+                <div class="decision-card">
+                    <h3>Why .NET 10?</h3>
+                    <p>The latest .NET version provides:</p>
+                    <ul>
+                        <li>⚡ Improved performance</li>
+                        <li>🔒 Enhanced security features</li>
+                        <li>🆕 Modern C# language features</li>
+                        <li>📦 Better dependency management</li>
+                        <li>🛠️ Long-term support</li>
+                    </ul>
+                </div>
+                <div class="decision-card">
+                    <h3>Why PowerShell Backend?</h3>
+                    <p>PowerShell integration enables:</p>
+                    <ul>
+                        <li>🔌 Native Hyper-V cmdlet access</li>
+                        <li>🔄 Easy updates without recompilation</li>
+                        <li>📝 Scriptable and extensible</li>
+                        <li>🌐 Remote execution capabilities</li>
+                        <li>👥 Familiar to administrators</li>
+                    </ul>
+                </div>
+                <div class="decision-card">
+                    <h3>Why Open Source?</h3>
+                    <p>Making HVTools open source because:</p>
+                    <ul>
+                        <li>🌍 Community benefits everyone</li>
+                        <li>👀 Transparency builds trust</li>
+                        <li>🐛 More eyes find more bugs (and fix them 😉)</li>
+                        <li>💡 Community contributions welcome</li>
+                        <li>❤️ Giving back to the community</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Challenges Section -->
+    <section class="doc-section alt-bg">
+        <div class="container">
+            <div class="section-header">
+                <h2>🧗 Challenges & Solutions</h2>
+                <p>Obstacles encountered and how they were overcome</p>
+            </div>
+            <div class="challenges-list">
+                <div class="challenge-item">
+                    <div class="challenge-header">
+                        <span class="challenge-icon">🔐</span>
+                        <h3>Remote Authentication</h3>
+                    </div>
+                    <div class="challenge-body">
+                        <p><strong>Challenge:</strong> Handling credentials securely across different authentication scenarios (local, domain, workgroup, VPN).</p>
+                        <p><strong>Solution:</strong> Implemented flexible credential handling using Windows Credential APIs, supporting both current user context and explicit credentials. Added Global Secure Access and VPN compatibility for modern network scenarios.</p>
+                    </div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-header">
+                        <span class="challenge-icon">⚡</span>
+                        <h3>Performance with Large Environments</h3>
+                    </div>
+                    <div class="challenge-body">
+                        <p><strong>Challenge:</strong> Querying environments with hundreds of VMs without freezing the UI or overwhelming the hosts.</p>
+                        <p><strong>Solution:</strong> Implemented async/await patterns, background workers for long operations, and optimized WMI queries to retrieve only necessary properties.</p>
+                    </div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-header">
+                        <span class="challenge-icon">🔗</span>
+                        <h3>Cluster vs Standalone Detection</h3>
+                    </div>
+                    <div class="challenge-body">
+                        <p><strong>Challenge:</strong> Automatically detecting whether a host is standalone, part of a cluster, or Azure Local, and adapting queries accordingly.</p>
+                        <p><strong>Solution:</strong> Created a discovery routine that probes for cluster membership first, then falls back to standalone mode. Azure Local is detected via specific registry keys and service presence.</p>
+                    </div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-header">
+                        <span class="challenge-icon">📊</span>
+                        <h3>Consistent Data Export</h3>
+                    </div>
+                    <div class="challenge-body">
+                        <p><strong>Challenge:</strong> Ensuring exported data (JSON, CSV, XML) is consistent and properly formatted regardless of special characters or null values.</p>
+                        <p><strong>Solution:</strong> Built a robust export engine with proper escaping, null handling, and encoding. Each format has dedicated serialization logic to ensure data integrity.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lessons Learned Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>📚 Lessons Learned</h2>
+                <p>Insights from the development journey</p>
+            </div>
+            <div class="lessons-grid">
+                <div class="lesson-card">
+                    <span class="lesson-number">01</span>
+                    <h3>Start Simple, Iterate</h3>
+                    <p>The first version was just a script. Each iteration added value. Don't wait for perfect - ship and improve.</p>
+                </div>
+                <div class="lesson-card">
+                    <span class="lesson-number">02</span>
+                    <h3>User Feedback is Gold</h3>
+                    <p>Real-world usage reveals issues no amount of testing catches. Embrace feedback and iterate quickly.</p>
+                </div>
+                <div class="lesson-card">
+                    <span class="lesson-number">03</span>
+                    <h3>Document as You Go</h3>
+                    <p>Writing documentation while developing is easier than retrofitting. Future you will thank present you.</p>
+                </div>
+                <div class="lesson-card">
+                    <span class="lesson-number">04</span>
+                    <h3>Error Handling Matters</h3>
+                    <p>In IT tools, graceful error handling and clear messages are crucial. Users need to know what went wrong and how to fix it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About the Author Section -->
+    <section class="doc-section alt-bg">
+        <div class="container">
+            <div class="section-header">
+                <h2>👨‍💻 About the Author</h2>
+                <p>The person behind HVTools</p>
+            </div>
+            <div class="author-card">
+                <div class="author-info">
+                    <h3>Michael Morten Sonne</h3>
+                    <p class="author-title">Microsoft MVP | IT Professional | "Freetime" Developer</p>
+                    <p>I'm a Microsoft MVP with a passion for building tools that make IT administrators' lives easier. With years of experience in virtualization, security, and automation, I understand the daily challenges faced by infrastructure teams.</p>
+                    <p>HVTools is one of several open-source projects I maintain, all aimed at filling gaps in the Microsoft ecosystem tooling.</p>
+                    <div class="author-links">
+                        <a href="https://blog.sonnes.cloud" target="_blank" rel="noopener" class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            Read My Blog
+                        </a>
+                        <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener" class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            GitHub Profile
+                        </a>
+                        <a href="https://mvp.microsoft.com/en-US/mvp/profile/b6a5bd91-5ebd-4c84-8965-023a95273093?wt.mc_id=MVP_353010" target="_blank" rel="noopener" class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="7"></circle>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                            </svg>
+                            MVP Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contributing Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🤝 Contributing</h2>
+                <p>How you can help improve HVTools</p>
+            </div>
+            <div class="contributing-content">
+                <div class="contribute-card">
+                    <div class="contribute-icon">🐛</div>
+                    <h3>Report Issues</h3>
+                    <p>Found a bug? Open an issue on GitHub with steps to reproduce. Include error messages and environment details.</p>
+                    <a href="https://github.com/michaelmsonne/HVTools/issues/new" target="_blank" rel="noopener" class="btn btn-outline">Report Issue</a>
+                </div>
+                <div class="contribute-card">
+                    <div class="contribute-icon">💡</div>
+                    <h3>Suggest Features</h3>
+                    <p>Have an idea for a new feature? Open a feature request and describe your use case.</p>
+                    <a href="https://github.com/michaelmsonne/HVTools/issues/new" target="_blank" rel="noopener" class="btn btn-outline">Request Feature</a>
+                </div>
+                <div class="contribute-card">
+                    <div class="contribute-icon">🔧</div>
+                    <h3>Submit Code</h3>
+                    <p>Want to contribute code? Fork the repo, make your changes, and submit a pull request.</p>
+                    <a href="https://github.com/michaelmsonne/HVTools/fork" target="_blank" rel="noopener" class="btn btn-outline">Fork Repo</a>
+                </div>
+                <div class="contribute-card">
+                    <div class="contribute-icon">📖</div>
+                    <h3>Improve Docs</h3>
+                    <p>Documentation can always be better. Help improve guides, fix typos, or add examples.</p>
+                    <a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener" class="btn btn-outline">View Docs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/images/logo.png" alt="HVTools Logo" class="footer-logo">
+                    <span>HVTools</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/issues" target="_blank" rel="noopener">Report Issue</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/blob/main/LICENSE.md" target="_blank" rel="noopener">License</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener" aria-label="GitHub">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-mvp">
+                <a href="https://mvp.microsoft.com/en-US/mvp/profile/b6a5bd91-5ebd-4c84-8965-023a95273093?wt.mc_id=MVP_353010" target="_blank" rel="noopener">
+                    <img src="assets/images/mvp-badge.png" alt="Microsoft MVP" width="300" height="121" style="max-width: 100%; height: auto;">
+                </a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener">Michael Morten Sonne</a>. All rights reserved.</p>
+                <p>Made with ❤️ for the community</p><br>
+                <p class="trademark-notice">Hyper-V, Windows, and Microsoft are registered trademarks of Microsoft Corporation. This project is not affiliated with, endorsed, or sponsored by Microsoft Corporation.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

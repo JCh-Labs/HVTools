@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HVTools Technical Documentation - Architecture, APIs, and implementation details for the Hyper-V overview tool.">
+    <meta name="keywords" content="Hyper-V, VM, Virtual Machine, Windows, Technical, API, Architecture, HVTools">
+    <meta name="author" content="Michael Morten Sonne">
+    <meta name="theme-color" content="#0078d4">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="HVTools - Technical Documentation">
+    <meta property="og:description" content="Technical architecture and implementation details for HVTools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hvtools.app/technical">
+    <meta property="og:image" content="assets/images/og-image.png">
+    
+    <title>Technical Documentation - HVTools</title>
+    
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="assets/images/logo.png" alt="HVTools Logo" class="logo-img">
+                <span>HVTools</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="technical.html" class="active">Technical</a></li>
+                <li><a href="behind-the-code.html">Behind the Tool</a></li>
+                <li><a href="index.html#download">Download</a></li>
+                <li><a href="https://blog.sonnes.cloud" target="_blank" rel="noopener">My Blog</a></li>
+                <li><a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener">GitHub</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Technical Documentation</h1>
+            <p>Architecture, APIs, and implementation details</p>
+        </div>
+    </header>
+
+    <!-- Architecture Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🏗️ Architecture Overview</h2>
+                <p>How HVTools is built and structured</p>
+            </div>
+            <div class="doc-content">
+                <div class="doc-card">
+                    <h3>Technology Stack</h3>
+                    <ul class="tech-list">
+                        <li>
+                            <span class="tech-badge">.NET 10</span>
+                            <span>Windows Forms application built on the latest .NET framework</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">C#</span>
+                            <span>Primary development language with modern C# features</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">PowerShell 7.5</span>
+                            <span>Backend scripting for Hyper-V management operations</span>
+                        </li>
+                        <li>
+                            <span class="tech-badge">WMI/CIM</span>
+                            <span>Windows Management Instrumentation for system queries</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="doc-card">
+                    <h3>Application Structure</h3>
+                    <div class="architecture-diagram">
+                        <div class="arch-layer">
+                            <div class="arch-box ui">UI Layer (Windows Forms)</div>
+                        </div>
+                        <div class="arch-arrow">↓</div>
+                        <div class="arch-layer">
+                            <div class="arch-box logic">Business Logic (C# Classes)</div>
+                        </div>
+                        <div class="arch-arrow">↓</div>
+                        <div class="arch-layer">
+                            <div class="arch-box data">Data Layer (PowerShell / WMI)</div>
+                        </div>
+                        <div class="arch-arrow">↓</div>
+                        <div class="arch-layer">
+                            <div class="arch-box hyper">Hyper-V / Cluster APIs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Components Section -->
+    <section class="doc-section alt-bg">
+        <div class="container">
+            <div class="section-header">
+                <h2>🧩 Core Components</h2>
+                <p>Key classes and their responsibilities</p>
+                            <div class="doc-notice">
+                                <p style="font-size: 0.9em;">⚠️ Components and structure are subject to change in future releases</p>
+                            </div>
+            </div>
+            <div class="components-grid">
+                <div class="component-card">
+                    <div class="component-icon">📊</div>
+                    <h3>SessionContext</h3>
+                    <p>Manages the current connection session, storing host information, credentials, and connection state across the application.</p>
+                    <code>Class/SessionContext.cs</code>
+                </div>
+                <div class="component-card">
+                    <div class="component-icon">🖥️</div>
+                    <h3>HostDetails</h3>
+                    <p>Retrieves and caches detailed information about Hyper-V hosts including hardware specs, configuration, and capabilities.</p>
+                    <code>Class/HostDetails.cs</code>
+                </div>
+                <div class="component-card">
+                    <div class="component-icon">🗂️</div>
+                    <h3>VMGroups</h3>
+                    <p>Handles VM group management operations - creating, modifying, and organizing virtual machines into logical groups.</p>
+                    <code>Class/VMGroups.cs</code>
+                </div>
+                <div class="component-card">
+                    <div class="component-icon">💾</div>
+                    <h3>VirtualDisks</h3>
+                    <p>Provides comprehensive virtual disk analysis including capacity, usage, and storage allocation across VMs.</p>
+                    <code>Class/VirtualDisks.cs</code>
+                </div>
+                <div class="component-card">
+                    <div class="component-icon">🔗</div>
+                    <h3>Cluster</h3>
+                    <p>Manages connections to Hyper-V clusters, handling failover scenarios and distributed VM queries.</p>
+                    <code>Class/Cluster.cs</code>
+                </div>
+                <div class="component-card">
+                    <div class="component-icon">📝</div>
+                    <h3>FileLogger</h3>
+                    <p>Centralized logging system for troubleshooting, audit trails, and debugging information.</p>
+                    <code>Class/FileLogger.cs</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Integration Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🔌 API Integration</h2>
+                <p>How HVTools communicates with Hyper-V</p>
+            </div>
+            <div class="doc-content">
+                <div class="doc-card full-width">
+                    <h3>Hyper-V Management Methods</h3>
+                    <div class="api-methods">
+                        <div class="api-method">
+                            <h4>WMI (Windows Management Instrumentation)</h4>
+                            <p>Primary method for querying VM configuration, host details, and resource allocation. Uses the <code>root\virtualization\v2</code> namespace for Hyper-V data.</p>
+                            <div class="code-block">
+                                <pre>// Example WMI query for VM information
+ManagementScope scope = new ManagementScope(@"\\hostname\root\virtualization\v2");
+ObjectQuery query = new ObjectQuery("SELECT * FROM Msvm_ComputerSystem WHERE Caption = 'Virtual Machine'");</pre>
+                            </div>
+                        </div>
+                        <div class="api-method">
+                            <h4>PowerShell Cmdlets</h4>
+                            <p>Used for some operations and cluster management. Leverages the Hyper-V module cmdlets like <code>Get-VM</code>, <code>Get-VMHost</code>, and <code>Get-Cluster</code>.</p>
+                            <div class="code-block">
+                                <pre># Example PowerShell for VM retrieval
+Get-VM -ComputerName $hostname | Select-Object Name, State, CPUUsage, MemoryAssigned</pre>
+                            </div>
+                        </div>
+                        <div class="api-method">
+                            <h4>Failover Cluster API</h4>
+                            <p>For cluster environments, HVTools uses the Failover Clustering WMI provider and PowerShell module to enumerate cluster nodes and highly available VMs.</p>
+                            <div class="code-block">
+                                <pre># Cluster VM enumeration
+Get-ClusterGroup -Cluster $clusterName | Where-Object { $_.GroupType -eq 'VirtualMachine' }</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Export Section -->
+    <section class="doc-section alt-bg">
+        <div class="container">
+            <div class="section-header">
+                <h2>📤 Data Export Formats</h2>
+                <p>Export your data in multiple formats</p>
+            </div>
+            <div class="export-formats-grid">
+                <div class="format-card">
+                    <div class="format-icon">{ }</div>
+                    <h3>JSON</h3>
+                    <p>Structured data format ideal for programmatic processing and integration with other tools.</p>
+                    <ul>
+                        <li>Full hierarchical data</li>
+                        <li>Easy to parse</li>
+                        <li>API-friendly</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📊</div>
+                    <h3>CSV</h3>
+                    <p>Comma-separated values for spreadsheet analysis in Excel, Google Sheets, or other tools.</p>
+                    <ul>
+                        <li>Excel compatible</li>
+                        <li>Easy filtering</li>
+                        <li>Pivot table ready</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">&lt;/&gt;</div>
+                    <h3>XML</h3>
+                    <p>Extensible markup format for enterprise systems and legacy integrations.</p>
+                    <ul>
+                        <li>Schema support</li>
+                        <li>Enterprise ready</li>
+                        <li>XSLT transformable</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📄</div>
+                    <h3>Text</h3>
+                    <p>Plain text reports for documentation, email, and quick reference.</p>
+                    <ul>
+                        <li>Human readable</li>
+                        <li>Email friendly</li>
+                        <li>Print ready</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section class="doc-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🔒 Security</h2>
+                <p>How HVTools handles security</p>
+            </div>
+            <div class="doc-content">
+                <div class="doc-card">
+                    <h3>Code Signing</h3>
+                    <p>All HVTools releases are digitally signed with a trusted code signing certificate. This ensures:</p>
+                    <ul>
+                        <li>✅ Code integrity - verify the code hasn't been tampered with</li>
+                        <li>✅ Publisher verification - confirm the software comes from Michael Morten Sonne</li>
+                        <li>✅ SmartScreen compatibility - reduced warnings on Windows</li>
+                    </ul>
+                </div>
+                <div class="doc-card">
+                    <h3>Credential Handling</h3>
+                    <p>When connecting to remote hosts or clusters:</p>
+                    <ul>
+                        <li>🔐 Credentials are never stored persistently</li>
+                        <li>🔐 Uses Windows credential management APIs</li>
+                        <li>🔐 Supports Windows Authentication (Kerberos/NTLM)</li>
+                        <li>🔐 Session credentials cleared on application exit</li>
+                    </ul>
+                </div>
+                <div class="doc-card">
+                    <h3>Required Permissions</h3>
+                    <p>HVTools requires the following permissions to function:</p>
+                    <ul>
+                        <li>👤 Local Administrator on the machine running HVTools</li>
+                        <li>👤 Hyper-V Administrator role on target hosts</li>
+                        <li>👤 Cluster Reader/Administrator for cluster operations</li>
+                        <li>👤 WMI access to remote systems</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/images/logo.png" alt="HVTools Logo" class="footer-logo">
+                    <span>HVTools</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/issues" target="_blank" rel="noopener">Report Issue</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/blob/main/LICENSE.md" target="_blank" rel="noopener">License</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener" aria-label="GitHub">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-mvp">
+                <a href="https://mvp.microsoft.com/en-US/mvp/profile/b6a5bd91-5ebd-4c84-8965-023a95273093?wt.mc_id=MVP_353010" target="_blank" rel="noopener">
+                    <img src="assets/images/mvp-badge.png" alt="Microsoft MVP" width="300" height="121" style="max-width: 100%; height: auto;">
+                </a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener">Michael Morten Sonne</a>. All rights reserved.</p>
+                <p>Made with ❤️ for the community</p><br>
+                <p class="trademark-notice">Hyper-V, Windows, and Microsoft are registered trademarks of Microsoft Corporation. This project is not affiliated with, endorsed, or sponsored by Microsoft Corporation.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
