@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HVTools - A powerful and intuitive Hyper-V management tool for Windows. Simplify your virtual machine operations.">
+    <meta name="keywords" content="Hyper-V, VM, Virtual Machine, Windows, Management, HVTools">
+    <meta name="author" content="Michael Morten Sonne">
+    <meta name="theme-color" content="#0078d4">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="HVTools - Hyper-V Management Made Easy">
+    <meta property="og:description" content="A powerful and intuitive Hyper-V management tool for Windows.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hvtools.app">
+    <meta property="og:image" content="assets/images/og-image.png">
+    
+    <title>HVTools - Hyper-V Management Made Easy</title>
+    
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <img src="assets/images/logo.png" alt="HVTools Logo" class="logo-img">
+                <span>HVTools</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#screenshots">Screenshots</a></li>
+                <li><a href="#requirements">Requirements</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener">GitHub</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Open Source & Free</div>
+            <h1>Hyper-V Management<br><span class="gradient-text">Made Easy</span></h1>
+            <p class="hero-description">
+                A powerful, intuitive Windows application for managing your Hyper-V virtual machines. 
+                Built with modern .NET and PowerShell for maximum performance and reliability.
+            </p>
+            <div class="hero-buttons">
+                <a href="https://github.com/michaelmsonne/HVTools/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Now
+                </a>
+                <a href="https://github.com/michaelmsonne/HVTools" class="btn btn-secondary" target="_blank" rel="noopener">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">.NET 10</span>
+                    <span class="stat-label">Framework</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">PowerShell 7</span>
+                    <span class="stat-label">Integration</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Free & Open Source</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="hero-image-wrapper">
+                <img src="assets/images/screenshot-main.png" alt="HVTools Main Interface" loading="lazy">
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Powerful Features</h2>
+                <p>Everything you need to manage your Hyper-V environment efficiently</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <h3>Intuitive Interface</h3>
+                    <p>Clean, modern Windows Forms UI designed for productivity. Manage VMs with ease through a familiar interface.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                    </div>
+                    <h3>PowerShell Integration</h3>
+                    <p>Built on PowerShell 7.5 for reliable Hyper-V operations. Execute commands with confidence.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>VM Groups</h3>
+                    <p>Organize virtual machines into logical groups. Start, stop, and manage multiple VMs simultaneously.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                    </div>
+                    <h3>Virtual Disk Management</h3>
+                    <p>Create, resize, and manage virtual hard disks. Full control over your VM storage.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <h3>Secure & Signed</h3>
+                    <p>Digitally signed with a trusted certificate. Run with confidence knowing the code is verified.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </div>
+                    <h3>Cluster Support</h3>
+                    <p>Connect to Hyper-V clusters and manage distributed virtual machines from a single interface.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section id="screenshots" class="screenshots">
+        <div class="container">
+            <div class="section-header">
+                <h2>See It In Action</h2>
+                <p>A preview of the HVTools interface</p>
+            </div>
+            <div class="screenshots-gallery">
+                <div class="screenshot-item">
+                    <img src="assets/images/screenshot-1.png" alt="HVTools Dashboard" loading="lazy">
+                    <span class="screenshot-caption">Main Dashboard</span>
+                </div>
+                <div class="screenshot-item">
+                    <img src="assets/images/screenshot-2.png" alt="VM Management" loading="lazy">
+                    <span class="screenshot-caption">VM Management</span>
+                </div>
+                <div class="screenshot-item">
+                    <img src="assets/images/screenshot-3.png" alt="VM Groups" loading="lazy">
+                    <span class="screenshot-caption">VM Groups</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requirements Section -->
+    <section id="requirements" class="requirements">
+        <div class="container">
+            <div class="section-header">
+                <h2>System Requirements</h2>
+                <p>What you need to run HVTools</p>
+            </div>
+            <div class="requirements-grid">
+                <div class="requirement-card">
+                    <h3>Operating System</h3>
+                    <ul>
+                        <li>Windows 10 (64-bit)</li>
+                        <li>Windows 11</li>
+                        <li>Windows Server 2016+</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>.NET 10 Desktop Runtime</li>
+                        <li>Hyper-V Role Enabled</li>
+                        <li>Administrator Privileges</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <h3>Recommended</h3>
+                    <ul>
+                        <li>8GB+ RAM</li>
+                        <li>Modern Multi-core CPU</li>
+                        <li>SSD Storage</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-content">
+                <h2>Ready to Get Started?</h2>
+                <p>Download HVTools now and simplify your Hyper-V management workflow.</p>
+                <div class="download-buttons">
+                    <a href="https://github.com/michaelmsonne/HVTools/releases/latest" class="btn btn-primary btn-large" target="_blank" rel="noopener">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Latest Release
+                    </a>
+                </div>
+                <p class="download-note">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    Digitally signed for your security
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section class="support">
+        <div class="container">
+            <div class="support-content">
+                <div class="support-text">
+                    <h2>Support the Project ☕</h2>
+                    <p>HVTools is free and open source. If you find it useful, consider buying me a coffee to support continued development!</p>
+                </div>
+                <a href="https://www.buymeacoffee.com/sonnes" class="btn btn-coffee" target="_blank" rel="noopener">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.216 6.415l-.132-.666c-.119-.598-.388-1.163-1.001-1.379-.197-.069-.42-.098-.57-.241-.152-.143-.196-.366-.231-.572-.065-.378-.125-.756-.192-1.133-.057-.325-.102-.69-.25-.987-.195-.4-.597-.634-.996-.788a5.723 5.723 0 00-.626-.194c-1-.263-2.05-.36-3.077-.416a25.834 25.834 0 00-3.7.062c-.915.083-1.88.184-2.75.5-.318.116-.646.256-.888.501-.297.302-.393.77-.177 1.146.154.267.415.456.692.58.36.162.737.284 1.123.366 1.075.238 2.189.331 3.287.37 1.218.05 2.437.01 3.65-.118.299-.033.598-.073.896-.119.352-.054.578-.513.474-.834-.124-.383-.457-.531-.834-.473-.466.074-.96.108-1.382.146-1.177.08-2.358.082-3.536.006a22.228 22.228 0 01-1.157-.107c-.086-.01-.18-.025-.258-.036-.243-.036-.484-.08-.724-.13-.111-.027-.111-.185 0-.212h.005c.277-.06.557-.108.838-.147h.002c.131-.009.263-.032.394-.048a25.076 25.076 0 013.426-.12c.674.019 1.347.067 2.017.144l.228.031c.267.04.533.088.798.145.392.085.895.113 1.07.542.055.137.08.288.111.431l.319 1.484a.237.237 0 01-.199.284h-.003c-.037.006-.075.01-.112.015a36.704 36.704 0 01-4.743.295 37.059 37.059 0 01-4.699-.304c-.14-.017-.293-.042-.417-.06-.326-.048-.649-.108-.973-.161-.393-.065-.768-.032-1.123.161-.29.16-.527.404-.675.701-.154.316-.199.66-.267 1-.069.34-.176.707-.135 1.056.087.753.613 1.365 1.37 1.502a39.69 39.69 0 0011.343.376.483.483 0 01.535.53l-.071.697-1.018 9.907c-.041.41-.047.832-.125 1.237-.122.637-.553 1.028-1.182 1.171-.577.131-1.165.185-1.756.205-.656.023-1.313-.001-1.969-.039a16.423 16.423 0 01-1.904-.191 6.99 6.99 0 01-.49-.098c-.333-.074-.367-.129-.267-.465.038-.128.082-.256.12-.384l.116-.377a.519.519 0 00-.364-.634c-.386-.11-.767.086-.897.461l-.026.084-.319 1.03a.535.535 0 01-.374.353c-.156.044-.304.074-.465.113a.107.107 0 00-.081.101.11.11 0 00.088.106c.154.04.3.101.463.136.37.08.746.14 1.122.182 1.052.117 2.112.15 3.168.112.613-.021 1.226-.063 1.83-.16.89-.145 1.655-.559 2.09-1.374.251-.47.334-1 .395-1.52l.143-1.391.702-6.836.046-.454.041-.402c.008-.068.015-.135.022-.202l.017-.163.003-.032a.337.337 0 01.335-.3c.203 0 .368.165.368.369v.011c-.001.008-.001.015-.002.022l-.004.03c-.02.137-.036.273-.057.41l-.081.519c-.074.477-.149.952-.223 1.429l-.248 1.576c-.129.83-.258 1.659-.391 2.489l-.138.84c-.079.471-.156.943-.238 1.414l-.076.433c-.039.226-.082.451-.123.676l-.046.25-.001.007c-.025.127-.061.292-.119.409-.177.354-.426.527-.837.47a10.08 10.08 0 01-.672-.148l-.164-.042a.466.466 0 00-.586.3c-.117.346.041.71.379.867.146.067.303.125.458.178.422.143.86.222 1.298.285.52.076 1.04.111 1.562.109.636-.004 1.267-.074 1.883-.224.564-.139 1.04-.422 1.344-.933.214-.358.329-.764.387-1.172.068-.493.1-1.003.088-1.5a.481.481 0 01.407-.502c.185-.027.379-.039.52-.188a.49.49 0 00.134-.41l-.011-.089-.247-1.146-.316-1.469c-.067-.31-.127-.622-.198-.931l-.046-.202a.482.482 0 01.41-.59z"/>
+                    </svg>
+                    Buy Me a Coffee
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/images/logo.png" alt="HVTools Logo" class="footer-logo">
+                    <span>HVTools</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/michaelmsonne/HVTools" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/issues" target="_blank" rel="noopener">Report Issue</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/blob/main/LICENSE.md" target="_blank" rel="noopener">License</a>
+                    <a href="https://github.com/michaelmsonne/HVTools/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener" aria-label="GitHub">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="https://github.com/michaelmsonne" target="_blank" rel="noopener">Michael Morten Sonne</a>. All rights reserved.</p>
+                <p>Made with ❤️ for the Hyper-V community</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
