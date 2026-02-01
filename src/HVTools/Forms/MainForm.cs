@@ -6185,9 +6185,15 @@ Notes:
                 // Network Information section
                 foreach (var network in inventory.NetworkInfo)
                 {
-                    string linkSpeedDisplay = network.LinkSpeed > 0 ? FormatLinkSpeed(network.LinkSpeed) : "Unknown";
                     AddInventoryRow(dataTable, "🌐 Network", $"Adapter: {network.Name}", network.InterfaceDescription, "");
-                    AddInventoryRow(dataTable, "🌐 Network", $"{network.Name} - Virtual Switches", network.VirtualSwitches.ToString(), "");
+                    
+                    // Warning if network adapter is not assigned to any virtual switch
+                    string virtualSwitchStatus = network.VirtualSwitches == 0 ? "Warning" : "Good";
+                    AddInventoryRow(dataTable, "🌐 Network", $"{network.Name} - Virtual Switches", 
+                        network.VirtualSwitches == 0 
+                            ? "0 (Available for VM networks or NIC teaming)" 
+                            : network.VirtualSwitches.ToString(), 
+                        virtualSwitchStatus);
                 }
 
                 // Idle Resources section

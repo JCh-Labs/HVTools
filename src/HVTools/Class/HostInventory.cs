@@ -56,7 +56,6 @@ namespace HVTools.Class
     public class NetworkAdapterInfo
     {
         public string Name { get; set; } = "";
-        public long LinkSpeed { get; set; }
         public string InterfaceDescription { get; set; } = "";
         public int VirtualSwitches { get; set; }
     }
@@ -410,7 +409,6 @@ namespace HVTools.Class
                         inventory.NetworkInfo.Add(new NetworkAdapterInfo
                         {
                             Name = GetJsonString(adapterElement, "Name"),
-                            LinkSpeed = GetJsonLong(adapterElement, "LinkSpeed"),
                             InterfaceDescription = GetJsonString(adapterElement, "InterfaceDescription"),
                             VirtualSwitches = GetJsonInt(adapterElement, "VirtualSwitches")
                         });
@@ -716,7 +714,6 @@ namespace HVTools.Class
                         list.Add(new NetworkAdapterInfo
                         {
                             Name = ht["Name"]?.ToString() ?? "",
-                            LinkSpeed = Convert.ToInt64(ht["LinkSpeed"] ?? 0),
                             InterfaceDescription = ht["InterfaceDescription"]?.ToString() ?? "",
                             VirtualSwitches = Convert.ToInt32(ht["VirtualSwitches"] ?? 0)
                         });
@@ -726,7 +723,6 @@ namespace HVTools.Class
                         list.Add(new NetworkAdapterInfo
                         {
                             Name = pso.Properties["Name"]?.Value?.ToString() ?? "",
-                            LinkSpeed = Convert.ToInt64(pso.Properties["LinkSpeed"]?.Value ?? 0),
                             InterfaceDescription = pso.Properties["InterfaceDescription"]?.Value?.ToString() ?? "",
                             VirtualSwitches = Convert.ToInt32(pso.Properties["VirtualSwitches"]?.Value ?? 0)
                         });
@@ -1131,20 +1127,11 @@ try {{
     $networkAdapters = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object {{ $_.Status -eq 'Up' }}
     $networkInfoArray = @()
     foreach ($adapter in $networkAdapters) {{
-        $linkSpeedValue = 0
-        if ($adapter.LinkSpeed) {{
-            try {{
-                $linkSpeedValue = [long]$adapter.LinkSpeed
-            }} catch {{
-                $linkSpeedValue = 0
-            }}
-        }}
         
         $vmSwitchCount = @(Get-VMSwitch -ErrorAction SilentlyContinue | Where-Object {{ $_.NetAdapterInterfaceDescription -eq $adapter.InterfaceDescription }}).Count
         
         $networkInfoArray += @{{
             Name = $adapter.Name
-            LinkSpeed = $linkSpeedValue
             InterfaceDescription = $adapter.InterfaceDescription
             VirtualSwitches = $vmSwitchCount
         }}
@@ -1369,14 +1356,9 @@ try {{
     $networkAdapters = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object {{ $_.Status -eq 'Up' }}
     $networkInfo = @()
     foreach ($adapter in $networkAdapters) {{
-        $linkSpeedValue = 0
-        if ($adapter.LinkSpeed) {{
-            try {{ $linkSpeedValue = [long]$adapter.LinkSpeed }} catch {{ $linkSpeedValue = 0 }}
-        }}
         
         $networkInfo += @{{
             Name = $adapter.Name
-            LinkSpeed = $linkSpeedValue
             InterfaceDescription = $adapter.InterfaceDescription
             VirtualSwitches = @(Get-VMSwitch -ErrorAction SilentlyContinue | Where-Object {{ $_.NetAdapterInterfaceDescription -eq $adapter.InterfaceDescription }}).Count
         }}
