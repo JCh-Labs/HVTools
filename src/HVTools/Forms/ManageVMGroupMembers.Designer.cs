@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageVmGroupMembers));
             labelThisViewProvidesOver = new Label();
             labelAvailable = new Label();
             labelMembers = new Label();
@@ -113,7 +114,7 @@
             buttonRemove.UseVisualStyleBackColor = true;
             buttonRemove.Click += ButtonRemove_Click;
             // 
-            // ManageVMGroupMembers
+            // ManageVmGroupMembers
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -127,6 +128,7 @@
             Controls.Add(labelAvailable);
             Controls.Add(labelThisViewProvidesOver);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ManageVmGroupMembers";

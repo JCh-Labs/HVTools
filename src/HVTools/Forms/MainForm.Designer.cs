@@ -110,6 +110,7 @@
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             toolstripstatuslabelMain_CreatedBy = new Label();
+            labelvStorageOverviewText = new Label();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -119,6 +120,7 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterVMs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterNodes).BeginInit();
             groupBoxClusterInfo.SuspendLayout();
+            tabpagehvStorage.SuspendLayout();
             tabPagehvDisks.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).BeginInit();
             tabpagehvCheckpoints.SuspendLayout();
@@ -483,6 +485,7 @@
             // 
             // tabpagehvStorage
             // 
+            tabpagehvStorage.Controls.Add(labelvStorageOverviewText);
             tabpagehvStorage.Location = new Point(4, 24);
             tabpagehvStorage.Name = "tabpagehvStorage";
             tabpagehvStorage.Size = new Size(1613, 908);
@@ -947,6 +950,15 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
+            // labelvStorageOverviewText
+            // 
+            labelvStorageOverviewText.AutoSize = true;
+            labelvStorageOverviewText.Location = new Point(6, 3);
+            labelvStorageOverviewText.Name = "labelvStorageOverviewText";
+            labelvStorageOverviewText.Size = new Size(623, 30);
+            labelvStorageOverviewText.TabIndex = 6;
+            labelvStorageOverviewText.Text = resources.GetString("labelvStorageOverviewText.Text");
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -977,6 +989,8 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterNodes).EndInit();
             groupBoxClusterInfo.ResumeLayout(false);
             groupBoxClusterInfo.PerformLayout();
+            tabpagehvStorage.ResumeLayout(false);
+            tabpagehvStorage.PerformLayout();
             tabPagehvDisks.ResumeLayout(false);
             tabPagehvDisks.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).EndInit();
@@ -1080,5 +1094,6 @@
         private Button buttonLoadvCheckpointsrefresh;
         private Label labelvCheckpointsOverviewText;
         private DataGridView datagridviewCheckpointOverView;
+        private Label labelvStorageOverviewText;
     }
 }
