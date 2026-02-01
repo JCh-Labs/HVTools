@@ -97,6 +97,8 @@
             buttonSummaryHealthOverviewView = new Button();
             buttonLoadHealthOverview = new Button();
             labelHealthOverviewText = new Label();
+            comboBoxClusterNodeSelector = new ComboBox();
+            labelClusterNodeSelector = new Label();
             menuStripTopMainForm = new MenuStrip();
             menuToolStripMenuItem = new ToolStripMenuItem();
             disconnectToolStripMenuItem = new ToolStripMenuItem();
@@ -809,6 +811,8 @@
             // 
             // tabpageHealthOverview
             // 
+            tabpageHealthOverview.Controls.Add(comboBoxClusterNodeSelector);
+            tabpageHealthOverview.Controls.Add(labelClusterNodeSelector);
             tabpageHealthOverview.Controls.Add(buttonSummaryHealthOverviewHelp);
             tabpageHealthOverview.Controls.Add(datagridviewHealthOverview);
             tabpageHealthOverview.Controls.Add(buttonExportHealthOverview);
@@ -821,6 +825,30 @@
             tabpageHealthOverview.TabIndex = 15;
             tabpageHealthOverview.Text = "Health Overview";
             tabpageHealthOverview.UseVisualStyleBackColor = true;
+            // 
+            // comboBoxClusterNodeSelector
+            // 
+            comboBoxClusterNodeSelector.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            comboBoxClusterNodeSelector.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxClusterNodeSelector.FormattingEnabled = true;
+            comboBoxClusterNodeSelector.Location = new Point(990, 6);
+            comboBoxClusterNodeSelector.Name = "comboBoxClusterNodeSelector";
+            comboBoxClusterNodeSelector.Size = new Size(200, 23);
+            comboBoxClusterNodeSelector.TabIndex = 12;
+            comboBoxClusterNodeSelector.Visible = false;
+            comboBoxClusterNodeSelector.SelectedIndexChanged += comboBoxClusterNodeSelector_SelectedIndexChanged;
+            // 
+            // labelClusterNodeSelector
+            // 
+            labelClusterNodeSelector.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            labelClusterNodeSelector.AutoSize = true;
+            labelClusterNodeSelector.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            labelClusterNodeSelector.Location = new Point(890, 10);
+            labelClusterNodeSelector.Name = "labelClusterNodeSelector";
+            labelClusterNodeSelector.Size = new Size(94, 15);
+            labelClusterNodeSelector.TabIndex = 11;
+            labelClusterNodeSelector.Text = "View data from:";
+            labelClusterNodeSelector.Visible = false;
             // 
             // buttonSummaryHealthOverviewHelp
             // 
@@ -1179,5 +1207,7 @@
         private Button buttonLoadHealthOverview;
         private Label labelHealthOverviewText;
         private Button buttonSummaryHealthOverviewHelp;
+        private ComboBox comboBoxClusterNodeSelector;
+        private Label labelClusterNodeSelector;
     }
 }

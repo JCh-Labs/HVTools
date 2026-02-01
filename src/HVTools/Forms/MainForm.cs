@@ -14,6 +14,10 @@ namespace HVTools.Forms
 
         private bool _initialLoadComplete = false;
         private bool _exitConfirmed = false;
+        
+        // Store current health inventory for node switching
+        private HostInventoryInfo? _currentHealthInventory = null;
+        private bool _isLoadingNodeData = false;
 
         public MainForm()
         {
@@ -6009,6 +6013,7 @@ Notes:
 
                 toolStripStatusLabelTextMainForm.Text = @"Loading host health inventory...";
 
+
                 Message("Retrieving host health inventory...",
                     EventType.Information, 7101);
 
@@ -6031,11 +6036,17 @@ Notes:
                     {
                         if (inventory != null)
                         {
+                            // Store inventory for potential node switching
+                            _currentHealthInventory = inventory;
+                            
                             Message($"Retrieved host inventory for '{inventory.HostInfo.ComputerName}', updating DataGridView",
                                 EventType.Information, 7103);
 
                             // Update the DataGridView
                             UpdateHealthOverviewDataGridView(inventory);
+                            
+                            // Update node selector for clusters
+                            UpdateClusterNodeSelector(inventory);
 
                             // Update status with summary
                             int totalVMs = inventory.WorkloadAnalysis.TotalVMs;
@@ -6091,6 +6102,217 @@ Notes:
         }
 
         /// <summary>
+        /// Updates the cluster node selector dropdown for cluster environments
+        /// </summary>
+        private void UpdateClusterNodeSelector(HostInventoryInfo inventory)
+        {
+            try
+            {
+                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) && 
+                                 inventory.HostInfo.ClusterName != "N/A" &&
+                                 inventory.HostInfo.ClusterNodes.Count > 0;
+
+                if (isCluster)
+                {
+                    // Show the node selector
+                    labelClusterNodeSelector.Visible = true;
+                    comboBoxClusterNodeSelector.Visible = true;
+
+                    // Prevent triggering SelectedIndexChanged while populating
+                    _isLoadingNodeData = true;
+                    
+                    // Clear and populate the dropdown
+                    comboBoxClusterNodeSelector.Items.Clear();
+                    
+                    foreach (var node in inventory.HostInfo.ClusterNodes)
+                    {
+                        string displayText = node.IsCurrentNode 
+                            ? $"➤ {node.Name} ({node.State}) - Current" 
+                            : $"{node.Name} ({node.State})";
+                        comboBoxClusterNodeSelector.Items.Add(new ClusterNodeComboItem(node.Name, displayText, node.IsCurrentNode));
+                        
+                        // Select the current node
+                        if (node.IsCurrentNode)
+                        {
+                            comboBoxClusterNodeSelector.SelectedIndex = comboBoxClusterNodeSelector.Items.Count - 1;
+                        }
+                    }
+                    
+                    _isLoadingNodeData = false;
+                    
+                    Message($"Cluster node selector populated with {inventory.HostInfo.ClusterNodes.Count} nodes",
+                        EventType.Information, 7120);
+                }
+                else
+                {
+                    // Hide the node selector for standalone hosts
+                    labelClusterNodeSelector.Visible = false;
+                    comboBoxClusterNodeSelector.Visible = false;
+                    comboBoxClusterNodeSelector.Items.Clear();
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error updating cluster node selector: {ex.Message}",
+                    EventType.Warning, 7121);
+            }
+        }
+
+        /// <summary>
+        /// Handles node selection change in the cluster node dropdown
+        /// </summary>
+        private void comboBoxClusterNodeSelector_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Skip if we're loading data or no item selected
+            if (_isLoadingNodeData || comboBoxClusterNodeSelector.SelectedItem == null)
+                return;
+
+            var selectedItem = comboBoxClusterNodeSelector.SelectedItem as ClusterNodeComboItem;
+            if (selectedItem == null)
+                return;
+
+            // If clicking the current node, no need to reload
+            if (selectedItem.IsCurrentNode)
+            {
+                Message($"Already viewing data from current node: {selectedItem.NodeName}",
+                    EventType.Information, 7122);
+                return;
+            }
+
+            // Show message about switching nodes
+            var result = MessageBox.Show(
+                $"Switch to view health data from node '{selectedItem.NodeName}'?\n\n" +
+                "Note: This will execute a remote PowerShell connection to the selected node to gather its health data. " +
+                "The current connection will remain on the original node.",
+                "Switch Cluster Node View",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                LoadHealthDataFromNode(selectedItem.NodeName);
+            }
+            else
+            {
+                // Reset selection to current node
+                _isLoadingNodeData = true;
+                for (int i = 0; i < comboBoxClusterNodeSelector.Items.Count; i++)
+                {
+                    if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && item.IsCurrentNode)
+                    {
+                        comboBoxClusterNodeSelector.SelectedIndex = i;
+                        break;
+                    }
+                }
+                _isLoadingNodeData = false;
+            }
+        }
+
+        /// <summary>
+        /// Loads health data from a specific cluster node
+        /// </summary>
+        private void LoadHealthDataFromNode(string nodeName)
+        {
+            try
+            {
+                Message($"User requested health data from cluster node: {nodeName}",
+                    EventType.Information, 7123);
+
+                toolStripStatusLabelTextMainForm.Text = $"Loading health data from node '{nodeName}'...";
+
+                // Execute with progress form
+                ExecuteWithProgressForm<HostInventoryInfo?>(() =>
+                {
+                    // Execute the inventory script on the specific node
+                    Message($"Executing inventory script on node '{nodeName}'...",
+                        EventType.Information, 7124);
+
+                    return HostInventory.GetHyperVHostInventory(
+                        cmd => ExecutePowerShellCommandOnNode(nodeName, cmd),
+                        (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd),
+                        includeDetailedVMs: true);
+
+                }, (inventory) =>
+                {
+                    try
+                    {
+                        if (inventory != null)
+                        {
+                            Message($"Retrieved health inventory from node '{nodeName}'",
+                                EventType.Information, 7125);
+
+                            // Update the DataGridView with data from the selected node
+                            UpdateHealthOverviewDataGridView(inventory);
+
+                            // Update status
+                            int totalVMs = inventory.WorkloadAnalysis.TotalVMs;
+                            int runningVMs = inventory.WorkloadAnalysis.RunningVMs;
+                            
+                            toolStripStatusLabelTextMainForm.Text = $"Health data from '{nodeName}' - VMs: {totalVMs} ({runningVMs} running)";
+                        }
+                        else
+                        {
+                            Message($"Failed to retrieve health data from node '{nodeName}'",
+                                EventType.Warning, 7126);
+
+                            MessageBox.Show($"Could not retrieve health data from node '{nodeName}'.\n\n" +
+                                "The node may be offline or inaccessible.",
+                                "Node Data Unavailable",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+
+                            toolStripStatusLabelTextMainForm.Text = $"Failed to load data from '{nodeName}'";
+
+                            // Reset selection to current node
+                            _isLoadingNodeData = true;
+                            for (int i = 0; i < comboBoxClusterNodeSelector.Items.Count; i++)
+                            {
+                                if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && item.IsCurrentNode)
+                                {
+                                    comboBoxClusterNodeSelector.SelectedIndex = i;
+                                    break;
+                                }
+                            }
+                            _isLoadingNodeData = false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Message($"Error processing health data from node '{nodeName}': {ex.Message}",
+                            EventType.Error, 7127);
+                    }
+
+                }, $"Loading health data from {nodeName}");
+            }
+            catch (Exception ex)
+            {
+                Message($"Error loading health data from node '{nodeName}': {ex.Message}",
+                    EventType.Error, 7128);
+
+                toolStripStatusLabelTextMainForm.Text = $"Error loading data from '{nodeName}'";
+            }
+        }
+
+        /// <summary>
+        /// Helper class for cluster node combobox items
+        /// </summary>
+        private class ClusterNodeComboItem
+        {
+            public string NodeName { get; }
+            public string DisplayText { get; }
+            public bool IsCurrentNode { get; }
+
+            public ClusterNodeComboItem(string nodeName, string displayText, bool isCurrentNode)
+            {
+                NodeName = nodeName;
+                DisplayText = displayText;
+                IsCurrentNode = isCurrentNode;
+            }
+
+            public override string ToString() => DisplayText;
+        }
+
+        /// <summary>
         /// Updates the datagridviewHealthOverview DataGridView with host inventory details
         /// </summary>
         private void UpdateHealthOverviewDataGridView(HostInventoryInfo inventory)
@@ -6135,18 +6357,43 @@ Notes:
                 
                 if (isCluster)
                 {
-                    // Cluster mode - show cluster name and node info
-                    AddInventoryRow(dataTable, "🖥️ Host", "Cluster", inventory.HostInfo.ClusterName, 
-                        $"Current Node: {inventory.HostInfo.ComputerName} ({inventory.HostInfo.NodeState})", 
+                    // Cluster mode - show cluster overview with node counts
+                    int nodeCount = inventory.HostInfo.ClusterNodeCount;
+                    int nodesOnline = inventory.HostInfo.ClusterNodesOnline;
+                    int nodesOffline = inventory.HostInfo.ClusterNodesOffline;
+                    int nodesPaused = inventory.HostInfo.ClusterNodesPaused;
+                    
+                    // Determine cluster health status
+                    string clusterStatus = nodesOffline > 0 ? "Critical" : nodesPaused > 0 ? "Warning" : "Good";
+                    string nodeStatusText = $"{nodesOnline} online";
+                    if (nodesOffline > 0) nodeStatusText += $", {nodesOffline} offline";
+                    if (nodesPaused > 0) nodeStatusText += $", {nodesPaused} paused";
+                    
+                    // Build node list for details
+                    string nodeList = "";
+                    if (inventory.HostInfo.ClusterNodes.Count > 0)
+                    {
+                        var nodeNames = inventory.HostInfo.ClusterNodes
+                            .Select(n => n.IsCurrentNode ? $"➤ {n.Name} ({n.State})" : $"{n.Name} ({n.State})");
+                        nodeList = string.Join(" | ", nodeNames);
+                    }
+                    
+                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Name", inventory.HostInfo.ClusterName, 
+                        $"{nodeCount} nodes: {nodeStatusText}", 
+                        clusterStatus, 
+                        "Failover cluster overview. ➤ indicates current connected node.");
+                    
+                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Nodes", nodeList, 
+                        $"Current Node: {inventory.HostInfo.ComputerName}", 
                         GetNodeStateStatus(inventory.HostInfo.NodeState), 
-                        "Failover cluster hosting VMs. Health data is from the current connected node.");
+                        "All cluster nodes and their states. Data shown is from the current connected node only.");
                 }
                 else
                 {
                     // Standalone mode - show hostname
                     AddInventoryRow(dataTable, "🖥️ Host", "Hostname", inventory.HostInfo.ComputerName, 
                         $"Standalone Hyper-V Host | {inventory.HostInfo.HyperVVersion}", "", 
-                        "Standalone Hyper-V host server");
+                        "Standalone Hyper-V host server (not part of a cluster)");
                 }
 
                 // Resource Allocation section
@@ -6156,10 +6403,12 @@ Notes:
                 string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" : 
                                      inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
                 
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "Physical Resources", 
+                // Show resource context (note if cluster - data is from current node only)
+                string resourceContext = isCluster ? " (Current Node)" : "";
+                AddInventoryRow(dataTable, "📊 Resource Allocation", $"Physical Resources{resourceContext}", 
                     $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGB:F1} GB RAM", 
                     $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "", 
-                    "Physical CPU cores and RAM available on this host");
+                    isCluster ? "Physical resources on the current connected node only" : "Physical CPU cores and RAM available on this host");
                 AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVMProcessors} vCPUs", 
                     $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CPUOvercommitRatio:F2}:1", 
                     GetOvercommitStatus(inventory.ResourceAllocation.CPUOvercommitRatio, "cpu"), 

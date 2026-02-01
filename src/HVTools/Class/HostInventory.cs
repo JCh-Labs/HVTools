@@ -23,6 +23,23 @@ namespace HVTools.Class
         public string VirtualMachinePath { get; set; } = "";
         public bool EnableEnhancedSessionMode { get; set; }
         public bool NumaSpanningEnabled { get; set; }
+        
+        // Cluster node information
+        public int ClusterNodeCount { get; set; }
+        public int ClusterNodesOnline { get; set; }
+        public int ClusterNodesOffline { get; set; }
+        public int ClusterNodesPaused { get; set; }
+        public List<ClusterNodeSummary> ClusterNodes { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Represents summary information for a cluster node
+    /// </summary>
+    public class ClusterNodeSummary
+    {
+        public string Name { get; set; } = "";
+        public string State { get; set; } = "";
+        public bool IsCurrentNode { get; set; }
     }
 
     /// <summary>
@@ -365,8 +382,27 @@ namespace HVTools.Class
                         VirtualHardDiskPath = GetJsonString(hostInfoElement, "VirtualHardDiskPath"),
                         VirtualMachinePath = GetJsonString(hostInfoElement, "VirtualMachinePath"),
                         EnableEnhancedSessionMode = GetJsonBool(hostInfoElement, "EnableEnhancedSessionMode"),
-                        NumaSpanningEnabled = GetJsonBool(hostInfoElement, "NumaSpanningEnabled")
+                        NumaSpanningEnabled = GetJsonBool(hostInfoElement, "NumaSpanningEnabled"),
+                        ClusterNodeCount = GetJsonInt(hostInfoElement, "ClusterNodeCount"),
+                        ClusterNodesOnline = GetJsonInt(hostInfoElement, "ClusterNodesOnline"),
+                        ClusterNodesOffline = GetJsonInt(hostInfoElement, "ClusterNodesOffline"),
+                        ClusterNodesPaused = GetJsonInt(hostInfoElement, "ClusterNodesPaused")
                     };
+
+                    // Parse ClusterNodes array
+                    if (hostInfoElement.TryGetProperty("ClusterNodes", out var clusterNodesElement) &&
+                        clusterNodesElement.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var nodeElement in clusterNodesElement.EnumerateArray())
+                        {
+                            inventory.HostInfo.ClusterNodes.Add(new ClusterNodeSummary
+                            {
+                                Name = GetJsonString(nodeElement, "Name"),
+                                State = GetJsonString(nodeElement, "State"),
+                                IsCurrentNode = GetJsonBool(nodeElement, "IsCurrentNode")
+                            });
+                        }
+                    }
                 }
 
                 // Parse ResourceAllocation
@@ -672,6 +708,11 @@ try {{
     $clusterNode = $null
     $clusterName = 'N/A'
     $nodeState = 'Standalone'
+    $clusterNodeCount = 0
+    $clusterNodesOnline = 0
+    $clusterNodesOffline = 0
+    $clusterNodesPaused = 0
+    $clusterNodesArray = @()
     
     try {{
         $clusterNode = Get-ClusterNode -Name $env:COMPUTERNAME -ErrorAction SilentlyContinue
@@ -679,6 +720,22 @@ try {{
             $cluster = Get-Cluster -ErrorAction SilentlyContinue
             $clusterName = if ($cluster) {{ $cluster.Name }} else {{ 'Cluster Detected' }}
             $nodeState = if ($clusterNode.State) {{ $clusterNode.State.ToString() }} else {{ 'Online' }}
+            
+            # Get all cluster nodes and their states
+            $allClusterNodes = @(Get-ClusterNode -ErrorAction SilentlyContinue)
+            $clusterNodeCount = $allClusterNodes.Count
+            $clusterNodesOnline = @($allClusterNodes | Where-Object {{ $_.State -eq 'Up' }}).Count
+            $clusterNodesOffline = @($allClusterNodes | Where-Object {{ $_.State -eq 'Down' }}).Count
+            $clusterNodesPaused = @($allClusterNodes | Where-Object {{ $_.State -eq 'Paused' }}).Count
+            
+            # Build cluster nodes array with details
+            foreach ($node in $allClusterNodes) {{
+                $clusterNodesArray += @{{
+                    Name = $node.Name
+                    State = $node.State.ToString()
+                    IsCurrentNode = ($node.Name -eq $env:COMPUTERNAME)
+                }}
+            }}
         }}
     }} catch {{ }}
     
@@ -840,6 +897,11 @@ try {{
             VirtualMachinePath = if ($vmHost) {{ $vmHost.VirtualMachinePath }} else {{ '' }}
             EnableEnhancedSessionMode = if ($vmHost) {{ $vmHost.EnableEnhancedSessionMode }} else {{ $false }}
             NumaSpanningEnabled = if ($vmHost) {{ $vmHost.NumaSpanningEnabled }} else {{ $false }}
+            ClusterNodeCount = $clusterNodeCount
+            ClusterNodesOnline = $clusterNodesOnline
+            ClusterNodesOffline = $clusterNodesOffline
+            ClusterNodesPaused = $clusterNodesPaused
+            ClusterNodes = $clusterNodesArray
         }}
         ResourceAllocation = @{{
             TotalVMProcessors = $totalVMProcessors
