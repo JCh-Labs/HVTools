@@ -6186,13 +6186,13 @@ Notes:
                 foreach (var network in inventory.NetworkInfo)
                 {
                     AddInventoryRow(dataTable, "🌐 Network", $"Adapter: {network.Name}", network.InterfaceDescription, "");
-                    
+
                     // Warning if network adapter is not assigned to any virtual switch
                     string virtualSwitchStatus = network.VirtualSwitches == 0 ? "Warning" : "Good";
-                    AddInventoryRow(dataTable, "🌐 Network", $"{network.Name} - Virtual Switches", 
-                        network.VirtualSwitches == 0 
-                            ? "0 (Available for VM networks or NIC teaming)" 
-                            : network.VirtualSwitches.ToString(), 
+                    AddInventoryRow(dataTable, "🌐 Network", $"{network.Name} - Virtual Switches",
+                        network.VirtualSwitches == 0
+                            ? "0 (Available for VM networks or NIC teaming)"
+                            : network.VirtualSwitches.ToString(),
                         virtualSwitchStatus);
                 }
 
@@ -6579,6 +6579,73 @@ Notes:
             }
 
             return string.Join("\n", recommendations);
+        }
+
+        private void buttonSummaryHealthOverviewHelp_Click(object sender, EventArgs e)
+        {
+            string helpText = @"🔍 Hyper-V Host Overview - Field Guide
+
+📊 RESOURCE ALLOCATION RATIOS:
+
+CPU Overcommit Ratio (vCPUs ÷ Physical Cores):
+• 1:1 to 2:1   ✅ Excellent - Low contention risk
+• 2:1 to 4:1   ⚡ Good - Monitor for performance
+• 4:1 to 8:1   ⚠️ High - May cause CPU contention
+• >8:1         🚨 Critical - Reduce VM CPUs or add cores
+
+Memory Overcommit Ratio (VM Memory ÷ Physical Memory):
+• Up to 1.2:1  ✅ Safe - Physical memory covers VMs
+• 1.2:1 to 1.5:1 ⚡ Caution - Enable Dynamic Memory
+• >1.5:1       ⚠️ Risk - Memory pressure likely
+
+📈 PERFORMANCE THRESHOLDS:
+
+CPU Usage:
+• 0-60%   ✅ Normal operation
+• 60-80%  ⚡ Moderate - monitor workloads
+• >80%    ⚠️ High - consider CPU upgrade
+
+Memory Usage:
+• 0-70%   ✅ Healthy
+• 70-85%  ⚡ Moderate - monitor closely  
+• >85%    ⚠️ High - risk of performance issues
+
+💾 STORAGE GUIDELINES:
+
+• 0-70%   ✅ Healthy space
+• 70-80%  ⚡ Plan expansion
+• 80-90%  ⚠️ High usage - cleanup needed
+• >90%    🚨 Critical - immediate action required
+
+🔧 OPTIMIZATION RECOMMENDATIONS:
+
+High CPU Overcommit:
+• Reduce VM CPU counts for idle VMs
+• Use CPU limits for non-critical VMs  
+• Add physical CPU cores/sockets
+
+High Memory Overcommit:
+• Enable Dynamic Memory on VMs
+• Set appropriate memory ranges
+• Add physical RAM
+
+High Storage Usage:
+• Delete old checkpoints/snapshots
+• Move VMs to other storage
+• Expand storage capacity
+
+Unused Resources:
+• Remove idle VMs (stopped >30 days)
+• Configure unused network adapters
+• Consider VM consolidation";
+
+            Message("User requested Health Overview help",
+                EventType.Information, 7130);
+
+            MessageBox.Show(helpText,
+                @"Health Overview - Field Guide",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
     }
 }

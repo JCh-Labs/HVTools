@@ -91,6 +91,11 @@
             labelThisViewProvidesOver = new Label();
             datagridviewVMGroups = new DataGridView();
             tabpageHealthOverview = new TabPage();
+            datagridviewHealthOverview = new DataGridView();
+            buttonExportHealthOverview = new Button();
+            buttonSummaryHealthOverviewView = new Button();
+            buttonLoadHealthOverview = new Button();
+            labelHealthOverviewText = new Label();
             menuStripTopMainForm = new MenuStrip();
             menuToolStripMenuItem = new ToolStripMenuItem();
             disconnectToolStripMenuItem = new ToolStripMenuItem();
@@ -111,11 +116,7 @@
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             toolstripstatuslabelMain_CreatedBy = new Label();
-            buttonExportHealthOverview = new Button();
-            buttonSummaryHealthOverviewView = new Button();
-            buttonLoadHealthOverview = new Button();
-            labelHealthOverviewText = new Label();
-            datagridviewHealthOverview = new DataGridView();
+            buttonSummaryHealthOverviewHelp = new Button();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -135,10 +136,10 @@
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).BeginInit();
             tabpageHealthOverview.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewHealthOverview).BeginInit();
             menuStripTopMainForm.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).BeginInit();
             statusStripMainForm.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewHealthOverview).BeginInit();
             SuspendLayout();
             // 
             // datagridviewVMOverView
@@ -808,6 +809,7 @@
             // 
             // tabpageHealthOverview
             // 
+            tabpageHealthOverview.Controls.Add(buttonSummaryHealthOverviewHelp);
             tabpageHealthOverview.Controls.Add(datagridviewHealthOverview);
             tabpageHealthOverview.Controls.Add(buttonExportHealthOverview);
             tabpageHealthOverview.Controls.Add(buttonSummaryHealthOverviewView);
@@ -819,6 +821,56 @@
             tabpageHealthOverview.TabIndex = 15;
             tabpageHealthOverview.Text = "Health Overview";
             tabpageHealthOverview.UseVisualStyleBackColor = true;
+            // 
+            // datagridviewHealthOverview
+            // 
+            datagridviewHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            datagridviewHealthOverview.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            datagridviewHealthOverview.Location = new Point(6, 35);
+            datagridviewHealthOverview.Name = "datagridviewHealthOverview";
+            datagridviewHealthOverview.Size = new Size(1601, 774);
+            datagridviewHealthOverview.TabIndex = 9;
+            // 
+            // buttonExportHealthOverview
+            // 
+            buttonExportHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonExportHealthOverview.Location = new Point(1324, 6);
+            buttonExportHealthOverview.Name = "buttonExportHealthOverview";
+            buttonExportHealthOverview.Size = new Size(144, 23);
+            buttonExportHealthOverview.TabIndex = 8;
+            buttonExportHealthOverview.Text = "&Export Health Overview";
+            buttonExportHealthOverview.UseVisualStyleBackColor = true;
+            // 
+            // buttonSummaryHealthOverviewView
+            // 
+            buttonSummaryHealthOverviewView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryHealthOverviewView.Location = new Point(1243, 6);
+            buttonSummaryHealthOverviewView.Name = "buttonSummaryHealthOverviewView";
+            buttonSummaryHealthOverviewView.Size = new Size(75, 23);
+            buttonSummaryHealthOverviewView.TabIndex = 7;
+            buttonSummaryHealthOverviewView.Text = "Summary";
+            buttonSummaryHealthOverviewView.UseVisualStyleBackColor = true;
+            buttonSummaryHealthOverviewView.Click += buttonSummaryHealthOverview_Click;
+            // 
+            // buttonLoadHealthOverview
+            // 
+            buttonLoadHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonLoadHealthOverview.Location = new Point(1474, 6);
+            buttonLoadHealthOverview.Name = "buttonLoadHealthOverview";
+            buttonLoadHealthOverview.Size = new Size(133, 23);
+            buttonLoadHealthOverview.TabIndex = 6;
+            buttonLoadHealthOverview.Text = "&Load overview/refresh";
+            buttonLoadHealthOverview.UseVisualStyleBackColor = true;
+            buttonLoadHealthOverview.Click += buttonLoadHealthOverview_Click;
+            // 
+            // labelHealthOverviewText
+            // 
+            labelHealthOverviewText.AutoSize = true;
+            labelHealthOverviewText.Location = new Point(6, 3);
+            labelHealthOverviewText.Name = "labelHealthOverviewText";
+            labelHealthOverviewText.Size = new Size(769, 15);
+            labelHealthOverviewText.TabIndex = 5;
+            labelHealthOverviewText.Text = "This view provides provides overview over core ressoruces and allocation in Hyper-V/at host level, for information about VMs and other key data.\r\n";
             // 
             // menuStripTopMainForm
             // 
@@ -971,55 +1023,15 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
-            // buttonExportHealthOverview
+            // buttonSummaryHealthOverviewHelp
             // 
-            buttonExportHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonExportHealthOverview.Location = new Point(1324, 6);
-            buttonExportHealthOverview.Name = "buttonExportHealthOverview";
-            buttonExportHealthOverview.Size = new Size(144, 23);
-            buttonExportHealthOverview.TabIndex = 8;
-            buttonExportHealthOverview.Text = "&Export Health Overview";
-            buttonExportHealthOverview.UseVisualStyleBackColor = true;
-            // 
-            // buttonSummaryHealthOverviewView
-            // 
-            buttonSummaryHealthOverviewView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSummaryHealthOverviewView.Location = new Point(1243, 6);
-            buttonSummaryHealthOverviewView.Name = "buttonSummaryHealthOverviewView";
-            buttonSummaryHealthOverviewView.Size = new Size(75, 23);
-            buttonSummaryHealthOverviewView.TabIndex = 7;
-            buttonSummaryHealthOverviewView.Text = "Summary";
-            buttonSummaryHealthOverviewView.UseVisualStyleBackColor = true;
-            buttonSummaryHealthOverviewView.Click += buttonSummaryHealthOverview_Click;
-            // 
-            // buttonLoadHealthOverview
-            // 
-            buttonLoadHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonLoadHealthOverview.Location = new Point(1474, 6);
-            buttonLoadHealthOverview.Name = "buttonLoadHealthOverview";
-            buttonLoadHealthOverview.Size = new Size(133, 23);
-            buttonLoadHealthOverview.TabIndex = 6;
-            buttonLoadHealthOverview.Text = "&Load overview/refresh";
-            buttonLoadHealthOverview.UseVisualStyleBackColor = true;
-            buttonLoadHealthOverview.Click += buttonLoadHealthOverview_Click;
-            // 
-            // labelHealthOverviewText
-            // 
-            labelHealthOverviewText.AutoSize = true;
-            labelHealthOverviewText.Location = new Point(6, 3);
-            labelHealthOverviewText.Name = "labelHealthOverviewText";
-            labelHealthOverviewText.Size = new Size(769, 15);
-            labelHealthOverviewText.TabIndex = 5;
-            labelHealthOverviewText.Text = "This view provides provides overview over core ressoruces and allocation in Hyper-V/at host level, for information about VMs and other key data.\r\n";
-            // 
-            // datagridviewHealthOverview
-            // 
-            datagridviewHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            datagridviewHealthOverview.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            datagridviewHealthOverview.Location = new Point(6, 35);
-            datagridviewHealthOverview.Name = "datagridviewHealthOverview";
-            datagridviewHealthOverview.Size = new Size(1601, 774);
-            datagridviewHealthOverview.TabIndex = 9;
+            buttonSummaryHealthOverviewHelp.Location = new Point(1211, 6);
+            buttonSummaryHealthOverviewHelp.Name = "buttonSummaryHealthOverviewHelp";
+            buttonSummaryHealthOverviewHelp.Size = new Size(26, 23);
+            buttonSummaryHealthOverviewHelp.TabIndex = 10;
+            buttonSummaryHealthOverviewHelp.Text = "?";
+            buttonSummaryHealthOverviewHelp.UseVisualStyleBackColor = true;
+            buttonSummaryHealthOverviewHelp.Click += buttonSummaryHealthOverviewHelp_Click;
             // 
             // MainForm
             // 
@@ -1066,12 +1078,12 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).EndInit();
             tabpageHealthOverview.ResumeLayout(false);
             tabpageHealthOverview.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewHealthOverview).EndInit();
             menuStripTopMainForm.ResumeLayout(false);
             menuStripTopMainForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).EndInit();
             statusStripMainForm.ResumeLayout(false);
             statusStripMainForm.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewHealthOverview).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1165,5 +1177,6 @@
         private Button buttonSummaryHealthOverviewView;
         private Button buttonLoadHealthOverview;
         private Label labelHealthOverviewText;
+        private Button buttonSummaryHealthOverviewHelp;
     }
 }
