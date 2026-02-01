@@ -793,9 +793,11 @@ try {{
     }}
     
     try {{
+        # Get CPU usage - '\Processor(_Total)\% Processor Time' returns the % of time CPU is busy (usage)
+        # This matches what Task Manager shows for CPU usage
         $cpuCounter = Get-Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 3 -ErrorAction Stop
         $cpuUsage = ($cpuCounter.CounterSamples.CookedValue | Measure-Object -Average).Average
-        $performanceData.CPUUsagePercent = [Math]::Round(100 - $cpuUsage, 1)
+        $performanceData.CPUUsagePercent = [Math]::Round($cpuUsage, 1)
         
         $memCounter = Get-Counter '\Memory\Available MBytes' -ErrorAction Stop
         $availableMemory = $memCounter.CounterSamples[0].CookedValue
