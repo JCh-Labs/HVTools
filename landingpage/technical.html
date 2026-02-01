@@ -15,7 +15,7 @@
     <meta property="og:url" content="https://hvtools.app/technical">
     <meta property="og:image" content="assets/images/og-image.png">
     
-    <title>Technical Documentation - HVTools</title>
+    <title>Technical Documentation - HVTools - By Michael Morten Sonne</title>
     
     <link rel="icon" href="assets/images/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -142,25 +142,25 @@
             <div class="components-grid">
                 <div class="component-card">
                     <div class="component-icon">📊</div>
-                    <h3>SessionContext</h3>
+                    <h3>Session Context</h3>
                     <p>Manages the current connection session, storing host information, credentials, and connection state across the application.</p>
                     <code>Class/SessionContext.cs</code>
                 </div>
                 <div class="component-card">
                     <div class="component-icon">🖥️</div>
-                    <h3>HostDetails</h3>
+                    <h3>Host Details</h3>
                     <p>Retrieves and caches detailed information about Hyper-V hosts including hardware specs, configuration, and capabilities.</p>
                     <code>Class/HostDetails.cs</code>
                 </div>
                 <div class="component-card">
                     <div class="component-icon">🗂️</div>
-                    <h3>VMGroups</h3>
+                    <h3>VM Groups</h3>
                     <p>Handles VM group management operations - creating, modifying, and organizing virtual machines into logical groups.</p>
                     <code>Class/VMGroups.cs</code>
                 </div>
                 <div class="component-card">
                     <div class="component-icon">💾</div>
-                    <h3>VirtualDisks</h3>
+                    <h3>Virtual Disks</h3>
                     <p>Provides comprehensive virtual disk analysis including capacity, usage, and storage allocation across VMs.</p>
                     <code>Class/VirtualDisks.cs</code>
                 </div>
@@ -172,7 +172,7 @@
                 </div>
                 <div class="component-card">
                     <div class="component-icon">📝</div>
-                    <h3>FileLogger</h3>
+                    <h3>File Logger</h3>
                     <p>Centralized logging system for troubleshooting, audit trails, and debugging information.</p>
                     <code>Class/FileLogger.cs</code>
                 </div>
@@ -290,6 +290,11 @@ Get-ClusterGroup -Cluster $clusterName | Where-Object { $_.GroupType -eq 'Virtua
                         <li>✅ Publisher verification - confirm the software comes from Michael Morten Sonne</li>
                         <li>✅ SmartScreen compatibility - reduced warnings on Windows</li>
                     </ul>
+                    <p style="margin-top: 1rem; padding: 0.75rem; background-color: var(--card-bg); border-left: 4px solid var(--primary-color); border-radius: 4px;">
+                        💝 <strong>Support Code Signing and development:</strong> 
+                        <a href="https://github.com/sponsors/michaelmsonne" target="_blank" rel="noopener" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">GitHub Sponsors</a> | 
+                        <a href="https://www.buymeacoffee.com/sonnes" target="_blank" rel="noopener" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Buy Me a Coffee</a>
+                    </p>
                 </div>
                 <div class="doc-card">
                     <h3>Credential Handling</h3>
@@ -398,7 +403,7 @@ Get-LocalGroupMember -Group "Remote Management Users"</pre>
         <div class="container">
             <div class="section-header">
                 <h2>🌐 Network Requirements</h2>
-                <p>Firewall ports and connectivity needed for remote management (need review...)</p>
+                <p>Firewall ports and connectivity needed for remote management</p>
             </div>
             <div class="doc-content">
                 <div class="doc-card">
