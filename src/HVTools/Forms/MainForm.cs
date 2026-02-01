@@ -6129,25 +6129,25 @@ Notes:
                 dataTable.Columns.Add("Status", typeof(string));
                 dataTable.Columns.Add("Help", typeof(string));
 
-                // Host Information section
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Computer Name", inventory.HostInfo.ComputerName, 
-                    $"FQDN: {inventory.HostInfo.FullyQualifiedDomainName}", "", 
-                    "The name of the Hyper-V host server");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Hyper-V Version", inventory.HostInfo.HyperVVersion, 
-                    $"Enhanced Session Mode: {(inventory.HostInfo.EnableEnhancedSessionMode ? "Enabled" : "Disabled")}", "", 
-                    "Windows version running Hyper-V role");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Cluster Name", inventory.HostInfo.ClusterName, 
-                    $"Node State: {inventory.HostInfo.NodeState}", GetNodeStateStatus(inventory.HostInfo.NodeState), 
-                    "Name of the failover cluster if host is clustered");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Physical Processors", $"{inventory.HostInfo.PhysicalProcessors} cores", 
-                    $"Logical Processors: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "", 
-                    "Physical CPU cores available. Logical = Physical × Threads per core (hyperthreading)");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Total Memory", $"{inventory.HostInfo.TotalMemoryGB:F2} GB", 
-                    $"NUMA Spanning: {(inventory.HostInfo.NumaSpanningEnabled ? "Enabled" : "Disabled")}", "", 
-                    "Total physical RAM installed in the server");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "VHD Path", inventory.HostInfo.VirtualHardDiskPath, 
-                    $"VM Path: {inventory.HostInfo.VirtualMachinePath}", "", 
-                    "Default storage locations for virtual hard disks and VM configuration files");
+                // Host Information section - simplified to just hostname and cluster info
+                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) && 
+                                 inventory.HostInfo.ClusterName != "N/A";
+                
+                if (isCluster)
+                {
+                    // Cluster mode - show cluster name and node info
+                    AddInventoryRow(dataTable, "🖥️ Host", "Cluster", inventory.HostInfo.ClusterName, 
+                        $"Current Node: {inventory.HostInfo.ComputerName} ({inventory.HostInfo.NodeState})", 
+                        GetNodeStateStatus(inventory.HostInfo.NodeState), 
+                        "Failover cluster hosting VMs. Health data is from the current connected node.");
+                }
+                else
+                {
+                    // Standalone mode - show hostname
+                    AddInventoryRow(dataTable, "🖥️ Host", "Hostname", inventory.HostInfo.ComputerName, 
+                        $"Standalone Hyper-V Host | {inventory.HostInfo.HyperVVersion}", "", 
+                        "Standalone Hyper-V host server");
+                }
 
                 // Resource Allocation section
                 double memoryAllocatedGB = inventory.ResourceAllocation.TotalVMMemoryMB / 1024.0;
@@ -6156,6 +6156,10 @@ Notes:
                 string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" : 
                                      inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
                 
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "Physical Resources", 
+                    $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGB:F1} GB RAM", 
+                    $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "", 
+                    "Physical CPU cores and RAM available on this host");
                 AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVMProcessors} vCPUs", 
                     $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CPUOvercommitRatio:F2}:1", 
                     GetOvercommitStatus(inventory.ResourceAllocation.CPUOvercommitRatio, "cpu"), 
@@ -6172,6 +6176,7 @@ Notes:
                                        inventory.PerformanceData.CPUUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
                     string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" : 
                                        inventory.PerformanceData.MemoryUsagePercent > 70 ? "⚡ Moderate" : "✅ Normal";
+                    
                     
                     AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CPUUsagePercent:F1}%", 
                         $"{cpuStatus} usage level", 
