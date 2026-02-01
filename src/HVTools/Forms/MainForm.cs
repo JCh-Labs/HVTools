@@ -6129,7 +6129,7 @@ Notes:
                         string displayText = node.IsCurrentNode 
                             ? $"➤ {node.Name} ({node.State}) - Current" 
                             : $"{node.Name} ({node.State})";
-                        comboBoxClusterNodeSelector.Items.Add(new ClusterNodeComboItem(node.Name, displayText, node.IsCurrentNode));
+                        comboBoxClusterNodeSelector.Items.Add(new ClusterNodeComboItem(node.Name, node.Fqdn, displayText, node.IsCurrentNode));
                         
                         // Select the current node
                         if (node.IsCurrentNode)
@@ -6190,7 +6190,11 @@ Notes:
 
             if (result == DialogResult.Yes)
             {
-                LoadHealthDataFromNode(selectedItem.NodeName);
+                // Use FQDN for remote connection, fall back to short name if FQDN is not available
+                string connectionName = !string.IsNullOrEmpty(selectedItem.NodeFqdn) 
+                    ? selectedItem.NodeFqdn 
+                    : selectedItem.NodeName;
+                LoadHealthDataFromNode(connectionName);
             }
             else
             {
@@ -6207,6 +6211,7 @@ Notes:
                 _isLoadingNodeData = false;
             }
         }
+
 
         /// <summary>
         /// Loads health data from a specific cluster node
@@ -6293,18 +6298,21 @@ Notes:
             }
         }
 
+
         /// <summary>
         /// Helper class for cluster node combobox items
         /// </summary>
         private class ClusterNodeComboItem
         {
             public string NodeName { get; }
+            public string NodeFqdn { get; }
             public string DisplayText { get; }
             public bool IsCurrentNode { get; }
 
-            public ClusterNodeComboItem(string nodeName, string displayText, bool isCurrentNode)
+            public ClusterNodeComboItem(string nodeName, string nodeFqdn, string displayText, bool isCurrentNode)
             {
                 NodeName = nodeName;
+                NodeFqdn = nodeFqdn;
                 DisplayText = displayText;
                 IsCurrentNode = isCurrentNode;
             }

@@ -38,6 +38,7 @@ namespace HVTools.Class
     public class ClusterNodeSummary
     {
         public string Name { get; set; } = "";
+        public string Fqdn { get; set; } = "";
         public string State { get; set; } = "";
         public bool IsCurrentNode { get; set; }
     }
@@ -393,11 +394,26 @@ namespace HVTools.Class
                     if (hostInfoElement.TryGetProperty("ClusterNodes", out var clusterNodesElement) &&
                         clusterNodesElement.ValueKind == JsonValueKind.Array)
                     {
+                        // Get domain suffix from SessionContext for constructing FQDNs
+                        string domainSuffix = GetDomainSuffixFromSessionContext();
+                        
                         foreach (var nodeElement in clusterNodesElement.EnumerateArray())
                         {
+                            string nodeName = GetJsonString(nodeElement, "Name");
+                            string nodeFqdn = GetJsonString(nodeElement, "Fqdn");
+                            
+                            // If FQDN wasn't provided by PowerShell, construct it from SessionContext domain
+                            if (string.IsNullOrEmpty(nodeFqdn) || nodeFqdn == nodeName)
+                            {
+                                nodeFqdn = !string.IsNullOrEmpty(domainSuffix) 
+                                    ? $"{nodeName}.{domainSuffix}" 
+                                    : nodeName;
+                            }
+                            
                             inventory.HostInfo.ClusterNodes.Add(new ClusterNodeSummary
                             {
-                                Name = GetJsonString(nodeElement, "Name"),
+                                Name = nodeName,
+                                Fqdn = nodeFqdn,
                                 State = GetJsonString(nodeElement, "State"),
                                 IsCurrentNode = GetJsonBool(nodeElement, "IsCurrentNode")
                             });
@@ -687,6 +703,38 @@ namespace HVTools.Class
             }
         }
 
+        /// <summary>
+        /// Extracts the domain suffix from SessionContext.FullyQualifiedDomainName
+        /// For example: "server.domain.local" returns "domain.local"
+        /// </summary>
+        private static string GetDomainSuffixFromSessionContext()
+        {
+            try
+            {
+                string? fqdn = SessionContext.FullyQualifiedDomainName;
+                if (string.IsNullOrEmpty(fqdn))
+                    return "";
+
+                // Find the first dot to extract domain suffix
+                int dotIndex = fqdn.IndexOf('.');
+                if (dotIndex > 0 && dotIndex < fqdn.Length - 1)
+                {
+                    string domainSuffix = fqdn[(dotIndex + 1)..];
+                    FileLogger.Message($"Extracted domain suffix from SessionContext: '{domainSuffix}'",
+                        FileLogger.EventType.Information, 7040);
+                    return domainSuffix;
+                }
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Message($"Error extracting domain suffix: {ex.Message}",
+                    FileLogger.EventType.Warning, 7041);
+                return "";
+            }
+        }
+
         #endregion
 
         #region PowerShell Scripts
@@ -721,6 +769,15 @@ try {{
             $clusterName = if ($cluster) {{ $cluster.Name }} else {{ 'Cluster Detected' }}
             $nodeState = if ($clusterNode.State) {{ $clusterNode.State.ToString() }} else {{ 'Online' }}
             
+            # Get the domain suffix for FQDN construction
+            $domainSuffix = ''
+            try {{
+                $domainSuffix = (Get-WmiObject Win32_ComputerSystem -ErrorAction SilentlyContinue).Domain
+                if (-not $domainSuffix) {{
+                    $domainSuffix = [System.Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().DomainName
+                }}
+            }} catch {{ }}
+            
             # Get all cluster nodes and their states
             $allClusterNodes = @(Get-ClusterNode -ErrorAction SilentlyContinue)
             $clusterNodeCount = $allClusterNodes.Count
@@ -728,10 +785,17 @@ try {{
             $clusterNodesOffline = @($allClusterNodes | Where-Object {{ $_.State -eq 'Down' }}).Count
             $clusterNodesPaused = @($allClusterNodes | Where-Object {{ $_.State -eq 'Paused' }}).Count
             
-            # Build cluster nodes array with details
+            # Build cluster nodes array with details including FQDN
             foreach ($node in $allClusterNodes) {{
+                # Construct FQDN for the node
+                $nodeFqdn = $node.Name
+                if ($domainSuffix) {{
+                    $nodeFqdn = ""$($node.Name).$domainSuffix""
+                }}
+                
                 $clusterNodesArray += @{{
                     Name = $node.Name
+                    Fqdn = $nodeFqdn
                     State = $node.State.ToString()
                     IsCurrentNode = ($node.Name -eq $env:COMPUTERNAME)
                 }}
