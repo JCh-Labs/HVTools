@@ -91,6 +91,7 @@
             labelThisViewProvidesOver = new Label();
             datagridviewVMGroups = new DataGridView();
             tabpageHealthOverview = new TabPage();
+            buttonSummaryHealthOverviewHelp = new Button();
             datagridviewHealthOverview = new DataGridView();
             buttonExportHealthOverview = new Button();
             buttonSummaryHealthOverviewView = new Button();
@@ -116,7 +117,6 @@
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             toolstripstatuslabelMain_CreatedBy = new Label();
-            buttonSummaryHealthOverviewHelp = new Button();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -822,6 +822,17 @@
             tabpageHealthOverview.Text = "Health Overview";
             tabpageHealthOverview.UseVisualStyleBackColor = true;
             // 
+            // buttonSummaryHealthOverviewHelp
+            // 
+            buttonSummaryHealthOverviewHelp.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryHealthOverviewHelp.Location = new Point(1211, 6);
+            buttonSummaryHealthOverviewHelp.Name = "buttonSummaryHealthOverviewHelp";
+            buttonSummaryHealthOverviewHelp.Size = new Size(26, 23);
+            buttonSummaryHealthOverviewHelp.TabIndex = 10;
+            buttonSummaryHealthOverviewHelp.Text = "?";
+            buttonSummaryHealthOverviewHelp.UseVisualStyleBackColor = true;
+            buttonSummaryHealthOverviewHelp.Click += buttonSummaryHealthOverviewHelp_Click;
+            // 
             // datagridviewHealthOverview
             // 
             datagridviewHealthOverview.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -1022,16 +1033,6 @@
             toolstripstatuslabelMain_CreatedBy.Size = new Size(190, 15);
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
-            // 
-            // buttonSummaryHealthOverviewHelp
-            // 
-            buttonSummaryHealthOverviewHelp.Location = new Point(1211, 6);
-            buttonSummaryHealthOverviewHelp.Name = "buttonSummaryHealthOverviewHelp";
-            buttonSummaryHealthOverviewHelp.Size = new Size(26, 23);
-            buttonSummaryHealthOverviewHelp.TabIndex = 10;
-            buttonSummaryHealthOverviewHelp.Text = "?";
-            buttonSummaryHealthOverviewHelp.UseVisualStyleBackColor = true;
-            buttonSummaryHealthOverviewHelp.Click += buttonSummaryHealthOverviewHelp_Click;
             // 
             // MainForm
             // 
