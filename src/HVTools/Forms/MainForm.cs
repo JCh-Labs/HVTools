@@ -6116,6 +6116,7 @@ Notes:
                     return;
                 }
 
+
                 Message($"Updating datagridviewHealthOverview with host inventory data",
                     EventType.Information, 7112);
 
@@ -6124,141 +6125,143 @@ Notes:
                 dataTable.Columns.Add("Category", typeof(string));
                 dataTable.Columns.Add("Property", typeof(string));
                 dataTable.Columns.Add("Value", typeof(string));
+                dataTable.Columns.Add("Details", typeof(string));
                 dataTable.Columns.Add("Status", typeof(string));
                 dataTable.Columns.Add("Help", typeof(string));
 
                 // Host Information section
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Computer Name", inventory.HostInfo.ComputerName, "", 
+                AddInventoryRow(dataTable, "🖥️ Host Information", "Computer Name", inventory.HostInfo.ComputerName, 
+                    $"FQDN: {inventory.HostInfo.FullyQualifiedDomainName}", "", 
                     "The name of the Hyper-V host server");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "FQDN", inventory.HostInfo.FullyQualifiedDomainName, "", 
-                    "Fully Qualified Domain Name of the host");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Hyper-V Version", inventory.HostInfo.HyperVVersion, "", 
+                AddInventoryRow(dataTable, "🖥️ Host Information", "Hyper-V Version", inventory.HostInfo.HyperVVersion, 
+                    $"Enhanced Session Mode: {(inventory.HostInfo.EnableEnhancedSessionMode ? "Enabled" : "Disabled")}", "", 
                     "Windows version running Hyper-V role");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Cluster Name", inventory.HostInfo.ClusterName, "", 
+                AddInventoryRow(dataTable, "🖥️ Host Information", "Cluster Name", inventory.HostInfo.ClusterName, 
+                    $"Node State: {inventory.HostInfo.NodeState}", GetNodeStateStatus(inventory.HostInfo.NodeState), 
                     "Name of the failover cluster if host is clustered");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Node State", inventory.HostInfo.NodeState, GetNodeStateStatus(inventory.HostInfo.NodeState), 
-                    "Current state of the cluster node or standalone status");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Logical Processors", inventory.HostInfo.LogicalProcessors.ToString(), "", 
-                    "Logical CPUs = Physical cores × Threads per core (hyperthreading)");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Physical Processors", inventory.HostInfo.PhysicalProcessors.ToString(), "", 
-                    "Physical CPU cores available for VM allocation");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Processor Sockets", inventory.HostInfo.ProcessorSockets.ToString(), "", 
-                    "Number of physical CPU sockets in the server");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Total Memory (GB)", inventory.HostInfo.TotalMemoryGB.ToString("F2"), "", 
+                AddInventoryRow(dataTable, "🖥️ Host Information", "Physical Processors", $"{inventory.HostInfo.PhysicalProcessors} cores", 
+                    $"Logical Processors: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "", 
+                    "Physical CPU cores available. Logical = Physical × Threads per core (hyperthreading)");
+                AddInventoryRow(dataTable, "🖥️ Host Information", "Total Memory", $"{inventory.HostInfo.TotalMemoryGB:F2} GB", 
+                    $"NUMA Spanning: {(inventory.HostInfo.NumaSpanningEnabled ? "Enabled" : "Disabled")}", "", 
                     "Total physical RAM installed in the server");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "VHD Path", inventory.HostInfo.VirtualHardDiskPath, "", 
-                    "Default storage location for virtual hard disks");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "VM Path", inventory.HostInfo.VirtualMachinePath, "", 
-                    "Default storage location for VM configuration files");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "Enhanced Session Mode", inventory.HostInfo.EnableEnhancedSessionMode ? "Enabled" : "Disabled", "", 
-                    "Allows clipboard, audio, and drive redirection in VM connections");
-                AddInventoryRow(dataTable, "🖥️ Host Information", "NUMA Spanning", inventory.HostInfo.NumaSpanningEnabled ? "Enabled" : "Disabled", "", 
-                    "Allows VMs to span NUMA nodes - disable for performance-critical VMs");
+                AddInventoryRow(dataTable, "🖥️ Host Information", "VHD Path", inventory.HostInfo.VirtualHardDiskPath, 
+                    $"VM Path: {inventory.HostInfo.VirtualMachinePath}", "", 
+                    "Default storage locations for virtual hard disks and VM configuration files");
 
                 // Resource Allocation section
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "Total VM Processors", inventory.ResourceAllocation.TotalVMProcessors.ToString(), "", 
-                    "Total vCPUs allocated across all VMs");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "Total VM Memory (MB)", inventory.ResourceAllocation.TotalVMMemoryMB.ToString("N0"), "", 
-                    "Total memory currently assigned to running VMs");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Startup Memory (MB)", inventory.ResourceAllocation.TotalVMStartupMemoryMB.ToString("N0"), "", 
-                    "Total startup memory configured for all VMs");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "CPU Overcommit Ratio", $"{inventory.ResourceAllocation.CPUOvercommitRatio:F2}:1", GetOvercommitStatus(inventory.ResourceAllocation.CPUOvercommitRatio, "cpu"), 
-                    "vCPUs ÷ Physical Cores. Ratio >4:1 may cause CPU contention. Reduce VM CPUs or add cores.");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "Memory Overcommit Ratio", $"{inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1", GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"), 
-                    "VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Add RAM if needed.");
+                double memoryAllocatedGB = inventory.ResourceAllocation.TotalVMMemoryMB / 1024.0;
+                string cpuGuidance = inventory.ResourceAllocation.CPUOvercommitRatio > 4 ? "⚠️ High overcommit" : 
+                                     inventory.ResourceAllocation.CPUOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
+                string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" : 
+                                     inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
+                
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVMProcessors} vCPUs", 
+                    $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CPUOvercommitRatio:F2}:1", 
+                    GetOvercommitStatus(inventory.ResourceAllocation.CPUOvercommitRatio, "cpu"), 
+                    "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGB:F1} GB", 
+                    $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1", 
+                    GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"), 
+                    "Memory Overcommit = VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Enable Dynamic Memory on VMs or add physical RAM.");
 
                 // Performance Data section
                 if (inventory.PerformanceData.DataAvailable)
                 {
-                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage %", $"{inventory.PerformanceData.CPUUsagePercent:F1}%", GetPerformanceStatus(inventory.PerformanceData.CPUUsagePercent, "cpu"), 
-                        "Current CPU utilization. >80% sustained may indicate need for more cores.");
-                    AddInventoryRow(dataTable, "⚡ Performance", "Available Memory (MB)", $"{inventory.PerformanceData.AvailableMemoryMB:F0}", "", 
-                        "Free physical memory available for VM allocation");
-                    AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage %", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%", GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"), 
-                        "Current memory utilization. >85% may cause performance issues.");
+                    string cpuStatus = inventory.PerformanceData.CPUUsagePercent > 80 ? "⚠️ High" : 
+                                       inventory.PerformanceData.CPUUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
+                    string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" : 
+                                       inventory.PerformanceData.MemoryUsagePercent > 70 ? "⚡ Moderate" : "✅ Normal";
+                    
+                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CPUUsagePercent:F1}%", 
+                        $"{cpuStatus} usage level", 
+                        GetPerformanceStatus(inventory.PerformanceData.CPUUsagePercent, "cpu"), 
+                        "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
+                    AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%", 
+                        $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMB:F0} MB", 
+                        GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"), 
+                        "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
                 }
                 else
                 {
-                    AddInventoryRow(dataTable, "⚡ Performance", "Performance Data", "Not Available", "Warning", 
+                    AddInventoryRow(dataTable, "⚡ Performance", "Performance Data", "Not Available", 
+                        "Performance counters could not be retrieved", "Warning", 
                         "Performance counters could not be retrieved from the host");
                 }
 
-                // Workload Analysis section
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Total VMs", inventory.WorkloadAnalysis.TotalVMs.ToString(), "", 
-                    "Total number of virtual machines on this host");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Running VMs", inventory.WorkloadAnalysis.RunningVMs.ToString(), "Good", 
-                    "VMs currently powered on and running");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Stopped VMs", inventory.WorkloadAnalysis.StoppedVMs.ToString(), inventory.WorkloadAnalysis.StoppedVMs > 0 ? "Info" : "", 
-                    "VMs that are powered off");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Paused VMs", inventory.WorkloadAnalysis.PausedVMs.ToString(), inventory.WorkloadAnalysis.PausedVMs > 0 ? "Warning" : "", 
-                    "VMs in paused state - may indicate issues");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Saved VMs", inventory.WorkloadAnalysis.SavedVMs.ToString(), inventory.WorkloadAnalysis.SavedVMs > 0 ? "Info" : "", 
-                    "VMs in saved state (hibernated)");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Generation 1 VMs", inventory.WorkloadAnalysis.Generation1VMs.ToString(), "", 
-                    "Legacy BIOS-based VMs. Consider upgrading to Gen2 for better performance.");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Generation 2 VMs", inventory.WorkloadAnalysis.Generation2VMs.ToString(), "", 
-                    "UEFI-based VMs with better security and performance features");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "Replicated VMs", inventory.WorkloadAnalysis.ReplicatedVMs.ToString(), inventory.WorkloadAnalysis.ReplicatedVMs > 0 ? "Good" : "", 
-                    "VMs configured for Hyper-V Replica disaster recovery");
-                AddInventoryRow(dataTable, "🖥️ Workload Analysis", "VMs with Checkpoints", inventory.WorkloadAnalysis.CheckpointedVMs.ToString(), inventory.WorkloadAnalysis.CheckpointedVMs > 5 ? "Warning" : "", 
-                    "VMs with snapshots. Many checkpoints can impact performance and storage.");
+                // Workload Analysis section - consolidated view
+                AddInventoryRow(dataTable, "🖥️ VM Workload", "Total VMs", inventory.WorkloadAnalysis.TotalVMs.ToString(), 
+                    $"Running: {inventory.WorkloadAnalysis.RunningVMs} | Stopped: {inventory.WorkloadAnalysis.StoppedVMs}", "", 
+                    "Summary of all virtual machines on this host");
+                
+                // Only show Paused/Saved if there are any
+                if (inventory.WorkloadAnalysis.PausedVMs > 0 || inventory.WorkloadAnalysis.SavedVMs > 0)
+                {
+                    AddInventoryRow(dataTable, "🖥️ VM Workload", "Other VM States", 
+                        $"Paused: {inventory.WorkloadAnalysis.PausedVMs} | Saved: {inventory.WorkloadAnalysis.SavedVMs}", 
+                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "⚠️ Paused VMs may indicate issues" : "", 
+                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "Warning" : "Info", 
+                        "VMs in paused or saved state. Paused VMs may indicate resource issues.");
+                }
+                
+                AddInventoryRow(dataTable, "🖥️ VM Workload", "VM Generations", 
+                    $"Gen 1: {inventory.WorkloadAnalysis.Generation1VMs} | Gen 2: {inventory.WorkloadAnalysis.Generation2VMs}", 
+                    $"Replicated: {inventory.WorkloadAnalysis.ReplicatedVMs} | With Checkpoints: {inventory.WorkloadAnalysis.CheckpointedVMs}", 
+                    inventory.WorkloadAnalysis.CheckpointedVMs > 5 ? "Warning" : "", 
+                    "Gen2 VMs offer better performance and security. Consider upgrading Gen1 VMs when possible.");
 
-                // Storage Information section
+                // Storage Information section - consolidated per drive
                 foreach (var storage in inventory.StorageInfo)
                 {
                     string driveStatus = storage.UsedPercent > 90 ? "Critical" : storage.UsedPercent > 75 ? "Warning" : "Good";
-                    string storageHelp = $"Storage on drive {storage.DriveLetter}. >90% usage can prevent snapshots and cause VM issues.";
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter} - Total (GB)", storage.TotalGB.ToString("F2"), "", storageHelp);
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter} - Used (GB)", storage.UsedGB.ToString("F2"), "", storageHelp);
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter} - Free (GB)", storage.FreeGB.ToString("F2"), driveStatus, storageHelp);
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter} - Used %", $"{storage.UsedPercent:F1}%", driveStatus, storageHelp);
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter} - VM Files", storage.VMFileCount.ToString(), "", 
-                        $"Number of VM disk files stored on drive {storage.DriveLetter}");
+                    string storageGuidance = storage.UsedPercent > 90 ? "⚠️ Critical - Clean up space immediately" :
+                                             storage.UsedPercent > 80 ? "⚡ High usage - Monitor closely" :
+                                             storage.UsedPercent > 70 ? "⚡ Growing - Plan for expansion" : "✅ Healthy";
+                    
+                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter}", 
+                        $"{storage.UsedGB:F1} GB / {storage.TotalGB:F1} GB ({storage.UsedPercent:F1}%)", 
+                        $"{storageGuidance} - Free: {storage.FreeGB:F1} GB | VM Files: {storage.VMFileCount}", 
+                        driveStatus, 
+                        $"Storage usage on drive {storage.DriveLetter}. >90% usage can cause VM performance issues and prevent snapshots.");
                 }
 
                 // Network Information section
                 foreach (var network in inventory.NetworkInfo)
                 {
-                    AddInventoryRow(dataTable, "🌐 Network", $"Adapter: {network.Name}", network.InterfaceDescription, "", 
-                        "Physical network adapter available for VM networking");
-
-                    // Warning if network adapter is not assigned to any virtual switch
                     string virtualSwitchStatus = network.VirtualSwitches == 0 ? "Warning" : "Good";
-                    AddInventoryRow(dataTable, "🌐 Network", $"{network.Name} - Virtual Switches",
-                        network.VirtualSwitches == 0
-                            ? "0 (Available for VM networks or NIC teaming)"
-                            : network.VirtualSwitches.ToString(),
-                        virtualSwitchStatus,
-                        "Unused adapters can be configured for additional VM networks or NIC teaming");
+                    string netGuidance = network.VirtualSwitches == 0 ? "⚠️ Unused adapter" : "✅ In use";
+                    
+                    AddInventoryRow(dataTable, "🌐 Network", network.Name, network.InterfaceDescription, 
+                        $"{netGuidance} - Virtual Switches: {network.VirtualSwitches}", 
+                        virtualSwitchStatus, 
+                        "Physical network adapter. Unused adapters can be configured for VM networking or failover.");
                 }
 
                 // Idle Resources section
                 int idleVMCount = inventory.IdleResources.IdleVMNames.Count;
                 int unusedAdapterCount = inventory.IdleResources.UnusedNetworkAdapterNames.Count;
 
-                AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs (>30 days off)", idleVMCount.ToString(), idleVMCount > 0 ? "Warning" : "Good", 
-                    "VMs powered off for >30 days. Consider removing to free storage and licensing.");
-                if (idleVMCount > 0 && idleVMCount <= 10)
+                if (idleVMCount > 0)
                 {
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VM Names", string.Join(", ", inventory.IdleResources.IdleVMNames), "Info", 
-                        "Review these VMs for potential deletion");
-                }
-                else if (idleVMCount > 10)
-                {
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VM Names", string.Join(", ", inventory.IdleResources.IdleVMNames.Take(10)) + $"... (+{idleVMCount - 10} more)", "Warning", 
-                        "Large number of idle VMs - review for cleanup");
+                    string idleVMList = idleVMCount <= 5 
+                        ? string.Join(", ", inventory.IdleResources.IdleVMNames) 
+                        : string.Join(", ", inventory.IdleResources.IdleVMNames.Take(5)) + $"... (+{idleVMCount - 5} more)";
+                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVMCount.ToString(), 
+                        $"⚠️ VMs stopped for >30 days: {idleVMList}", "Warning", 
+                        "VMs that have been powered off for over 30 days. These may be candidates for deletion to reclaim storage and licensing.");
                 }
 
-                AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Network Adapters", unusedAdapterCount.ToString(), unusedAdapterCount > 0 ? "Info" : "Good", 
-                    "Adapters not assigned to virtual switches");
                 if (unusedAdapterCount > 0)
                 {
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Adapter Names", string.Join(", ", inventory.IdleResources.UnusedNetworkAdapterNames), "Info", 
-                        "Available for VM networking or NIC teaming");
+                    string unusedAdapterList = string.Join(", ", inventory.IdleResources.UnusedNetworkAdapterNames);
+                    AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Network Adapters", unusedAdapterCount.ToString(), 
+                        $"💡 Available for VM networking or teaming: {unusedAdapterList}", "Info", 
+                        "Physical network adapters not assigned to virtual switches. Can be used for additional VM networks or NIC teaming.");
                 }
 
                 // Timestamp
-                AddInventoryRow(dataTable, "📅 Collection Info", "Data Collected At", inventory.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"), "", 
+                AddInventoryRow(dataTable, "📅 Collection Info", "Data Collected At", inventory.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"), 
+                    "", "", 
                     "Timestamp when this inventory data was collected");
 
                 // Bind to DataGridView
@@ -6278,13 +6281,15 @@ Notes:
                 if (datagridviewHealthOverview.Columns.Contains("Category"))
                     datagridviewHealthOverview.Columns["Category"].MinimumWidth = 150;
                 if (datagridviewHealthOverview.Columns.Contains("Property"))
-                    datagridviewHealthOverview.Columns["Property"].MinimumWidth = 200;
+                    datagridviewHealthOverview.Columns["Property"].MinimumWidth = 180;
                 if (datagridviewHealthOverview.Columns.Contains("Value"))
-                    datagridviewHealthOverview.Columns["Value"].MinimumWidth = 250;
+                    datagridviewHealthOverview.Columns["Value"].MinimumWidth = 200;
+                if (datagridviewHealthOverview.Columns.Contains("Details"))
+                    datagridviewHealthOverview.Columns["Details"].MinimumWidth = 300;
                 if (datagridviewHealthOverview.Columns.Contains("Status"))
                     datagridviewHealthOverview.Columns["Status"].MinimumWidth = 80;
                 if (datagridviewHealthOverview.Columns.Contains("Help"))
-                    datagridviewHealthOverview.Columns["Help"].MinimumWidth = 300;
+                    datagridviewHealthOverview.Columns["Help"].MinimumWidth = 350;
 
                 // Apply color coding based on Status column
                 ApplyHealthOverviewColorCoding();
@@ -6302,12 +6307,13 @@ Notes:
         /// <summary>
         /// Adds a row to the inventory DataTable
         /// </summary>
-        private void AddInventoryRow(DataTable dataTable, string category, string property, string value, string status, string help = "")
+        private void AddInventoryRow(DataTable dataTable, string category, string property, string value, string details, string status, string help = "")
         {
             var row = dataTable.NewRow();
             row["Category"] = category;
             row["Property"] = property;
             row["Value"] = value;
+            row["Details"] = details;
             row["Status"] = status;
             row["Help"] = help;
             dataTable.Rows.Add(row);
