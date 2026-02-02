@@ -18,7 +18,7 @@ namespace HVTools.Class
         public int ProcessorSockets { get; set; }
         public string NodeState { get; set; } = "Standalone";
         public string ClusterName { get; set; } = "N/A";
-        public double TotalMemoryGB { get; set; }
+        public double TotalMemoryGb { get; set; }
         public string VirtualHardDiskPath { get; set; } = "";
         public string VirtualMachinePath { get; set; } = "";
         public bool EnableEnhancedSessionMode { get; set; }
@@ -48,10 +48,10 @@ namespace HVTools.Class
     /// </summary>
     public class ResourceAllocationInfo
     {
-        public int TotalVMProcessors { get; set; }
-        public long TotalVMMemoryMB { get; set; }
-        public long TotalVMStartupMemoryMB { get; set; }
-        public double CPUOvercommitRatio { get; set; }
+        public int TotalVmProcessors { get; set; }
+        public long TotalVmMemoryMb { get; set; }
+        public long TotalVmStartupMemoryMb { get; set; }
+        public double CpuOvercommitRatio { get; set; }
         public double MemoryOvercommitRatio { get; set; }
     }
 
@@ -61,11 +61,11 @@ namespace HVTools.Class
     public class StorageDriveInfo
     {
         public string DriveLetter { get; set; } = "";
-        public double TotalGB { get; set; }
-        public double UsedGB { get; set; }
-        public double FreeGB { get; set; }
+        public double TotalGb { get; set; }
+        public double UsedGb { get; set; }
+        public double FreeGb { get; set; }
         public double UsedPercent { get; set; }
-        public int VMFileCount { get; set; }
+        public int VmFileCount { get; set; }
     }
 
     /// <summary>
@@ -83,8 +83,8 @@ namespace HVTools.Class
     /// </summary>
     public class PerformanceDataInfo
     {
-        public double CPUUsagePercent { get; set; }
-        public double AvailableMemoryMB { get; set; }
+        public double CpuUsagePercent { get; set; }
+        public double AvailableMemoryMb { get; set; }
         public double MemoryUsagePercent { get; set; }
         public bool DataAvailable { get; set; } = true;
     }
@@ -110,8 +110,8 @@ namespace HVTools.Class
     /// </summary>
     public class IdleResourcesInfo
     {
-        public List<string> IdleVMNames { get; set; } = [];
-        public List<string> LowUtilizationVMNames { get; set; } = [];
+        public List<string> IdleVmNames { get; set; } = [];
+        public List<string> LowUtilizationVmNames { get; set; } = [];
         public List<string> UnusedNetworkAdapterNames { get; set; } = [];
     }
 
@@ -274,7 +274,10 @@ namespace HVTools.Class
                             File.Delete(tempScriptPath);
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
             catch (Exception ex)
@@ -380,7 +383,7 @@ namespace HVTools.Class
                         ProcessorSockets = GetJsonInt(hostInfoElement, "ProcessorSockets"),
                         NodeState = GetJsonString(hostInfoElement, "NodeState"),
                         ClusterName = GetJsonString(hostInfoElement, "ClusterName"),
-                        TotalMemoryGB = GetJsonDouble(hostInfoElement, "TotalMemoryGB"),
+                        TotalMemoryGb = GetJsonDouble(hostInfoElement, "TotalMemoryGB"),
                         VirtualHardDiskPath = GetJsonString(hostInfoElement, "VirtualHardDiskPath"),
                         VirtualMachinePath = GetJsonString(hostInfoElement, "VirtualMachinePath"),
                         EnableEnhancedSessionMode = GetJsonBool(hostInfoElement, "EnableEnhancedSessionMode"),
@@ -440,10 +443,10 @@ namespace HVTools.Class
                 {
                     health.ResourceAllocation = new ResourceAllocationInfo
                     {
-                        TotalVMProcessors = GetJsonInt(resourceElement, "TotalVMProcessors"),
-                        TotalVMMemoryMB = GetJsonLong(resourceElement, "TotalVMMemoryMB"),
-                        TotalVMStartupMemoryMB = GetJsonLong(resourceElement, "TotalVMStartupMemoryMB"),
-                        CPUOvercommitRatio = GetJsonDouble(resourceElement, "CPUOvercommitRatio"),
+                        TotalVmProcessors = GetJsonInt(resourceElement, "TotalVMProcessors"),
+                        TotalVmMemoryMb = GetJsonLong(resourceElement, "TotalVMMemoryMB"),
+                        TotalVmStartupMemoryMb = GetJsonLong(resourceElement, "TotalVMStartupMemoryMB"),
+                        CpuOvercommitRatio = GetJsonDouble(resourceElement, "CPUOvercommitRatio"),
                         MemoryOvercommitRatio = GetJsonDouble(resourceElement, "MemoryOvercommitRatio")
                     };
                 }
@@ -457,11 +460,11 @@ namespace HVTools.Class
                         health.StorageInfo.Add(new StorageDriveInfo
                         {
                             DriveLetter = GetJsonString(driveElement, "DriveLetter"),
-                            TotalGB = GetJsonDouble(driveElement, "TotalGB"),
-                            UsedGB = GetJsonDouble(driveElement, "UsedGB"),
-                            FreeGB = GetJsonDouble(driveElement, "FreeGB"),
+                            TotalGb = GetJsonDouble(driveElement, "TotalGB"),
+                            UsedGb = GetJsonDouble(driveElement, "UsedGB"),
+                            FreeGb = GetJsonDouble(driveElement, "FreeGB"),
                             UsedPercent = GetJsonDouble(driveElement, "UsedPercent"),
-                            VMFileCount = GetJsonInt(driveElement, "VMFileCount")
+                            VmFileCount = GetJsonInt(driveElement, "VMFileCount")
                         });
                     }
                 }
@@ -495,8 +498,8 @@ namespace HVTools.Class
 
                     health.PerformanceData = new PerformanceDataInfo
                     {
-                        CPUUsagePercent = GetJsonDoubleOrDefault(perfElement, "CPUUsagePercent", 0),
-                        AvailableMemoryMB = GetJsonDoubleOrDefault(perfElement, "AvailableMemoryMB", 0),
+                        CpuUsagePercent = GetJsonDoubleOrDefault(perfElement, "CPUUsagePercent", 0),
+                        AvailableMemoryMb = GetJsonDoubleOrDefault(perfElement, "AvailableMemoryMB", 0),
                         MemoryUsagePercent = GetJsonDoubleOrDefault(perfElement, "MemoryUsagePercent", 0),
                         DataAvailable = dataAvailable
                     };
@@ -529,7 +532,7 @@ namespace HVTools.Class
                     {
                         foreach (var vm in idleVMs.EnumerateArray())
                         {
-                            health.IdleResources.IdleVMNames.Add(vm.GetString() ?? "");
+                            health.IdleResources.IdleVmNames.Add(vm.GetString() ?? "");
                         }
                     }
 
@@ -538,7 +541,7 @@ namespace HVTools.Class
                     {
                         foreach (var vm in lowUtilVMs.EnumerateArray())
                         {
-                            health.IdleResources.LowUtilizationVMNames.Add(vm.GetString() ?? "");
+                            health.IdleResources.LowUtilizationVmNames.Add(vm.GetString() ?? "");
                         }
                     }
 

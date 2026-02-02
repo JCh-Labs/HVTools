@@ -6052,7 +6052,7 @@ Notes:
                             // Update status with summary
                             int totalVMs = inventory.WorkloadAnalysis.TotalVMs;
                             int runningVMs = inventory.WorkloadAnalysis.RunningVMs;
-                            double cpuOvercommit = inventory.ResourceAllocation.CPUOvercommitRatio;
+                            double cpuOvercommit = inventory.ResourceAllocation.CpuOvercommitRatio;
                             double memOvercommit = inventory.ResourceAllocation.MemoryOvercommitRatio;
 
                             toolStripStatusLabelTextMainForm.Text = $"Health inventory loaded - VMs: {totalVMs} ({runningVMs} running), CPU Overcommit: {cpuOvercommit:F2}:1, Memory Overcommit: {memOvercommit:F2}:1";
@@ -6406,21 +6406,21 @@ Notes:
                 }
 
                 // Resource Allocation section
-                double memoryAllocatedGB = inventory.ResourceAllocation.TotalVMMemoryMB / 1024.0;
-                string cpuGuidance = inventory.ResourceAllocation.CPUOvercommitRatio > 4 ? "⚠️ High overcommit" : 
-                                     inventory.ResourceAllocation.CPUOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
+                double memoryAllocatedGB = inventory.ResourceAllocation.TotalVmMemoryMb / 1024.0;
+                string cpuGuidance = inventory.ResourceAllocation.CpuOvercommitRatio > 4 ? "⚠️ High overcommit" : 
+                                     inventory.ResourceAllocation.CpuOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
                 string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" : 
                                      inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
                 
                 // Show resource context (note if cluster - data is from current node only)
                 string resourceContext = isCluster ? " (Current Node)" : "";
                 AddInventoryRow(dataTable, "📊 Resource Allocation", $"Physical Resources{resourceContext}", 
-                    $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGB:F1} GB RAM", 
+                    $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGb:F1} GB RAM", 
                     $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "", 
                     isCluster ? "Physical resources on the current connected node only" : "Physical CPU cores and RAM available on this host");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVMProcessors} vCPUs", 
-                    $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CPUOvercommitRatio:F2}:1", 
-                    GetOvercommitStatus(inventory.ResourceAllocation.CPUOvercommitRatio, "cpu"), 
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVmProcessors} vCPUs", 
+                    $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1", 
+                    GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"), 
                     "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
                 AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGB:F1} GB", 
                     $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1", 
@@ -6430,18 +6430,18 @@ Notes:
                 // Performance Data section
                 if (inventory.PerformanceData.DataAvailable)
                 {
-                    string cpuStatus = inventory.PerformanceData.CPUUsagePercent > 80 ? "⚠️ High" : 
-                                       inventory.PerformanceData.CPUUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
+                    string cpuStatus = inventory.PerformanceData.CpuUsagePercent > 80 ? "⚠️ High" : 
+                                       inventory.PerformanceData.CpuUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
                     string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" : 
                                        inventory.PerformanceData.MemoryUsagePercent > 70 ? "⚡ Moderate" : "✅ Normal";
                     
                     
-                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CPUUsagePercent:F1}%", 
+                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%", 
                         $"{cpuStatus} usage level", 
-                        GetPerformanceStatus(inventory.PerformanceData.CPUUsagePercent, "cpu"), 
+                        GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"), 
                         "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
                     AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%", 
-                        $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMB:F0} MB", 
+                        $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB", 
                         GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"), 
                         "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
                 }
@@ -6482,8 +6482,8 @@ Notes:
                                              storage.UsedPercent > 70 ? "⚡ Growing - Plan for expansion" : "✅ Healthy";
                     
                     AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter}", 
-                        $"{storage.UsedGB:F1} GB / {storage.TotalGB:F1} GB ({storage.UsedPercent:F1}%)", 
-                        $"{storageGuidance} - Free: {storage.FreeGB:F1} GB | VM Files: {storage.VMFileCount}", 
+                        $"{storage.UsedGb:F1} GB / {storage.TotalGb:F1} GB ({storage.UsedPercent:F1}%)", 
+                        $"{storageGuidance} - Free: {storage.FreeGb:F1} GB | VM Files: {storage.VmFileCount}", 
                         driveStatus, 
                         $"Storage usage on drive {storage.DriveLetter}. >90% usage can cause VM performance issues and prevent snapshots.");
                 }
@@ -6501,14 +6501,14 @@ Notes:
                 }
 
                 // Idle Resources section
-                int idleVMCount = inventory.IdleResources.IdleVMNames.Count;
+                int idleVMCount = inventory.IdleResources.IdleVmNames.Count;
                 int unusedAdapterCount = inventory.IdleResources.UnusedNetworkAdapterNames.Count;
 
                 if (idleVMCount > 0)
                 {
                     string idleVMList = idleVMCount <= 5 
-                        ? string.Join(", ", inventory.IdleResources.IdleVMNames) 
-                        : string.Join(", ", inventory.IdleResources.IdleVMNames.Take(5)) + $"... (+{idleVMCount - 5} more)";
+                        ? string.Join(", ", inventory.IdleResources.IdleVmNames) 
+                        : string.Join(", ", inventory.IdleResources.IdleVmNames.Take(5)) + $"... (+{idleVMCount - 5} more)";
                     AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVMCount.ToString(), 
                         $"⚠️ VMs stopped for >30 days: {idleVMList}", "Warning", 
                         "VMs that have been powered off for over 30 days. These may be candidates for deletion to reclaim storage and licensing.");
