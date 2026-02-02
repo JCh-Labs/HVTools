@@ -563,10 +563,10 @@ namespace HVTools.Class
                         health.Timestamp = timestamp;
                     }
                 }
-
+#if DEBUG
                 FileLogger.Message($"Successfully parsed JSON health for '{health.HostInfo.ComputerName}'",
                     FileLogger.EventType.Information, 7031);
-
+#endif
                 return health;
             }
             catch (Exception ex)

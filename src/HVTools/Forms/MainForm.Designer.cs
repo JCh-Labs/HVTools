@@ -831,9 +831,9 @@
             comboBoxClusterNodeSelector.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             comboBoxClusterNodeSelector.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxClusterNodeSelector.FormattingEnabled = true;
-            comboBoxClusterNodeSelector.Location = new Point(1004, 6);
+            comboBoxClusterNodeSelector.Location = new Point(983, 6);
             comboBoxClusterNodeSelector.Name = "comboBoxClusterNodeSelector";
-            comboBoxClusterNodeSelector.Size = new Size(200, 23);
+            comboBoxClusterNodeSelector.Size = new Size(222, 23);
             comboBoxClusterNodeSelector.TabIndex = 12;
             comboBoxClusterNodeSelector.Visible = false;
             comboBoxClusterNodeSelector.SelectedIndexChanged += comboBoxClusterNodeSelector_SelectedIndexChanged;
@@ -843,7 +843,7 @@
             labelClusterNodeSelector.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             labelClusterNodeSelector.AutoSize = true;
             labelClusterNodeSelector.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            labelClusterNodeSelector.Location = new Point(904, 10);
+            labelClusterNodeSelector.Location = new Point(883, 10);
             labelClusterNodeSelector.Name = "labelClusterNodeSelector";
             labelClusterNodeSelector.Size = new Size(96, 15);
             labelClusterNodeSelector.TabIndex = 11;

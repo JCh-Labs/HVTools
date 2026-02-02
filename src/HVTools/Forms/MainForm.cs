@@ -18,6 +18,7 @@ namespace HVTools.Forms
         // Store current health inventory for node switching
         private HostHealthInfo? _currentHealthInventory = null;
         private bool _isLoadingNodeData = false;
+        private string? _currentlyDisplayedNodeName = null; // Track which node's data is displayed
 
         public MainForm()
         {
@@ -6040,6 +6041,9 @@ Notes:
                             // Store inventory for potential node switching
                             _currentHealthInventory = inventory;
                             
+                            // Track which node's data we're displaying
+                            _currentlyDisplayedNodeName = inventory.HostInfo.ComputerName;
+                            
                             Message($"Retrieved host inventory for '{inventory.HostInfo.ComputerName}', updating DataGridView",
                                 EventType.Information, 7103);
 
@@ -6128,7 +6132,7 @@ Notes:
                     foreach (var node in inventory.HostInfo.ClusterNodes)
                     {
                         string displayText = node.IsCurrentNode 
-                            ? $"➤ {node.Name} ({node.State}) - Current" 
+                            ? $"➤ {node.Name} ({node.State}) - Current connection" 
                             : $"{node.Name} ({node.State})";
                         comboBoxClusterNodeSelector.Items.Add(new ClusterNodeComboItem(node.Name, node.Fqdn, displayText, node.IsCurrentNode));
                         
@@ -6172,20 +6176,25 @@ Notes:
             if (selectedItem == null)
                 return;
 
-            // If clicking the current node, no need to reload
-            if (selectedItem.IsCurrentNode)
+            // Check if we're already displaying this node's data (by comparing node names)
+            bool isAlreadyDisplayed = !string.IsNullOrEmpty(_currentlyDisplayedNodeName) &&
+                                      _currentlyDisplayedNodeName.Equals(selectedItem.NodeName, StringComparison.OrdinalIgnoreCase);
+            
+            if (isAlreadyDisplayed)
             {
-                Message($"Already viewing data from current node: {selectedItem.NodeName}",
+                Message($"Already viewing data from node: {selectedItem.NodeName}",
                     EventType.Information, 7122);
                 return;
             }
 
             // Show message about switching nodes
             var result = MessageBox.Show(
-                $"Switch to view health data from node '{selectedItem.NodeName}'?\n\n" +
-                "Note: This will execute a remote PowerShell connection to the selected node to gather its health data. " +
-                "The current connection will remain on the original node.",
-                "Switch Cluster Node View",
+                $@"Switch to view health data from node '{selectedItem.NodeName}'?
+
+" +
+                @"Note: This will execute a remote PowerShell connection to the selected node to gather its health data. " +
+                @"The current connection will remain on the original node.",
+                @"Switch Cluster Node View",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -6195,15 +6204,16 @@ Notes:
                 string connectionName = !string.IsNullOrEmpty(selectedItem.NodeFqdn) 
                     ? selectedItem.NodeFqdn 
                     : selectedItem.NodeName;
-                LoadHealthDataFromNode(connectionName);
+                LoadHealthDataFromNode(connectionName, selectedItem.NodeName);
             }
             else
             {
-                // Reset selection to current node
+                // Reset selection to the currently displayed node
                 _isLoadingNodeData = true;
                 for (int i = 0; i < comboBoxClusterNodeSelector.Items.Count; i++)
                 {
-                    if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && item.IsCurrentNode)
+                    if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && 
+                        item.NodeName.Equals(_currentlyDisplayedNodeName, StringComparison.OrdinalIgnoreCase))
                     {
                         comboBoxClusterNodeSelector.SelectedIndex = i;
                         break;
@@ -6213,28 +6223,34 @@ Notes:
             }
         }
 
-
         /// <summary>
         /// Loads health data from a specific cluster node
         /// </summary>
-        private void LoadHealthDataFromNode(string nodeName)
+        /// <param name="connectionName">The FQDN or connection string to use for the remote connection</param>
+        /// <param name="shortNodeName">The short node name for display and tracking (optional, extracted from connectionName if not provided)</param>
+        private void LoadHealthDataFromNode(string connectionName, string? shortNodeName = null)
         {
+            // Extract short name from connection name if not provided
+            shortNodeName ??= connectionName.Contains('.') 
+                ? connectionName[..connectionName.IndexOf('.')] 
+                : connectionName;
+            
             try
             {
-                Message($"User requested health data from cluster node: {nodeName}",
+                Message($"User requested health data from cluster node: {shortNodeName} (connection: {connectionName})",
                     EventType.Information, 7123);
 
-                toolStripStatusLabelTextMainForm.Text = $"Loading health data from node '{nodeName}'...";
+                toolStripStatusLabelTextMainForm.Text = $@"Loading health data from node '{shortNodeName}'...";
 
                 // Execute with progress form
                 ExecuteWithProgressForm<HostHealthInfo?>(() =>
                 {
-                    // Execute the inventory script on the specific node
-                    Message($"Executing inventory script on node '{nodeName}'...",
+                    // Execute the health script on the specific node
+                    Message($"Executing health script on node '{connectionName}'...",
                         EventType.Information, 7124);
 
                     return HostHealth.GetHyperVHostHealth(
-                        cmd => ExecutePowerShellCommandOnNode(nodeName, cmd),
+                        cmd => ExecutePowerShellCommandOnNode(connectionName, cmd),
                         (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd),
                         includeDetailedVMs: true);
 
@@ -6244,8 +6260,11 @@ Notes:
                     {
                         if (inventory != null)
                         {
-                            Message($"Retrieved health inventory from node '{nodeName}'",
+                            Message($"Retrieved health inventory from node '{shortNodeName}'",
                                 EventType.Information, 7125);
+
+                            // Track which node's data we're now displaying
+                            _currentlyDisplayedNodeName = inventory.HostInfo.ComputerName;
 
                             // Update the DataGridView with data from the selected node
                             UpdateHealthOverviewDataGridView(inventory);
@@ -6254,26 +6273,29 @@ Notes:
                             int totalVMs = inventory.WorkloadAnalysis.TotalVMs;
                             int runningVMs = inventory.WorkloadAnalysis.RunningVMs;
                             
-                            toolStripStatusLabelTextMainForm.Text = $"Health data from '{nodeName}' - VMs: {totalVMs} ({runningVMs} running)";
+                            toolStripStatusLabelTextMainForm.Text = $@"Health data from '{shortNodeName}' - VMs: {totalVMs} ({runningVMs} running)";
                         }
                         else
                         {
-                            Message($"Failed to retrieve health data from node '{nodeName}'",
+                            Message($"Failed to retrieve health data from node '{shortNodeName}'",
                                 EventType.Warning, 7126);
 
-                            MessageBox.Show($"Could not retrieve health data from node '{nodeName}'.\n\n" +
-                                "The node may be offline or inaccessible.",
-                                "Node Data Unavailable",
+                            MessageBox.Show($@"Could not retrieve health data from node '{shortNodeName}'.
+
+" +
+                                @"The node may be offline or inaccessible.",
+                                @"Node Data Unavailable",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
 
-                            toolStripStatusLabelTextMainForm.Text = $"Failed to load data from '{nodeName}'";
+                            toolStripStatusLabelTextMainForm.Text = $@"Failed to load data from '{shortNodeName}'";
 
-                            // Reset selection to current node
+                            // Reset selection to the currently displayed node
                             _isLoadingNodeData = true;
                             for (int i = 0; i < comboBoxClusterNodeSelector.Items.Count; i++)
                             {
-                                if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && item.IsCurrentNode)
+                                if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && 
+                                    item.NodeName.Equals(_currentlyDisplayedNodeName, StringComparison.OrdinalIgnoreCase))
                                 {
                                     comboBoxClusterNodeSelector.SelectedIndex = i;
                                     break;
@@ -6284,18 +6306,18 @@ Notes:
                     }
                     catch (Exception ex)
                     {
-                        Message($"Error processing health data from node '{nodeName}': {ex.Message}",
+                        Message($"Error processing health data from node '{shortNodeName}': {ex.Message}",
                             EventType.Error, 7127);
                     }
 
-                }, $"Loading health data from {nodeName}");
+                }, $"Loading health data from {shortNodeName}");
             }
             catch (Exception ex)
             {
-                Message($"Error loading health data from node '{nodeName}': {ex.Message}",
+                Message($"Error loading health data from node '{shortNodeName}': {ex.Message}",
                     EventType.Error, 7128);
 
-                toolStripStatusLabelTextMainForm.Text = $"Error loading data from '{nodeName}'";
+                toolStripStatusLabelTextMainForm.Text = $@"Error loading data from '{shortNodeName}'";
             }
         }
 
