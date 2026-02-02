@@ -49,7 +49,6 @@
             Controls.Add(ProgressBar);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "ValidationProgressForm";
-            ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
             Text = "Loading data, please wait...";
             TopMost = true;

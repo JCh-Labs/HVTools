@@ -171,14 +171,14 @@ namespace HVTools.Class
                     // For local execution, use Windows PowerShell process for full WMI support
                     FileLogger.Message("Using Windows PowerShell process for local health collection...",
                         FileLogger.EventType.Information, 7003);
-                    health = GetHealthViaWindowsPowerShell(includeDetailedVMs);
+                    health = GetHealthViaWindowsPowerShell();
                 }
                 else
                 {
                     // For remote, use embedded PowerShell with Invoke-Command
                     FileLogger.Message("Executing health script via remote PowerShell...",
                         FileLogger.EventType.Information, 7004);
-                    health = GetHealthViaRemote(executePowerShellCommand, includeDetailedVMs);
+                    health = GetHealthViaRemote(executePowerShellCommand);
                 }
 
                 if (health != null)
@@ -207,11 +207,11 @@ namespace HVTools.Class
         /// <summary>
         /// Gets health via Windows PowerShell process (for local execution)
         /// </summary>
-        private static HostHealthInfo? GetHealthViaWindowsPowerShell(bool includeDetailedVMs)
+        private static HostHealthInfo? GetHealthViaWindowsPowerShell()
         {
             try
             {
-                string script = GetHealthScript(includeDetailedVMs);
+                string script = GetHealthScript();
 
                 // Create a temporary script file
                 string tempScriptPath = Path.Combine(Path.GetTempPath(), $"HVTools_Health_{Guid.NewGuid():N}.ps1");
@@ -292,13 +292,12 @@ namespace HVTools.Class
         /// Gets health via remote PowerShell execution
         /// </summary>
         private static HostHealthInfo? GetHealthViaRemote(
-            Func<string, System.Collections.ObjectModel.Collection<PSObject>?> executePowerShellCommand,
-            bool includeDetailedVMs)
+            Func<string, System.Collections.ObjectModel.Collection<PSObject>?> executePowerShellCommand)
         {
             try
             {
                 // Use the same JSON-outputting script as local, so we get consistent data format
-                string script = GetHealthScript(includeDetailedVMs);
+                string script = GetHealthScript();
                 var result = executePowerShellCommand(script);
 
                 if (result == null || result.Count == 0)
@@ -318,7 +317,6 @@ namespace HVTools.Class
                 // Collect all output lines (JSON may be split across multiple results)
                 foreach (var item in result)
                 {
-                    if (item != null)
                     {
                         string itemStr = item.BaseObject?.ToString() ?? item.ToString();
                         if (!string.IsNullOrWhiteSpace(itemStr))
@@ -773,7 +771,7 @@ namespace HVTools.Class
         /// <summary>
         /// Gets the PowerShell script for local Windows PowerShell execution (outputs JSON)
         /// </summary>
-        private static string GetHealthScript(bool includeDetailedVMs)
+        private static string GetHealthScript()
         {
             return $@"
 $ErrorActionPreference = 'SilentlyContinue'

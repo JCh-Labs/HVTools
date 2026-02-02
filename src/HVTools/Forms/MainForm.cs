@@ -519,9 +519,9 @@ namespace HVTools.Forms
                 progressForm.Show(this);
                 progressForm.Refresh();
                 Application.DoEvents();
-
+#if DEBUG
                 Message($"Starting background operation: {operationName}", EventType.Information, 6006);
-
+#endif
                 T result = default;
                 Exception taskException = null;
 
@@ -2975,7 +2975,7 @@ namespace HVTools.Forms
                 string getDetailedVMsScript = @"
                     $vmList = Get-VM -ErrorAction SilentlyContinue
                     foreach ($vm in $vmList) {
-                        # Get all detailed properties
+# Get all detailed properties
                         $vmProcessor = Get-VMProcessor -VMName $vm.Name -ErrorAction SilentlyContinue
                         $vmMemory = Get-VMMemory -VMName $vm.Name -ErrorAction SilentlyContinue
                         $vmNetworkAdapters = @(Get-VMNetworkAdapter -VMName $vm.Name -ErrorAction SilentlyContinue)
@@ -2983,7 +2983,7 @@ namespace HVTools.Forms
                         $vmCheckpoints = @(Get-VMSnapshot -VMName $vm.Name -ErrorAction SilentlyContinue)
                         $vmIntegrationServices = @(Get-VMIntegrationService -VMName $vm.Name -ErrorAction SilentlyContinue)
 
-                        # Calculate total disk size
+# Calculate total disk size
                         $totalDiskSizeGB = 0
                         foreach ($drive in $vmHardDrives) {
                             if ($drive.Path -and (Test-Path $drive.Path -ErrorAction SilentlyContinue)) {
@@ -2994,7 +2994,7 @@ namespace HVTools.Forms
                             }
                         }
 
-                        # Format integration services
+# Format integration services
                         $enabledServices = @()
                         $totalServiceCount = 0
                         foreach ($svc in $vmIntegrationServices) {
@@ -3012,7 +3012,7 @@ namespace HVTools.Forms
                             }
                         } else { 'No services' }
 
-                        # Create custom object with all details
+# Create custom object with all details
                         [PSCustomObject]@{
                             Name = $vm.Name
                             VMId = $vm.VMId
@@ -5229,7 +5229,7 @@ Would you like to open the file location?",
                     $vms = Get-VM
                     
                     if (-not $vms) {
-                        # No VMs found, return empty
+# No VMs found, return empty
                         return
                     }
                     
@@ -5238,12 +5238,12 @@ Would you like to open the file location?",
                             $checkpoints = Get-VMSnapshot -VMName $vm.Name -ErrorAction SilentlyContinue
                             
                             if (-not $checkpoints) {
-                                # No checkpoints for this VM
+# No checkpoints for this VM
                                 continue
                             }
                             
                             foreach ($checkpoint in $checkpoints) {
-                                # Get checkpoint file size if available
+# Get checkpoint file size if available
                                 $sizeBytes = 0
                                 try {
                                     if ($checkpoint.Path -and (Test-Path $checkpoint.Path -ErrorAction SilentlyContinue)) {
@@ -5256,24 +5256,24 @@ Would you like to open the file location?",
                                         }
                                     }
                                 } catch {
-                                    # Silently continue if size calculation fails
+# Silently continue if size calculation fails
                                     $sizeBytes = 0
                                 }
                                 
-                                # Count complex arrays
+# Count complex arrays
                                 $hardDrivesCount = if ($checkpoint.HardDrives) { @($checkpoint.HardDrives).Count } else { 0 }
                                 $networkAdaptersCount = if ($checkpoint.NetworkAdapters) { @($checkpoint.NetworkAdapters).Count } else { 0 }
                                 $dvdDrivesCount = if ($checkpoint.DVDDrives) { @($checkpoint.DVDDrives).Count } else { 0 }
 
-                                # Output the object with ALL detailed properties from Get-VMSnapshot
+# Output the object with ALL detailed properties from Get-VMSnapshot
                                 [PSCustomObject]@{
-                                    # VM Information
+# VM Information
                                     VMName = $vm.Name
                                     VMId = $vm.VMId
                                     VMState = $vm.State
                                     VMGeneration = $vm.Generation
                                     
-                                    # Checkpoint Basic Information
+# Checkpoint Basic Information
                                     CheckpointName = $checkpoint.Name
                                     CheckpointId = $checkpoint.Id
                                     CheckpointType = if ($checkpoint.PSObject.Properties['CheckpointType']) { $checkpoint.CheckpointType } else { $checkpoint.SnapshotType }
@@ -5282,53 +5282,53 @@ Would you like to open the file location?",
                                     State = if ($checkpoint.PSObject.Properties['State']) { $checkpoint.State } else { 'Unknown' }
                                     CreationTime = $checkpoint.CreationTime
                                     
-                                    # Hierarchy
+# Hierarchy
                                     ParentCheckpointName = $checkpoint.ParentSnapshotName
                                     ParentCheckpointId = $checkpoint.ParentSnapshotId
                                     
-                                    # Storage
+# Storage
                                     Path = $checkpoint.Path
                                     SizeBytes = $sizeBytes
                                     SizeOfSystemFiles = if ($checkpoint.PSObject.Properties['SizeOfSystemFiles']) { $checkpoint.SizeOfSystemFiles } else { 0 }
                                     
-                                    # Version
+# Version
                                     Version = if ($checkpoint.PSObject.Properties['Version']) { $checkpoint.Version } else { 'N/A' }
                                     
-                                    # Notes
+# Notes
                                     Notes = $checkpoint.Notes
                                     
-                                    # Processor Configuration
+# Processor Configuration
                                     ProcessorCount = if ($checkpoint.PSObject.Properties['ProcessorCount']) { $checkpoint.ProcessorCount } else { 0 }
                                     
-                                    # Memory Configuration
+# Memory Configuration
                                     MemoryStartup = if ($checkpoint.PSObject.Properties['MemoryStartup']) { $checkpoint.MemoryStartup } else { 0 }
                                     MemoryMinimum = if ($checkpoint.PSObject.Properties['MemoryMinimum']) { $checkpoint.MemoryMinimum } else { 0 }
                                     MemoryMaximum = if ($checkpoint.PSObject.Properties['MemoryMaximum']) { $checkpoint.MemoryMaximum } else { 0 }
                                     DynamicMemoryEnabled = if ($checkpoint.PSObject.Properties['DynamicMemoryEnabled']) { $checkpoint.DynamicMemoryEnabled } else { $false }
                                     
-                                    # Hardware Configuration
+# Hardware Configuration
                                     HardDrivesCount = $hardDrivesCount
                                     NetworkAdaptersCount = $networkAdaptersCount
                                     DVDDrivesCount = $dvdDrivesCount
                                     
-                                    # Advanced Properties
+# Advanced Properties
                                     BatteryPassthroughEnabled = if ($checkpoint.PSObject.Properties['BatteryPassthroughEnabled']) { $checkpoint.BatteryPassthroughEnabled } else { $false }
                                     IsClustered = if ($checkpoint.PSObject.Properties['IsClustered']) { $checkpoint.IsClustered } else { $false }
                                     IsDeleted = if ($checkpoint.PSObject.Properties['IsDeleted']) { $checkpoint.IsDeleted } else { $false }
                                     LockOnDisconnect = if ($checkpoint.PSObject.Properties['LockOnDisconnect']) { $checkpoint.LockOnDisconnect } else { 'Off' }
                                     
-                                    # Memory Mapped IO (Advanced)
+# Memory Mapped IO (Advanced)
                                     LowMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['LowMemoryMappedIoSpace']) { $checkpoint.LowMemoryMappedIoSpace } else { 0 }
                                     HighMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoSpace']) { $checkpoint.HighMemoryMappedIoSpace } else { 0 }
                                     HighMemoryMappedIoBaseAddress = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoBaseAddress']) { $checkpoint.HighMemoryMappedIoBaseAddress } else { 0 }
                                     GuestControlledCacheTypes = if ($checkpoint.PSObject.Properties['GuestControlledCacheTypes']) { $checkpoint.GuestControlledCacheTypes } else { $false }
                                     
-                                    # Host Information
+# Host Information
                                     ComputerName = $env:COMPUTERNAME
                                 }
                             }
                         } catch {
-                            # Skip VMs that error
+# Skip VMs that error
                             continue
                         }
                     }
@@ -6132,7 +6132,7 @@ Notes:
                     foreach (var node in inventory.HostInfo.ClusterNodes)
                     {
                         string displayText = node.IsCurrentNode 
-                            ? $"➤ {node.Name} ({node.State}) - Current connection" 
+                            ? $"➤ {node.Name} ({node.State}) - Current session" 
                             : $"{node.Name} ({node.State})";
                         comboBoxClusterNodeSelector.Items.Add(new ClusterNodeComboItem(node.Name, node.Fqdn, displayText, node.IsCurrentNode));
                         
