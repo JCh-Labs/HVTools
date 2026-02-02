@@ -16,7 +16,7 @@ namespace HVTools.Forms
         private bool _exitConfirmed = false;
         
         // Store current health inventory for node switching
-        private HostInventoryInfo? _currentHealthInventory = null;
+        private HostHealthInfo? _currentHealthInventory = null;
         private bool _isLoadingNodeData = false;
 
         public MainForm()
@@ -6018,13 +6018,14 @@ Notes:
                     EventType.Information, 7101);
 
                 // Execute with progress form
-                ExecuteWithProgressForm<HostInventoryInfo?>(() =>
+                ExecuteWithProgressForm<HostHealthInfo?>(() =>
                 {
+#if DEBUG
                     // Get host inventory (runs in background thread)
                     Message("Calling HostInventory.GetHyperVHostInventory...",
                         EventType.Information, 7102);
-
-                    return HostInventory.GetHyperVHostInventory(
+#endif
+                    return HostHealth.GetHyperVHostHealth(
                         cmd => ExecutePowerShellCommand(cmd),
                         (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd),
                         includeDetailedVMs: true);
@@ -6104,7 +6105,7 @@ Notes:
         /// <summary>
         /// Updates the cluster node selector dropdown for cluster environments
         /// </summary>
-        private void UpdateClusterNodeSelector(HostInventoryInfo inventory)
+        private void UpdateClusterNodeSelector(HostHealthInfo inventory)
         {
             try
             {
@@ -6226,13 +6227,13 @@ Notes:
                 toolStripStatusLabelTextMainForm.Text = $"Loading health data from node '{nodeName}'...";
 
                 // Execute with progress form
-                ExecuteWithProgressForm<HostInventoryInfo?>(() =>
+                ExecuteWithProgressForm<HostHealthInfo?>(() =>
                 {
                     // Execute the inventory script on the specific node
                     Message($"Executing inventory script on node '{nodeName}'...",
                         EventType.Information, 7124);
 
-                    return HostInventory.GetHyperVHostInventory(
+                    return HostHealth.GetHyperVHostHealth(
                         cmd => ExecutePowerShellCommandOnNode(nodeName, cmd),
                         (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd),
                         includeDetailedVMs: true);
@@ -6323,7 +6324,7 @@ Notes:
         /// <summary>
         /// Updates the datagridviewHealthOverview DataGridView with host inventory details
         /// </summary>
-        private void UpdateHealthOverviewDataGridView(HostInventoryInfo inventory)
+        private void UpdateHealthOverviewDataGridView(HostHealthInfo inventory)
         {
             try
             {
@@ -6555,9 +6556,10 @@ Notes:
 
                 // Apply color coding based on Status column
                 ApplyHealthOverviewColorCoding();
-
+#if DEBUG
                 Message($"datagridviewHealthOverview updated successfully",
                     EventType.Information, 7113);
+#endif
             }
             catch (Exception ex)
             {

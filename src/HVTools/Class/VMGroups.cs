@@ -187,9 +187,10 @@ namespace HVTools.Class
 
                         // Process Group Members array
                         var groupMembersProperty = result.Properties["GroupMembers"]?.Value;
+#if DEBUG
                         FileLogger.Message($"Group Members property type for group '{groupInfo.Name}': {groupMembersProperty?.GetType().FullName ?? "null"}",
                             FileLogger.EventType.Information, 2076);
-                        
+#endif
                         if (groupMembersProperty != null)
                         {
                             // Unwrap PSObject if needed

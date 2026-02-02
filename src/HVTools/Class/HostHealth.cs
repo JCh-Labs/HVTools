@@ -6,9 +6,9 @@ namespace HVTools.Class
     #region Data Models
 
     /// <summary>
-    /// Represents host information from the inventory
+    /// Represents host information from the health
     /// </summary>
-    public class HostInventoryHostInfo
+    public class HostHealthHostInfo
     {
         public string ComputerName { get; set; } = "";
         public string FullyQualifiedDomainName { get; set; } = "";
@@ -116,11 +116,11 @@ namespace HVTools.Class
     }
 
     /// <summary>
-    /// Complete host inventory information
+    /// Complete host health information
     /// </summary>
-    public class HostInventoryInfo
+    public class HostHealthInfo
     {
-        public HostInventoryHostInfo HostInfo { get; set; } = new();
+        public HostHealthHostInfo HostInfo { get; set; } = new();
         public ResourceAllocationInfo ResourceAllocation { get; set; } = new();
         public List<StorageDriveInfo> StorageInfo { get; set; } = [];
         public List<NetworkAdapterInfo> NetworkInfo { get; set; } = [];
@@ -133,18 +133,18 @@ namespace HVTools.Class
     #endregion
 
     /// <summary>
-    /// Provides functionality to retrieve comprehensive Hyper-V host inventory
+    /// Provides functionality to retrieve comprehensive Hyper-V host health
     /// </summary>
-    public static class HostInventory
+    public static class HostHealth
     {
         /// <summary>
-        /// Gets comprehensive host inventory information
+        /// Gets comprehensive host health information
         /// </summary>
         /// <param name="executePowerShellCommand">Function to execute PowerShell commands</param>
         /// <param name="executePowerShellCommandOnNode">Optional function to execute commands on specific cluster nodes</param>
         /// <param name="includeDetailedVMs">Whether to include detailed VM information</param>
-        /// <returns>Host inventory information or null if failed</returns>
-        public static HostInventoryInfo? GetHyperVHostInventory(
+        /// <returns>Host health information or null if failed</returns>
+        public static HostHealthInfo? GetHyperVHostHealth(
             Func<string, System.Collections.ObjectModel.Collection<PSObject>?> executePowerShellCommand,
             Func<string, string, System.Collections.ObjectModel.Collection<PSObject>?>? executePowerShellCommandOnNode = null,
             bool includeDetailedVMs = false)
@@ -159,44 +159,44 @@ namespace HVTools.Class
                     return null;
                 }
 
-                FileLogger.Message("Starting Hyper-V host inventory collection...",
+                FileLogger.Message("Starting Hyper-V host health collection...",
                     FileLogger.EventType.Information, 7002);
 
                 bool isLocal = SessionContext.IsLocal;
 
-                HostInventoryInfo? inventory;
+                HostHealthInfo? health;
 
                 if (isLocal)
                 {
                     // For local execution, use Windows PowerShell process for full WMI support
-                    FileLogger.Message("Using Windows PowerShell process for local inventory collection...",
+                    FileLogger.Message("Using Windows PowerShell process for local health collection...",
                         FileLogger.EventType.Information, 7003);
-                    inventory = GetInventoryViaWindowsPowerShell(includeDetailedVMs);
+                    health = GetHealthViaWindowsPowerShell(includeDetailedVMs);
                 }
                 else
                 {
                     // For remote, use embedded PowerShell with Invoke-Command
-                    FileLogger.Message("Executing inventory script via remote PowerShell...",
+                    FileLogger.Message("Executing health script via remote PowerShell...",
                         FileLogger.EventType.Information, 7004);
-                    inventory = GetInventoryViaRemote(executePowerShellCommand, includeDetailedVMs);
+                    health = GetHealthViaRemote(executePowerShellCommand, includeDetailedVMs);
                 }
 
-                if (inventory != null)
+                if (health != null)
                 {
-                    FileLogger.Message("Host inventory collection completed successfully",
+                    FileLogger.Message("Host health collection completed successfully",
                         FileLogger.EventType.Information, 7005);
                 }
                 else
                 {
-                    FileLogger.Message("Host inventory collection returned null",
+                    FileLogger.Message("Host  collection returned null",
                         FileLogger.EventType.Warning, 7006);
                 }
 
-                return inventory;
+                return health;
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error getting host inventory: {ex.Message}",
+                FileLogger.Message($"Error getting host health: {ex.Message}",
                     FileLogger.EventType.Error, 7007);
                 FileLogger.Message($"Stack trace: {ex.StackTrace}",
                     FileLogger.EventType.Error, 7008);
@@ -205,19 +205,19 @@ namespace HVTools.Class
         }
 
         /// <summary>
-        /// Gets inventory via Windows PowerShell process (for local execution)
+        /// Gets health via Windows PowerShell process (for local execution)
         /// </summary>
-        private static HostInventoryInfo? GetInventoryViaWindowsPowerShell(bool includeDetailedVMs)
+        private static HostHealthInfo? GetHealthViaWindowsPowerShell(bool includeDetailedVMs)
         {
             try
             {
-                string script = GetInventoryScript(includeDetailedVMs);
+                string script = GetHealthScript(includeDetailedVMs);
 
                 // Create a temporary script file
-                string tempScriptPath = Path.Combine(Path.GetTempPath(), $"HVTools_Inventory_{Guid.NewGuid():N}.ps1");
+                string tempScriptPath = Path.Combine(Path.GetTempPath(), $"HVTools_Health_{Guid.NewGuid():N}.ps1");
                 File.WriteAllText(tempScriptPath, script);
 
-                FileLogger.Message($"Created temp inventory script: '{tempScriptPath}'",
+                FileLogger.Message($"Created temp health script: '{tempScriptPath}'",
                     FileLogger.EventType.Information, 7010);
 
                 try
@@ -262,7 +262,7 @@ namespace HVTools.Class
                         FileLogger.EventType.Information, 7014);
 
                     // Parse JSON output
-                    return ParseJsonInventory(output);
+                    return ParseJsonHealth(output);
                 }
                 finally
                 {
@@ -279,33 +279,33 @@ namespace HVTools.Class
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error in GetInventoryViaWindowsPowerShell: {ex.Message}",
+                FileLogger.Message($"Error in GetHealthViaWindowsPowerShell: {ex.Message}",
                     FileLogger.EventType.Error, 7015);
                 return null;
             }
         }
 
         /// <summary>
-        /// Gets inventory via remote PowerShell execution
+        /// Gets health via remote PowerShell execution
         /// </summary>
-        private static HostInventoryInfo? GetInventoryViaRemote(
+        private static HostHealthInfo? GetHealthViaRemote(
             Func<string, System.Collections.ObjectModel.Collection<PSObject>?> executePowerShellCommand,
             bool includeDetailedVMs)
         {
             try
             {
                 // Use the same JSON-outputting script as local, so we get consistent data format
-                string script = GetInventoryScript(includeDetailedVMs);
+                string script = GetHealthScript(includeDetailedVMs);
                 var result = executePowerShellCommand(script);
 
                 if (result == null || result.Count == 0)
                 {
-                    FileLogger.Message("Remote inventory script returned no results",
+                    FileLogger.Message("Remote health script returned no results",
                         FileLogger.EventType.Warning, 7020);
                     return null;
                 }
 
-                FileLogger.Message($"Remote inventory script returned {result.Count} result(s), parsing JSON...",
+                FileLogger.Message($"Remote health script returned {result.Count} result(s), parsing JSON...",
                     FileLogger.EventType.Information, 7021);
 
                 // The script outputs JSON, so we need to extract the JSON string from the result
@@ -327,41 +327,42 @@ namespace HVTools.Class
 
                 if (string.IsNullOrWhiteSpace(jsonOutput))
                 {
-                    FileLogger.Message("Remote inventory script returned empty JSON",
+                    FileLogger.Message("Remote health script returned empty JSON",
                         FileLogger.EventType.Warning, 7023);
                     return null;
                 }
 
+#if DEBUG
                 FileLogger.Message($"Remote JSON output length: {jsonOutput.Length} chars",
                     FileLogger.EventType.Information, 7024);
-
+#endif
                 // Parse the JSON using the same method as local
-                return ParseJsonInventory(jsonOutput);
+                return ParseJsonHealth(jsonOutput);
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error in GetInventoryViaRemote: {ex.Message}",
+                FileLogger.Message($"Error in GetHealthViaRemote: {ex.Message}",
                     FileLogger.EventType.Error, 7022);
                 return null;
             }
         }
 
         /// <summary>
-        /// Parses JSON output into HostInventoryInfo
+        /// Parses JSON output into HostHealthInfo
         /// </summary>
-        private static HostInventoryInfo? ParseJsonInventory(string json)
+        private static HostHealthInfo? ParseJsonHealth(string json)
         {
             try
             {
                 json = json.Trim();
 
-                FileLogger.Message("Parsing JSON inventory...",
+                FileLogger.Message("Parsing JSON health...",
                     FileLogger.EventType.Information, 7030);
 
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
 
-                var inventory = new HostInventoryInfo
+                var health = new HostHealthInfo
                 {
                     Timestamp = DateTime.Now
                 };
@@ -369,7 +370,7 @@ namespace HVTools.Class
                 // Parse HostInfo
                 if (root.TryGetProperty("HostInfo", out var hostInfoElement))
                 {
-                    inventory.HostInfo = new HostInventoryHostInfo
+                    health.HostInfo = new HostHealthHostInfo
                     {
                         ComputerName = GetJsonString(hostInfoElement, "ComputerName"),
                         FullyQualifiedDomainName = GetJsonString(hostInfoElement, "FullyQualifiedDomainName"),
@@ -402,15 +403,28 @@ namespace HVTools.Class
                             string nodeName = GetJsonString(nodeElement, "Name");
                             string nodeFqdn = GetJsonString(nodeElement, "Fqdn");
                             
-                            // If FQDN wasn't provided by PowerShell, construct it from SessionContext domain
-                            if (string.IsNullOrEmpty(nodeFqdn) || nodeFqdn == nodeName)
+                            // Check if FQDN is invalid (empty, same as name, or contains WORKGROUP)
+                            bool isFqdnInvalid = string.IsNullOrEmpty(nodeFqdn) || 
+                                                 nodeFqdn == nodeName ||
+                                                 nodeFqdn.Contains("WORKGROUP", StringComparison.OrdinalIgnoreCase) ||
+                                                 !nodeFqdn.Contains('.');
+                            
+                            // If FQDN is invalid, construct it from SessionContext domain
+                            if (isFqdnInvalid && !string.IsNullOrEmpty(domainSuffix))
                             {
-                                nodeFqdn = !string.IsNullOrEmpty(domainSuffix) 
-                                    ? $"{nodeName}.{domainSuffix}" 
-                                    : nodeName;
+                                nodeFqdn = $"{nodeName}.{domainSuffix}";
+                                FileLogger.Message($"Corrected FQDN for node '{nodeName}': '{nodeFqdn}'",
+                                    FileLogger.EventType.Information, 7042);
+                            }
+                            else if (isFqdnInvalid)
+                            {
+                                // No valid domain suffix available, use just the node name
+                                nodeFqdn = nodeName;
+                                FileLogger.Message($"No valid domain suffix available for node '{nodeName}', using short name",
+                                    FileLogger.EventType.Warning, 7043);
                             }
                             
-                            inventory.HostInfo.ClusterNodes.Add(new ClusterNodeSummary
+                            health.HostInfo.ClusterNodes.Add(new ClusterNodeSummary
                             {
                                 Name = nodeName,
                                 Fqdn = nodeFqdn,
@@ -424,7 +438,7 @@ namespace HVTools.Class
                 // Parse ResourceAllocation
                 if (root.TryGetProperty("ResourceAllocation", out var resourceElement))
                 {
-                    inventory.ResourceAllocation = new ResourceAllocationInfo
+                    health.ResourceAllocation = new ResourceAllocationInfo
                     {
                         TotalVMProcessors = GetJsonInt(resourceElement, "TotalVMProcessors"),
                         TotalVMMemoryMB = GetJsonLong(resourceElement, "TotalVMMemoryMB"),
@@ -440,7 +454,7 @@ namespace HVTools.Class
                 {
                     foreach (var driveElement in storageElement.EnumerateArray())
                     {
-                        inventory.StorageInfo.Add(new StorageDriveInfo
+                        health.StorageInfo.Add(new StorageDriveInfo
                         {
                             DriveLetter = GetJsonString(driveElement, "DriveLetter"),
                             TotalGB = GetJsonDouble(driveElement, "TotalGB"),
@@ -458,7 +472,7 @@ namespace HVTools.Class
                 {
                     foreach (var adapterElement in networkElement.EnumerateArray())
                     {
-                        inventory.NetworkInfo.Add(new NetworkAdapterInfo
+                        health.NetworkInfo.Add(new NetworkAdapterInfo
                         {
                             Name = GetJsonString(adapterElement, "Name"),
                             InterfaceDescription = GetJsonString(adapterElement, "InterfaceDescription"),
@@ -479,7 +493,7 @@ namespace HVTools.Class
                         dataAvailable = cpuProp.ValueKind == JsonValueKind.Number;
                     }
 
-                    inventory.PerformanceData = new PerformanceDataInfo
+                    health.PerformanceData = new PerformanceDataInfo
                     {
                         CPUUsagePercent = GetJsonDoubleOrDefault(perfElement, "CPUUsagePercent", 0),
                         AvailableMemoryMB = GetJsonDoubleOrDefault(perfElement, "AvailableMemoryMB", 0),
@@ -491,7 +505,7 @@ namespace HVTools.Class
                 // Parse WorkloadAnalysis
                 if (root.TryGetProperty("WorkloadAnalysis", out var workloadElement))
                 {
-                    inventory.WorkloadAnalysis = new WorkloadAnalysisInfo
+                    health.WorkloadAnalysis = new WorkloadAnalysisInfo
                     {
                         TotalVMs = GetJsonInt(workloadElement, "TotalVMs"),
                         RunningVMs = GetJsonInt(workloadElement, "RunningVMs"),
@@ -508,14 +522,14 @@ namespace HVTools.Class
                 // Parse IdleResources
                 if (root.TryGetProperty("IdleResources", out var idleElement))
                 {
-                    inventory.IdleResources = new IdleResourcesInfo();
+                    health.IdleResources = new IdleResourcesInfo();
 
                     if (idleElement.TryGetProperty("IdleVMNames", out var idleVMs) &&
                         idleVMs.ValueKind == JsonValueKind.Array)
                     {
                         foreach (var vm in idleVMs.EnumerateArray())
                         {
-                            inventory.IdleResources.IdleVMNames.Add(vm.GetString() ?? "");
+                            health.IdleResources.IdleVMNames.Add(vm.GetString() ?? "");
                         }
                     }
 
@@ -524,7 +538,7 @@ namespace HVTools.Class
                     {
                         foreach (var vm in lowUtilVMs.EnumerateArray())
                         {
-                            inventory.IdleResources.LowUtilizationVMNames.Add(vm.GetString() ?? "");
+                            health.IdleResources.LowUtilizationVMNames.Add(vm.GetString() ?? "");
                         }
                     }
 
@@ -533,7 +547,7 @@ namespace HVTools.Class
                     {
                         foreach (var adapter in unusedAdapters.EnumerateArray())
                         {
-                            inventory.IdleResources.UnusedNetworkAdapterNames.Add(adapter.GetString() ?? "");
+                            health.IdleResources.UnusedNetworkAdapterNames.Add(adapter.GetString() ?? "");
                         }
                     }
                 }
@@ -543,18 +557,18 @@ namespace HVTools.Class
                 {
                     if (DateTime.TryParse(timestampElement.GetString(), out var timestamp))
                     {
-                        inventory.Timestamp = timestamp;
+                        health.Timestamp = timestamp;
                     }
                 }
 
-                FileLogger.Message($"Successfully parsed JSON inventory for '{inventory.HostInfo.ComputerName}'",
+                FileLogger.Message($"Successfully parsed JSON health for '{health.HostInfo.ComputerName}'",
                     FileLogger.EventType.Information, 7031);
 
-                return inventory;
+                return health;
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error parsing JSON inventory: {ex.Message}",
+                FileLogger.Message($"Error parsing JSON health: {ex.Message}",
                     FileLogger.EventType.Error, 7032);
                 FileLogger.Message($"JSON content (first 500 chars): {json[..Math.Min(500, json.Length)]}",
                     FileLogger.EventType.Error, 7033);
@@ -704,23 +718,37 @@ namespace HVTools.Class
         }
 
         /// <summary>
-        /// Extracts the domain suffix from SessionContext.FullyQualifiedDomainName
-        /// For example: "server.domain.local" returns "domain.local"
+        /// Extracts the domain suffix from the connection server name (SessionContext.ServerName)
+        /// This is more reliable than FullyQualifiedDomainName which can return "WORKGROUP"
+        /// For example: "az-clu00.appelcloud.dk" returns "appelcloud.dk"
         /// </summary>
         private static string GetDomainSuffixFromSessionContext()
         {
             try
             {
-                string? fqdn = SessionContext.FullyQualifiedDomainName;
-                if (string.IsNullOrEmpty(fqdn))
+                // Use ServerName (the actual connection string) instead of FullyQualifiedDomainName
+                // because FullyQualifiedDomainName can return "WORKGROUP" from the host
+                string? serverName = SessionContext.ServerName;
+                
+                // If ServerName doesn't have a domain, fall back to FullyQualifiedDomainName
+                if (string.IsNullOrEmpty(serverName) || !serverName.Contains('.'))
+                {
+                    serverName = SessionContext.FullyQualifiedDomainName;
+                }
+                
+                if (string.IsNullOrEmpty(serverName))
+                    return "";
+
+                // Skip if it's just "WORKGROUP" or similar non-domain value
+                if (serverName.Equals("WORKGROUP", StringComparison.OrdinalIgnoreCase))
                     return "";
 
                 // Find the first dot to extract domain suffix
-                int dotIndex = fqdn.IndexOf('.');
-                if (dotIndex > 0 && dotIndex < fqdn.Length - 1)
+                int dotIndex = serverName.IndexOf('.');
+                if (dotIndex > 0 && dotIndex < serverName.Length - 1)
                 {
-                    string domainSuffix = fqdn[(dotIndex + 1)..];
-                    FileLogger.Message($"Extracted domain suffix from SessionContext: '{domainSuffix}'",
+                    string domainSuffix = serverName[(dotIndex + 1)..];
+                    FileLogger.Message($"Extracted domain suffix from connection: '{domainSuffix}' (from '{serverName}')",
                         FileLogger.EventType.Information, 7040);
                     return domainSuffix;
                 }
@@ -742,17 +770,17 @@ namespace HVTools.Class
         /// <summary>
         /// Gets the PowerShell script for local Windows PowerShell execution (outputs JSON)
         /// </summary>
-        private static string GetInventoryScript(bool includeDetailedVMs)
+        private static string GetHealthScript(bool includeDetailedVMs)
         {
             return $@"
 $ErrorActionPreference = 'SilentlyContinue'
 
 try {{
-    # Get Host Information
+# Get Host Information
     $vmHost = Get-VMHost -ErrorAction SilentlyContinue
     $computerInfo = Get-ComputerInfo -ErrorAction SilentlyContinue
     
-    # Get cluster information if available
+# Get cluster information if available
     $clusterNode = $null
     $clusterName = 'N/A'
     $nodeState = 'Standalone'
@@ -769,7 +797,7 @@ try {{
             $clusterName = if ($cluster) {{ $cluster.Name }} else {{ 'Cluster Detected' }}
             $nodeState = if ($clusterNode.State) {{ $clusterNode.State.ToString() }} else {{ 'Online' }}
             
-            # Get the domain suffix for FQDN construction
+# Get the domain suffix for FQDN construction
             $domainSuffix = ''
             try {{
                 $domainSuffix = (Get-WmiObject Win32_ComputerSystem -ErrorAction SilentlyContinue).Domain
@@ -778,16 +806,16 @@ try {{
                 }}
             }} catch {{ }}
             
-            # Get all cluster nodes and their states
+# Get all cluster nodes and their states
             $allClusterNodes = @(Get-ClusterNode -ErrorAction SilentlyContinue)
             $clusterNodeCount = $allClusterNodes.Count
             $clusterNodesOnline = @($allClusterNodes | Where-Object {{ $_.State -eq 'Up' }}).Count
             $clusterNodesOffline = @($allClusterNodes | Where-Object {{ $_.State -eq 'Down' }}).Count
             $clusterNodesPaused = @($allClusterNodes | Where-Object {{ $_.State -eq 'Paused' }}).Count
             
-            # Build cluster nodes array with details including FQDN
+# Build cluster nodes array with details including FQDN
             foreach ($node in $allClusterNodes) {{
-                # Construct FQDN for the node
+# Construct FQDN for the node
                 $nodeFqdn = $node.Name
                 if ($domainSuffix) {{
                     $nodeFqdn = ""$($node.Name).$domainSuffix""
@@ -803,11 +831,11 @@ try {{
         }}
     }} catch {{ }}
     
-    # Get all VMs
+# Get all VMs
     $allVMs = @(Get-VM -ErrorAction SilentlyContinue)
     $runningVMs = @($allVMs | Where-Object {{ $_.State -eq 'Running' }})
     
-    # Calculate VM Resource Usage
+# Calculate VM Resource Usage
     $totalVMProcessors = ($allVMs | Measure-Object ProcessorCount -Sum).Sum
     if (-not $totalVMProcessors) {{ $totalVMProcessors = 0 }}
     
@@ -817,7 +845,7 @@ try {{
     $totalVMStartupMemoryMB = [Math]::Round(($allVMs | Measure-Object MemoryStartup -Sum).Sum / 1MB, 0)
     if (-not $totalVMStartupMemoryMB) {{ $totalVMStartupMemoryMB = 0 }}
     
-    # Get Physical Hardware Info
+# Get Physical Hardware Info
     $processors = @(Get-WmiObject Win32_Processor -ErrorAction SilentlyContinue)
     $physicalProcessors = ($processors | Measure-Object NumberOfCores -Sum).Sum
     if (-not $physicalProcessors) {{ $physicalProcessors = 1 }}
@@ -825,7 +853,7 @@ try {{
     $processorSockets = $processors.Count
     if ($processorSockets -eq 0) {{ $processorSockets = 1 }}
     
-    # Get Physical RAM Info
+# Get Physical RAM Info
     try {{
         $physicalMemoryGB = [Math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2)
         if ($physicalMemoryGB -eq 0) {{
@@ -835,11 +863,11 @@ try {{
         $physicalMemoryGB = if ($computerInfo) {{ [Math]::Round($computerInfo.TotalPhysicalMemory / 1GB, 2) }} else {{ 0 }}
     }}
     
-    # Calculate Overcommit Ratios
+# Calculate Overcommit Ratios
     $cpuOvercommitRatio = if ($physicalProcessors -gt 0) {{ [Math]::Round($totalVMProcessors / $physicalProcessors, 2) }} else {{ 0 }}
     $memoryOvercommitRatio = if ($physicalMemoryGB -gt 0) {{ [Math]::Round($totalVMMemoryMB / ($physicalMemoryGB * 1024), 2) }} else {{ 0 }}
     
-    # Get Storage Information
+# Get Storage Information
     $vmStoragePaths = @()
     foreach ($vm in $allVMs) {{
         $drives = Get-VMHardDiskDrive -VM $vm -ErrorAction SilentlyContinue
@@ -859,7 +887,7 @@ try {{
         $usedSpaceGB = $totalSpaceGB - $freeSpaceGB
         $usedPercent = if ($totalSpaceGB -gt 0) {{ [Math]::Round(($usedSpaceGB / $totalSpaceGB) * 100, 1) }} else {{ 0 }}
         
-        # Count VM files on this drive
+# Count VM files on this drive
         $vmFilesOnDrive = ($vmStoragePaths | Where-Object {{ $_ -like ""$driveLetter*"" }}).Count
         
         $storageInfoArray += @{{
@@ -872,7 +900,7 @@ try {{
         }}
     }}
     
-    # Network Adapter Information
+# Network Adapter Information
     $networkAdapters = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object {{ $_.Status -eq 'Up' }}
     $networkInfoArray = @()
     foreach ($adapter in $networkAdapters) {{
@@ -886,7 +914,7 @@ try {{
         }}
     }}
     
-    # Identify Idle Resources
+# Identify Idle Resources
     $idleVMs = @($allVMs | Where-Object {{
         $_.State -eq 'Off' -and
         $_.CreationTime -lt (Get-Date).AddDays(-30)
@@ -905,7 +933,7 @@ try {{
         }}
     }}
     
-    # Performance Counters
+# Performance Counters
     $performanceData = @{{
         CPUUsagePercent = 'N/A'
         AvailableMemoryMB = 'N/A'
@@ -914,8 +942,8 @@ try {{
     }}
     
     try {{
-        # Get CPU usage - '\Processor(_Total)\% Processor Time' returns the % of time CPU is busy (usage)
-        # This matches what Task Manager shows for CPU usage
+# Get CPU usage - '\Processor(_Total)\% Processor Time' returns the % of time CPU is busy (usage)
+# This matches what Task Manager shows for CPU usage
         $cpuCounter = Get-Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 3 -ErrorAction Stop
         $cpuUsage = ($cpuCounter.CounterSamples.CookedValue | Measure-Object -Average).Average
         $performanceData.CPUUsagePercent = [Math]::Round($cpuUsage, 1)
@@ -926,10 +954,10 @@ try {{
         $performanceData.MemoryUsagePercent = [Math]::Round((($physicalMemoryGB * 1024 - $availableMemory) / ($physicalMemoryGB * 1024)) * 100, 1)
         $performanceData.DataAvailable = $true
     }} catch {{
-        # Performance data not available
+# Performance data not available
     }}
     
-    # VM Workload Analysis
+# VM Workload Analysis
     $stoppedVMs = @($allVMs | Where-Object {{ $_.State -eq 'Off' }}).Count
     $pausedVMs = @($allVMs | Where-Object {{ $_.State -eq 'Paused' }}).Count
     $savedVMs = @($allVMs | Where-Object {{ $_.State -eq 'Saved' }}).Count
@@ -945,7 +973,7 @@ try {{
         }}
     }}
     
-    # Build result object
+# Build result object
     $result = @{{
         HostInfo = @{{
             ComputerName = if ($vmHost) {{ $vmHost.ComputerName }} else {{ $env:COMPUTERNAME }}
@@ -996,11 +1024,11 @@ try {{
         Timestamp = (Get-Date).ToString('o')
     }}
     
-    # Output as JSON
+# Output as JSON
     $result | ConvertTo-Json -Depth 10 -Compress
     
 }} catch {{
-    # Return error object as JSON
+# Return error object as JSON
     @{{
         Error = $_.Exception.Message
         HostInfo = @{{
