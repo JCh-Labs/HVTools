@@ -988,6 +988,7 @@
             downloadLastestReleaseFromGitHubToolStripMenuItem.Name = "downloadLastestReleaseFromGitHubToolStripMenuItem";
             downloadLastestReleaseFromGitHubToolStripMenuItem.Size = new Size(273, 22);
             downloadLastestReleaseFromGitHubToolStripMenuItem.Text = "Download lastest release from GitHub";
+            downloadLastestReleaseFromGitHubToolStripMenuItem.Click += downloadLastestReleaseFromGitHubToolStripMenuItem_Click;
             // 
             // changelogToolStripMenuItem
             // 

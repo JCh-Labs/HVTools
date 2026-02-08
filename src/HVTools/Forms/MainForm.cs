@@ -14,7 +14,7 @@ namespace HVTools.Forms
 
         private bool _initialLoadComplete = false;
         private bool _exitConfirmed = false;
-        
+
         // Store current health inventory for node switching
         private HostHealthInfo? _currentHealthInventory = null;
         private bool _isLoadingNodeData = false;
@@ -24,7 +24,7 @@ namespace HVTools.Forms
         {
             InitializeComponent();
             InitializeSession();
-        } 
+        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -6040,16 +6040,16 @@ Notes:
                         {
                             // Store inventory for potential node switching
                             _currentHealthInventory = inventory;
-                            
+
                             // Track which node's data we're displaying
                             _currentlyDisplayedNodeName = inventory.HostInfo.ComputerName;
-                            
+
                             Message($"Retrieved host inventory for '{inventory.HostInfo.ComputerName}', updating DataGridView",
                                 EventType.Information, 7103);
 
                             // Update the DataGridView
                             UpdateHealthOverviewDataGridView(inventory);
-                            
+
                             // Update node selector for clusters
                             UpdateClusterNodeSelector(inventory);
 
@@ -6113,7 +6113,7 @@ Notes:
         {
             try
             {
-                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) && 
+                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) &&
                                  inventory.HostInfo.ClusterName != "N/A" &&
                                  inventory.HostInfo.ClusterNodes.Count > 0;
 
@@ -6125,26 +6125,26 @@ Notes:
 
                     // Prevent triggering SelectedIndexChanged while populating
                     _isLoadingNodeData = true;
-                    
+
                     // Clear and populate the dropdown
                     comboBoxClusterNodeSelector.Items.Clear();
-                    
+
                     foreach (var node in inventory.HostInfo.ClusterNodes)
                     {
-                        string displayText = node.IsCurrentNode 
-                            ? $"➤ {node.Name} ({node.State}) - Current session" 
+                        string displayText = node.IsCurrentNode
+                            ? $"➤ {node.Name} ({node.State}) - Current session"
                             : $"{node.Name} ({node.State})";
                         comboBoxClusterNodeSelector.Items.Add(new ClusterNodeComboItem(node.Name, node.Fqdn, displayText, node.IsCurrentNode));
-                        
+
                         // Select the current node
                         if (node.IsCurrentNode)
                         {
                             comboBoxClusterNodeSelector.SelectedIndex = comboBoxClusterNodeSelector.Items.Count - 1;
                         }
                     }
-                    
+
                     _isLoadingNodeData = false;
-                    
+
                     Message($"Cluster node selector populated with {inventory.HostInfo.ClusterNodes.Count} nodes",
                         EventType.Information, 7120);
                 }
@@ -6179,7 +6179,7 @@ Notes:
             // Check if we're already displaying this node's data (by comparing node names)
             bool isAlreadyDisplayed = !string.IsNullOrEmpty(_currentlyDisplayedNodeName) &&
                                       _currentlyDisplayedNodeName.Equals(selectedItem.NodeName, StringComparison.OrdinalIgnoreCase);
-            
+
             if (isAlreadyDisplayed)
             {
                 Message($"Already viewing data from node: {selectedItem.NodeName}",
@@ -6201,8 +6201,8 @@ Notes:
             if (result == DialogResult.Yes)
             {
                 // Use FQDN for remote connection, fall back to short name if FQDN is not available
-                string connectionName = !string.IsNullOrEmpty(selectedItem.NodeFqdn) 
-                    ? selectedItem.NodeFqdn 
+                string connectionName = !string.IsNullOrEmpty(selectedItem.NodeFqdn)
+                    ? selectedItem.NodeFqdn
                     : selectedItem.NodeName;
                 LoadHealthDataFromNode(connectionName, selectedItem.NodeName);
             }
@@ -6212,7 +6212,7 @@ Notes:
                 _isLoadingNodeData = true;
                 for (int i = 0; i < comboBoxClusterNodeSelector.Items.Count; i++)
                 {
-                    if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && 
+                    if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item &&
                         item.NodeName.Equals(_currentlyDisplayedNodeName, StringComparison.OrdinalIgnoreCase))
                     {
                         comboBoxClusterNodeSelector.SelectedIndex = i;
@@ -6231,10 +6231,10 @@ Notes:
         private void LoadHealthDataFromNode(string connectionName, string? shortNodeName = null)
         {
             // Extract short name from connection name if not provided
-            shortNodeName ??= connectionName.Contains('.') 
-                ? connectionName[..connectionName.IndexOf('.')] 
+            shortNodeName ??= connectionName.Contains('.')
+                ? connectionName[..connectionName.IndexOf('.')]
                 : connectionName;
-            
+
             try
             {
                 Message($"User requested health data from cluster node: {shortNodeName} (connection: {connectionName})",
@@ -6272,7 +6272,7 @@ Notes:
                             // Update status
                             int totalVMs = inventory.WorkloadAnalysis.TotalVMs;
                             int runningVMs = inventory.WorkloadAnalysis.RunningVMs;
-                            
+
                             toolStripStatusLabelTextMainForm.Text = $@"Health data from '{shortNodeName}' - VMs: {totalVMs} ({runningVMs} running)";
                         }
                         else
@@ -6294,7 +6294,7 @@ Notes:
                             _isLoadingNodeData = true;
                             for (int i = 0; i < comboBoxClusterNodeSelector.Items.Count; i++)
                             {
-                                if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item && 
+                                if (comboBoxClusterNodeSelector.Items[i] is ClusterNodeComboItem item &&
                                     item.NodeName.Equals(_currentlyDisplayedNodeName, StringComparison.OrdinalIgnoreCase))
                                 {
                                     comboBoxClusterNodeSelector.SelectedIndex = i;
@@ -6383,9 +6383,9 @@ Notes:
                 dataTable.Columns.Add("Help", typeof(string));
 
                 // Host Information section - simplified to just hostname and cluster info
-                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) && 
+                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) &&
                                  inventory.HostInfo.ClusterName != "N/A";
-                
+
                 if (isCluster)
                 {
                     // Cluster mode - show cluster overview with node counts
@@ -6393,13 +6393,13 @@ Notes:
                     int nodesOnline = inventory.HostInfo.ClusterNodesOnline;
                     int nodesOffline = inventory.HostInfo.ClusterNodesOffline;
                     int nodesPaused = inventory.HostInfo.ClusterNodesPaused;
-                    
+
                     // Determine cluster health status
                     string clusterStatus = nodesOffline > 0 ? "Critical" : nodesPaused > 0 ? "Warning" : "Good";
                     string nodeStatusText = $"{nodesOnline} online";
                     if (nodesOffline > 0) nodeStatusText += $", {nodesOffline} offline";
                     if (nodesPaused > 0) nodeStatusText += $", {nodesPaused} paused";
-                    
+
                     // Build node list for details
                     string nodeList = "";
                     if (inventory.HostInfo.ClusterNodes.Count > 0)
@@ -6408,91 +6408,91 @@ Notes:
                             .Select(n => n.IsCurrentNode ? $"➤ {n.Name} ({n.State})" : $"{n.Name} ({n.State})");
                         nodeList = string.Join(" | ", nodeNames);
                     }
-                    
-                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Name", inventory.HostInfo.ClusterName, 
-                        $"{nodeCount} nodes: {nodeStatusText}", 
-                        clusterStatus, 
+
+                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Name", inventory.HostInfo.ClusterName,
+                        $"{nodeCount} nodes: {nodeStatusText}",
+                        clusterStatus,
                         "Failover cluster overview. ➤ indicates current connected node.");
-                    
-                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Nodes", nodeList, 
-                        $"Current Node: {inventory.HostInfo.ComputerName}", 
-                        GetNodeStateStatus(inventory.HostInfo.NodeState), 
+
+                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Nodes", nodeList,
+                        $"Current Node: {inventory.HostInfo.ComputerName}",
+                        GetNodeStateStatus(inventory.HostInfo.NodeState),
                         "All cluster nodes and their states. Data shown is from the current connected node only.");
                 }
                 else
                 {
                     // Standalone mode - show hostname
-                    AddInventoryRow(dataTable, "🖥️ Host", "Hostname", inventory.HostInfo.ComputerName, 
-                        $"Standalone Hyper-V Host | {inventory.HostInfo.HyperVVersion}", "", 
+                    AddInventoryRow(dataTable, "🖥️ Host", "Hostname", inventory.HostInfo.ComputerName,
+                        $"Standalone Hyper-V Host | {inventory.HostInfo.HyperVVersion}", "",
                         "Standalone Hyper-V host server (not part of a cluster)");
                 }
 
                 // Resource Allocation section
                 double memoryAllocatedGB = inventory.ResourceAllocation.TotalVmMemoryMb / 1024.0;
-                string cpuGuidance = inventory.ResourceAllocation.CpuOvercommitRatio > 4 ? "⚠️ High overcommit" : 
+                string cpuGuidance = inventory.ResourceAllocation.CpuOvercommitRatio > 4 ? "⚠️ High overcommit" :
                                      inventory.ResourceAllocation.CpuOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
-                string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" : 
+                string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" :
                                      inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
-                
+
                 // Show resource context (note if cluster - data is from current node only)
                 string resourceContext = isCluster ? " (Current Node)" : "";
-                AddInventoryRow(dataTable, "📊 Resource Allocation", $"Physical Resources{resourceContext}", 
-                    $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGb:F1} GB RAM", 
-                    $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "", 
+                AddInventoryRow(dataTable, "📊 Resource Allocation", $"Physical Resources{resourceContext}",
+                    $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGb:F1} GB RAM",
+                    $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "",
                     isCluster ? "Physical resources on the current connected node only" : "Physical CPU cores and RAM available on this host");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVmProcessors} vCPUs", 
-                    $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1", 
-                    GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"), 
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVmProcessors} vCPUs",
+                    $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1",
+                    GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"),
                     "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGB:F1} GB", 
-                    $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1", 
-                    GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"), 
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGB:F1} GB",
+                    $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1",
+                    GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"),
                     "Memory Overcommit = VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Enable Dynamic Memory on VMs or add physical RAM.");
 
                 // Performance Data section
                 if (inventory.PerformanceData.DataAvailable)
                 {
-                    string cpuStatus = inventory.PerformanceData.CpuUsagePercent > 80 ? "⚠️ High" : 
+                    string cpuStatus = inventory.PerformanceData.CpuUsagePercent > 80 ? "⚠️ High" :
                                        inventory.PerformanceData.CpuUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
-                    string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" : 
+                    string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" :
                                        inventory.PerformanceData.MemoryUsagePercent > 70 ? "⚡ Moderate" : "✅ Normal";
-                    
-                    
-                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%", 
-                        $"{cpuStatus} usage level", 
-                        GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"), 
+
+
+                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%",
+                        $"{cpuStatus} usage level",
+                        GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
                         "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
-                    AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%", 
-                        $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB", 
-                        GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"), 
+                    AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%",
+                        $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB",
+                        GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
                         "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
                 }
                 else
                 {
-                    AddInventoryRow(dataTable, "⚡ Performance", "Performance Data", "Not Available", 
-                        "Performance counters could not be retrieved", "Warning", 
+                    AddInventoryRow(dataTable, "⚡ Performance", "Performance Data", "Not Available",
+                        "Performance counters could not be retrieved", "Warning",
                         "Performance counters could not be retrieved from the host");
                 }
 
                 // Workload Analysis section - consolidated view
-                AddInventoryRow(dataTable, "🖥️ VM Workload", "Total VMs", inventory.WorkloadAnalysis.TotalVMs.ToString(), 
-                    $"Running: {inventory.WorkloadAnalysis.RunningVMs} | Stopped: {inventory.WorkloadAnalysis.StoppedVMs}", "", 
+                AddInventoryRow(dataTable, "🖥️ VM Workload", "Total VMs", inventory.WorkloadAnalysis.TotalVMs.ToString(),
+                    $"Running: {inventory.WorkloadAnalysis.RunningVMs} | Stopped: {inventory.WorkloadAnalysis.StoppedVMs}", "",
                     "Summary of all virtual machines on this host");
-                
+
                 // Only show Paused/Saved if there are any
                 if (inventory.WorkloadAnalysis.PausedVMs > 0 || inventory.WorkloadAnalysis.SavedVMs > 0)
                 {
-                    AddInventoryRow(dataTable, "🖥️ VM Workload", "Other VM States", 
-                        $"Paused: {inventory.WorkloadAnalysis.PausedVMs} | Saved: {inventory.WorkloadAnalysis.SavedVMs}", 
-                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "⚠️ Paused VMs may indicate issues" : "", 
-                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "Warning" : "Info", 
+                    AddInventoryRow(dataTable, "🖥️ VM Workload", "Other VM States",
+                        $"Paused: {inventory.WorkloadAnalysis.PausedVMs} | Saved: {inventory.WorkloadAnalysis.SavedVMs}",
+                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "⚠️ Paused VMs may indicate issues" : "",
+                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "Warning" : "Info",
                         "VMs in paused or saved state. Paused VMs may indicate resource issues.");
                 }
-                
-                AddInventoryRow(dataTable, "🖥️ VM Workload", "VM Generations", 
-                    $"Gen 1: {inventory.WorkloadAnalysis.Generation1VMs} | Gen 2: {inventory.WorkloadAnalysis.Generation2VMs}", 
-                    $"Replicated: {inventory.WorkloadAnalysis.ReplicatedVMs} | With Checkpoints: {inventory.WorkloadAnalysis.CheckpointedVMs}", 
-                    inventory.WorkloadAnalysis.CheckpointedVMs > 5 ? "Warning" : "", 
+
+                AddInventoryRow(dataTable, "🖥️ VM Workload", "VM Generations",
+                    $"Gen 1: {inventory.WorkloadAnalysis.Generation1VMs} | Gen 2: {inventory.WorkloadAnalysis.Generation2VMs}",
+                    $"Replicated: {inventory.WorkloadAnalysis.ReplicatedVMs} | With Checkpoints: {inventory.WorkloadAnalysis.CheckpointedVMs}",
+                    inventory.WorkloadAnalysis.CheckpointedVMs > 5 ? "Warning" : "",
                     "Gen2 VMs offer better performance and security. Consider upgrading Gen1 VMs when possible.");
 
                 // Storage Information section - consolidated per drive
@@ -6502,11 +6502,11 @@ Notes:
                     string storageGuidance = storage.UsedPercent > 90 ? "⚠️ Critical - Clean up space immediately" :
                                              storage.UsedPercent > 80 ? "⚡ High usage - Monitor closely" :
                                              storage.UsedPercent > 70 ? "⚡ Growing - Plan for expansion" : "✅ Healthy";
-                    
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter}", 
-                        $"{storage.UsedGb:F1} GB / {storage.TotalGb:F1} GB ({storage.UsedPercent:F1}%)", 
-                        $"{storageGuidance} - Free: {storage.FreeGb:F1} GB | VM Files: {storage.VmFileCount}", 
-                        driveStatus, 
+
+                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter}",
+                        $"{storage.UsedGb:F1} GB / {storage.TotalGb:F1} GB ({storage.UsedPercent:F1}%)",
+                        $"{storageGuidance} - Free: {storage.FreeGb:F1} GB | VM Files: {storage.VmFileCount}",
+                        driveStatus,
                         $"Storage usage on drive {storage.DriveLetter}. >90% usage can cause VM performance issues and prevent snapshots.");
                 }
 
@@ -6515,10 +6515,10 @@ Notes:
                 {
                     string virtualSwitchStatus = network.VirtualSwitches == 0 ? "Warning" : "Good";
                     string netGuidance = network.VirtualSwitches == 0 ? "⚠️ Unused adapter" : "✅ In use";
-                    
-                    AddInventoryRow(dataTable, "🌐 Network", network.Name, network.InterfaceDescription, 
-                        $"{netGuidance} - Virtual Switches: {network.VirtualSwitches}", 
-                        virtualSwitchStatus, 
+
+                    AddInventoryRow(dataTable, "🌐 Network", network.Name, network.InterfaceDescription,
+                        $"{netGuidance} - Virtual Switches: {network.VirtualSwitches}",
+                        virtualSwitchStatus,
                         "Physical network adapter. Unused adapters can be configured for VM networking or failover.");
                 }
 
@@ -6528,25 +6528,25 @@ Notes:
 
                 if (idleVMCount > 0)
                 {
-                    string idleVMList = idleVMCount <= 5 
-                        ? string.Join(", ", inventory.IdleResources.IdleVmNames) 
+                    string idleVMList = idleVMCount <= 5
+                        ? string.Join(", ", inventory.IdleResources.IdleVmNames)
                         : string.Join(", ", inventory.IdleResources.IdleVmNames.Take(5)) + $"... (+{idleVMCount - 5} more)";
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVMCount.ToString(), 
-                        $"⚠️ VMs stopped for >30 days: {idleVMList}", "Warning", 
+                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVMCount.ToString(),
+                        $"⚠️ VMs stopped for >30 days: {idleVMList}", "Warning",
                         "VMs that have been powered off for over 30 days. These may be candidates for deletion to reclaim storage and licensing.");
                 }
 
                 if (unusedAdapterCount > 0)
                 {
                     string unusedAdapterList = string.Join(", ", inventory.IdleResources.UnusedNetworkAdapterNames);
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Network Adapters", unusedAdapterCount.ToString(), 
-                        $"💡 Available for VM networking or teaming: {unusedAdapterList}", "Info", 
+                    AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Network Adapters", unusedAdapterCount.ToString(),
+                        $"💡 Available for VM networking or teaming: {unusedAdapterList}", "Info",
                         "Physical network adapters not assigned to virtual switches. Can be used for additional VM networks or NIC teaming.");
                 }
 
                 // Timestamp
-                AddInventoryRow(dataTable, "📅 Collection Info", "Data Collected At", inventory.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"), 
-                    "", "", 
+                AddInventoryRow(dataTable, "📅 Collection Info", "Data Collected At", inventory.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"),
+                    "", "",
                     "Timestamp when this inventory data was collected");
 
                 // Bind to DataGridView
@@ -6983,6 +6983,32 @@ Unused Resources:
                 @"Health Overview - Field Guide",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
+        }
+
+        private void downloadLastestReleaseFromGitHubToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Start GitHub repo
+            string repoUrl = Globals.ToolStings.UrlGitHubDownload;
+
+            try
+            {
+                Message("User requested to open GitHub repository",
+                    EventType.Information, 7140);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = repoUrl,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Message($"Error opening GitHub repository: {ex.Message}",
+                    EventType.Error, 7141);
+                MessageBox.Show($@"Unable to open GitHub repository. Please visit: {repoUrl}",
+                    @"Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
     }
 }
