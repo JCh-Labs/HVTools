@@ -5411,7 +5411,7 @@ VM Configuration at Checkpoint Time:
 • Memory Startup: {selectedRow.Cells["Memory Startup (MB)"].Value} MB
 • Memory Minimum: {selectedRow.Cells["Memory Minimum (MB)"].Value} MB
 • Memory Maximum: {selectedRow.Cells["Memory Maximum (MB)"].Value} MB
-• Dynamic Memory: {selectedRow.Cells["Dynamic Memory"]?.Value}
+• Dynamic Memory: {selectedRow.Cells["Dynamic Memory"].Value}
 
 Hardware Configuration:
 • Hard Drives: {selectedRow.Cells["Hard Drives"].Value}
