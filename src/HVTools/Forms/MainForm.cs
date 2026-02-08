@@ -2040,7 +2040,7 @@ namespace HVTools.Forms
                 datagridviewVMGroups.Rows.Clear();
                 datagridviewVMGroups.Columns.Clear();
 
-                if (vmGroups == null || vmGroups.Count == 0)
+                if (vmGroups.Count == 0)
                 {
                     Message("No VM Groups to display",
                         EventType.Information, 2069);
@@ -2091,7 +2091,7 @@ namespace HVTools.Forms
                 // Enforce alphabetic sorting on "Group Name" column
                 if (datagridviewVMGroups.Columns.Contains("Group Name"))
                 {
-                    datagridviewVMGroups.Sort(datagridviewVMGroups.Columns["Group Name"], System.ComponentModel.ListSortDirection.Ascending);
+                    datagridviewVMGroups.Sort(datagridviewVMGroups.Columns["Group Name"]!, System.ComponentModel.ListSortDirection.Ascending);
                 }
 
                 Message($"VM Groups DataGridView updated successfully with '{vmGroups.Count}' groups",
@@ -2112,9 +2112,7 @@ namespace HVTools.Forms
                     EventType.Information, 2083);
 
                 // Get VM Groups without showing message boxes
-                var vmGroups = VmGroups.GetHyperVvmGroups(cmd => ExecutePowerShellCommand(cmd));
-
-                if (vmGroups != null)
+                if (VmGroups.GetHyperVvmGroups(cmd => ExecutePowerShellCommand(cmd)) is { } vmGroups)
                 {
                     UpdateVmGroupsDataGridView(vmGroups);
                 }
@@ -2140,7 +2138,7 @@ namespace HVTools.Forms
             for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
             {
                 var col = datagridviewVMOverView.Columns[i];
-                if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == "☑" || col.HeaderText == "☐")
+                if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == @"☑" || col.HeaderText == @"☐")
                 {
                     exportColumnIndex = i;
 #if DEBUG
@@ -2165,7 +2163,7 @@ namespace HVTools.Forms
                 if (exportColumnIndex >= 0 && exportColumnIndex < row.Cells.Count)
                 {
                     var cell = row.Cells[exportColumnIndex];
-                    var vmName = row.Cells["VM Name"]?.Value?.ToString() ?? $"Row{rowIndex}";
+                    var vmName = row.Cells["VM Name"].Value?.ToString() ?? $"Row{rowIndex}";
 
 #if DEBUG
                     Message($"Row {rowIndex} ({vmName}): Cell.Value = {cell.Value ?? "NULL"}, Cell.Value Type = {cell.Value?.GetType().Name ?? "NULL"}",
@@ -2219,7 +2217,7 @@ namespace HVTools.Forms
                 foreach (DataGridViewColumn column in datagridviewVMOverView.Columns)
                 {
                     // Skip the Export checkbox column in the exported data
-                    if (column.Name == "Export" || column.DataPropertyName == "Export" || column.HeaderText == "☑" || column.HeaderText == "☐")
+                    if (column.Name == "Export" || column.DataPropertyName == "Export" || column.HeaderText == @"☑" || column.HeaderText == @"☐")
                         continue;
 
                     var value = row.Cells[column.Index].Value?.ToString() ?? "";
@@ -2262,7 +2260,7 @@ namespace HVTools.Forms
                     return;
                 }
 
-                string groupName = datagridviewVMGroups.SelectedRows[0].Cells["Group Name"].Value?.ToString();
+                string? groupName = datagridviewVMGroups.SelectedRows[0].Cells["Group Name"].Value?.ToString();
 
                 if (string.IsNullOrEmpty(groupName))
                 {
@@ -2351,7 +2349,7 @@ namespace HVTools.Forms
             catch (Exception ex)
             {
                 // Show an error message if the URL could not be opened
-                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyWebPage + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyWebPage + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
@@ -2374,7 +2372,7 @@ namespace HVTools.Forms
             catch (Exception ex)
             {
                 // Show an error message if the URL could not be opened
-                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyBlog + "'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyBlog + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1041);
@@ -2514,7 +2512,7 @@ namespace HVTools.Forms
                     // Process results on UI thread (UI updates only - NO PowerShell calls)
                     try
                     {
-                        if (results == null || results.Count == 0)
+                        if (results.Count == 0)
                         {
                             MessageBox.Show(@"No VMs found.",
                                 @"Information",
@@ -2669,7 +2667,7 @@ namespace HVTools.Forms
             {
                 Message($"Error getting detailed VMs for standalone host: {ex.Message}",
                     EventType.Error, 2192);
-                return null;
+                return null!;
             }
         }
 
@@ -2774,9 +2772,7 @@ namespace HVTools.Forms
                     Message("Retrieving cluster information for summary...",
                         EventType.Information, 2163);
 
-                    var clusterInfo = Cluster.GetClusterInformation(cmd => ExecutePowerShellCommand(cmd));
-
-                    if (clusterInfo != null)
+                    if (Cluster.GetClusterInformation(cmd => ExecutePowerShellCommand(cmd)) is { } clusterInfo)
                     {
                         clusterSection = $@"
 
@@ -2929,7 +2925,7 @@ Management:
                 Message($"Error showing VM details: {ex.Message}",
                     EventType.Error, 2162);
 
-                MessageBox.Show($"Error showing VM details: {ex.Message}",
+                MessageBox.Show($@"Error showing VM details: {ex.Message}",
                     @"Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -2948,7 +2944,7 @@ Management:
                 var clickedColumn = datagridviewVMOverView.Columns[e.ColumnIndex];
 
                 // Check if the Export column header was clicked
-                if (clickedColumn.Name == "Export" || clickedColumn.DataPropertyName == "Export" || clickedColumn.HeaderText == "☑" || clickedColumn.HeaderText == "☐")
+                if (clickedColumn.Name == "Export" || clickedColumn.DataPropertyName == "Export" || clickedColumn.HeaderText == @"☑" || clickedColumn.HeaderText == @"☐")
                 {
                     Message("User clicked Export column header to toggle all checkboxes",
                         EventType.Information, 2220);
@@ -3212,7 +3208,7 @@ Management:
                 }, (hostDetails) =>
                 {
                     // Handle result on UI thread
-                    if (hostDetails != null && hostDetails.Count > 0)
+                    if (hostDetails.Count > 0)
                     {
                         Message($"Retrieved details for {hostDetails.Count} host(s), updating DataGridView",
                             EventType.Information, 4012);
@@ -3274,7 +3270,7 @@ Management:
                 datagridviewhvHosts.Rows.Clear();
                 datagridviewhvHosts.Columns.Clear();
 
-                if (hostDetails == null || hostDetails.Count == 0)
+                if (hostDetails.Count == 0)
                 {
                     Message("No host details to display",
                         EventType.Information, 4016);
@@ -3405,11 +3401,11 @@ Management:
 
                 // Set minimum column widths for key columns
                 if (datagridviewhvHosts.Columns.Contains("Host Name"))
-                    datagridviewhvHosts.Columns["Host Name"].MinimumWidth = 120;
+                    datagridviewhvHosts.Columns["Host Name"]?.MinimumWidth = 120;
                 if (datagridviewhvHosts.Columns.Contains("Cluster Name"))
-                    datagridviewhvHosts.Columns["Cluster Name"].MinimumWidth = 100;
+                    datagridviewhvHosts.Columns["Cluster Name"]?.MinimumWidth = 100;
                 if (datagridviewhvHosts.Columns.Contains("Processor"))
-                    datagridviewhvHosts.Columns["Processor"].MinimumWidth = 200;
+                    datagridviewhvHosts.Columns["Processor"]?.MinimumWidth = 200;
 
                 Message($"hvHosts DataGridView updated successfully with {hostDetails.Count} host(s)",
                     EventType.Information, 4018);
@@ -3532,7 +3528,7 @@ Management:
                 datagridviewClusterNodes.Rows.Clear();
                 datagridviewClusterNodes.Columns.Clear();
 
-                if (nodes == null || nodes.Count == 0)
+                if (nodes.Count == 0)
                 {
                     return;
                 }
@@ -3606,7 +3602,7 @@ Management:
                 datagridviewClusterVMs.Rows.Clear();
                 datagridviewClusterVMs.Columns.Clear();
 
-                if (virtualMachines == null || virtualMachines.Count == 0)
+                if (virtualMachines.Count == 0)
                 {
                     return;
                 }
@@ -3661,7 +3657,7 @@ Management:
 
                 // Set VM Name column wider
                 if (datagridviewClusterVMs.Columns.Contains("VM Name"))
-                    datagridviewClusterVMs.Columns["VM Name"].MinimumWidth = 200;
+                    datagridviewClusterVMs.Columns["VM Name"]?.MinimumWidth = 200;
             }
             catch (Exception ex)
             {
@@ -3697,7 +3693,7 @@ Management:
                 datagridviewvDiskOverView.Rows.Clear();
                 datagridviewvDiskOverView.Columns.Clear();
 
-                if (diskDetails == null || diskDetails.Count == 0)
+                if (diskDetails.Count == 0)
                 {
                     Message("No virtual disk details to display",
                         EventType.Information, 5037);
@@ -3893,11 +3889,11 @@ Management:
 
                 // Set minimum column widths for key columns
                 if (datagridviewvDiskOverView.Columns.Contains("VM Name"))
-                    datagridviewvDiskOverView.Columns["VM Name"].MinimumWidth = 150;
+                    datagridviewvDiskOverView.Columns["VM Name"]?.MinimumWidth = 150;
                 if (datagridviewvDiskOverView.Columns.Contains("Disk Name"))
-                    datagridviewvDiskOverView.Columns["Disk Name"].MinimumWidth = 200;
+                    datagridviewvDiskOverView.Columns["Disk Name"]?.MinimumWidth = 200;
                 if (datagridviewvDiskOverView.Columns.Contains("Disk Path"))
-                    datagridviewvDiskOverView.Columns["Disk Path"].MinimumWidth = 300;
+                    datagridviewvDiskOverView.Columns["Disk Path"]?.MinimumWidth = 300;
 
                 Message($"datagridviewvDiskOverView updated successfully with {diskDetails.Count} virtual disk(s)",
                     EventType.Information, 5039);
