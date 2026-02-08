@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     public class IniFile
     {

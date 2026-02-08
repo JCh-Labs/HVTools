@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using HVTools.Class;
+using HVTools.Helpers;
 
 namespace HVTools.Forms
 {

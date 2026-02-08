@@ -1,6 +1,6 @@
 using System.Management.Automation;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     /// <summary>
     /// Global session context to store connection credentials and information

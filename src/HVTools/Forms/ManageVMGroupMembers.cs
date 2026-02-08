@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Management.Automation;
-using HVTools.Class;
+using HVTools.Helpers;
 
 namespace HVTools.Forms
 {

@@ -1,8 +1,8 @@
-﻿using Microsoft.Win32;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     internal class OsVersionInfo
     {

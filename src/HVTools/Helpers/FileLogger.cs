@@ -2,7 +2,7 @@
 using System.Security;
 using System.Text;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     internal class FileLogger
     {

@@ -1,4 +1,4 @@
-﻿namespace HVTools.Class
+﻿namespace HVTools.Helpers
 {
     internal class FileManager
     {

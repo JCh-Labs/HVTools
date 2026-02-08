@@ -1,8 +1,8 @@
-using System.Management.Automation;
 using System.Diagnostics;
+using System.Management.Automation;
 using System.Text.Json;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     /// <summary>
     /// Represents detailed information about a Hyper-V host

@@ -1,7 +1,7 @@
 using System.Management.Automation;
 using System.Text.Json;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     #region Data Models
 

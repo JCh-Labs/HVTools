@@ -1,6 +1,6 @@
 using System.Management.Automation;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     /// <summary>
     /// Represents detailed information about a virtual disk (VHD/VHDX)

@@ -1,6 +1,6 @@
 ﻿using System.Management.Automation;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     /// <summary>
     /// Information about a cluster node

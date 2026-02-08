@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
-using HVTools.Class;
+using HVTools.Helpers;
 
 namespace HVTools.Forms
 {

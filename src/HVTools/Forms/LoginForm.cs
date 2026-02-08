@@ -1,5 +1,4 @@
-﻿using HVTools.Class;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Management;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -9,7 +8,8 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
-using static HVTools.Class.FileLogger;
+using HVTools.Helpers;
+using static HVTools.Helpers.FileLogger;
 
 namespace HVTools.Forms
 {

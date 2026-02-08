@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace HVTools.Class
+namespace HVTools.Helpers
 {
     internal class HighDpi
     {

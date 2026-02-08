@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using HVTools.Class;
-using static HVTools.Class.FileLogger;
+using HVTools.Helpers;
+using static HVTools.Helpers.FileLogger;
 
 namespace HVTools.Forms
 {
