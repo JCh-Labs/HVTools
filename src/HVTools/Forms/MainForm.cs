@@ -20,186 +20,20 @@ namespace HVTools.Forms
         private bool _isLoadingNodeData;
         private string? _currentlyDisplayedNodeName; // Track which node's data is displayed
 
+        /// <summary>
+        /// Initializes a new instance of the MainForm class and sets up the user interface and session state.
+        /// </summary>
+        /// <remarks>This constructor prepares the form for use by initializing its components and
+        /// session. Use this constructor when creating a new MainForm instance for display or interaction.</remarks>
         public MainForm()
         {
             InitializeComponent();
             InitializeSession();
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            // Set initial status (make dynamic based on context if needed when shown later)
-            toolStripStatusLabelTextMainForm.Text = @"Loading...";
-            // Initial data load will happen in OnShown
-        }
-
         /// <summary>
-        /// Helper class for cluster node combobox items
+        /// Sets up the session context for the main form, including establishing remote PowerShell sessions if necessary,
         /// </summary>
-        private class ClusterNodeComboItem
-        {
-            public string NodeName { get; }
-            public string NodeFqdn { get; }
-            public string DisplayText { get; }
-
-            public ClusterNodeComboItem(string nodeName, string nodeFqdn, string displayText, bool isCurrentNode)
-            {
-                NodeName = nodeName;
-                NodeFqdn = nodeFqdn;
-                DisplayText = displayText;
-            }
-
-            public override string ToString() => DisplayText;
-        }
-
-        /// <summary>
-        /// Performs initial data load with progress form when MainForm is first shown
-        /// </summary>
-        protected override async void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-
-            // Only perform initial load once
-            if (_initialLoadComplete)
-                return;
-
-            ValidationProgressForm? progressForm = null;
-            ManualResetEvent progressFormReady = new ManualResetEvent(false);
-
-            try
-            {
-                // Create progress form on a separate UI thread to keep it responsive
-                var progressThread = new Thread(() =>
-                {
-                    progressForm = new ValidationProgressForm();
-                    progressForm.StartPosition = FormStartPosition.CenterScreen;
-                    progressForm.TopMost = true;
-
-                    // Signal that the form is created
-                    progressFormReady.Set();
-
-                    // Run message loop for this form on this thread
-                    Application.Run(progressForm);
-                });
-
-                progressThread.SetApartmentState(ApartmentState.STA);
-                progressThread.IsBackground = true;
-                progressThread.Start();
-
-                // Wait for progress form to be created and shown
-                progressFormReady.WaitOne();
-                await Task.Delay(100); // Give it time to render
-
-                Message("Starting initial data load for MainForm", EventType.Information, 2200);
-
-                Exception loadException = null;
-
-                // Load VM Overview in background
-                Message("Loading VM Overview data...", EventType.Information, 2201);
-                await Task.Run(() =>
-                {
-                    try
-                    {
-                        Invoke((MethodInvoker)delegate
-                        {
-                            LoadVmOverview();
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        loadException = ex;
-                        Message($"Error loading VM Overview: {ex.Message}", EventType.Error, 2203);
-                    }
-                });
-
-                // Small delay between operations
-                await Task.Delay(100);
-
-                // Load VM Groups in background if no error occurred
-                if (loadException == null)
-                {
-                    Message("Loading VM Groups data...", EventType.Information, 2202);
-                    await Task.Run(() =>
-                    {
-                        try
-                        {
-                            Invoke((MethodInvoker)delegate
-                            {
-                                UpdateVmGroupsDataGridView();
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            loadException = ex;
-                            Message($"Error loading VM Groups: {ex.Message}", EventType.Error, 2204);
-                        }
-                    });
-                }
-
-                // Check for errors
-                if (loadException != null)
-                {
-                    MessageBox.Show(
-                        $@"Error loading initial data:
-
-{loadException.Message}",
-                        @"Data Load Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                }
-
-                _initialLoadComplete = true;
-                toolStripStatusLabelTextMainForm.Text = @"Ready";
-                Message("Initial data load completed successfully", EventType.Information, 2205);
-            }
-            catch (Exception ex)
-            {
-                Message($"Error in OnShown initial load: {ex.Message}", EventType.Error, 2206);
-                MessageBox.Show(
-                    $@"Error initializing form:
-
-{ex.Message}",
-                    @"Initialization Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                toolStripStatusLabelTextMainForm.Text = @"Error";
-            }
-            finally
-            {
-                // Close the progress form on its own thread
-                if (progressForm != null)
-                {
-                    try
-                    {
-                        // Use Invoke to close the form on its own thread
-                        progressForm.Invoke((MethodInvoker)delegate
-                        {
-                            progressForm.Close();
-                        });
-                    }
-                    catch
-                    {
-                        // Ignore disposal errors
-                    }
-                }
-
-                // Clean up the event
-                progressFormReady?.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Handles the DataBindingComplete event to apply color coding after data is fully bound
-        /// </summary>
-        private void DatagridviewVMOverView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            // Only apply color coding if binding was successful
-            if (e.ListChangedType == System.ComponentModel.ListChangedType.Reset)
-            {
-                ApplyColorCoding();
-            }
-        }
-
         private void InitializeSession()
         {
             try
@@ -375,7 +209,180 @@ namespace HVTools.Forms
                 Close();
             }
         }
+        
+        /// <summary>
+        /// Handles the Load event of the main form, performing initial setup tasks before the form is displayed.
+        /// </summary>
+        /// <remarks>This method sets the initial status text for the main form. Additional data loading
+        /// occurs in the OnShown event handler.</remarks>
+        /// <param name="sender">The source of the event, typically the main form instance.</param>
+        /// <param name="e">An EventArgs object containing the event data.</param>
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // Set initial status (make dynamic based on context if needed when shown later)
+            toolStripStatusLabelTextMainForm.Text = @"Loading...";
+            // Initial data load will happen in OnShown
+        }
 
+        /// <summary>
+        /// Helper class for cluster node combobox items
+        /// </summary>
+        private class ClusterNodeComboItem
+        {
+            public string NodeName { get; }
+            public string NodeFqdn { get; }
+            public string DisplayText { get; }
+
+            public ClusterNodeComboItem(string nodeName, string nodeFqdn, string displayText, bool isCurrentNode)
+            {
+                NodeName = nodeName;
+                NodeFqdn = nodeFqdn;
+                DisplayText = displayText;
+            }
+
+            public override string ToString() => DisplayText;
+        }
+
+        /// <summary>
+        /// Performs initial data load with progress form when MainForm is first shown
+        /// </summary>
+        protected override async void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            // Only perform initial load once
+            if (_initialLoadComplete)
+                return;
+
+            ValidationProgressForm? progressForm = null;
+            ManualResetEvent progressFormReady = new ManualResetEvent(false);
+
+            try
+            {
+                // Create progress form on a separate UI thread to keep it responsive
+                var progressThread = new Thread(() =>
+                {
+                    progressForm = new ValidationProgressForm();
+                    progressForm.StartPosition = FormStartPosition.CenterScreen;
+                    progressForm.TopMost = true;
+
+                    // Signal that the form is created
+                    progressFormReady.Set();
+
+                    // Run message loop for this form on this thread
+                    Application.Run(progressForm);
+                });
+
+                progressThread.SetApartmentState(ApartmentState.STA);
+                progressThread.IsBackground = true;
+                progressThread.Start();
+
+                // Wait for progress form to be created and shown
+                progressFormReady.WaitOne();
+                await Task.Delay(100); // Give it time to render
+
+                Message("Starting initial data load for MainForm", EventType.Information, 2200);
+
+                Exception loadException = null;
+
+                // Load VM Overview in background
+                Message("Loading VM Overview data...", EventType.Information, 2201);
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        Invoke((MethodInvoker)delegate
+                        {
+                            LoadVmOverview();
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        loadException = ex;
+                        Message($"Error loading VM Overview: {ex.Message}", EventType.Error, 2203);
+                    }
+                });
+
+                // Small delay between operations
+                await Task.Delay(100);
+
+                // Load VM Groups in background if no error occurred
+                if (loadException == null)
+                {
+                    Message("Loading VM Groups data...", EventType.Information, 2202);
+                    await Task.Run(() =>
+                    {
+                        try
+                        {
+                            Invoke((MethodInvoker)delegate
+                            {
+                                UpdateVmGroupsDataGridView();
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            loadException = ex;
+                            Message($"Error loading VM Groups: {ex.Message}", EventType.Error, 2204);
+                        }
+                    });
+                }
+
+                // Check for errors
+                if (loadException != null)
+                {
+                    MessageBox.Show(
+                        $@"Error loading initial data:
+
+{loadException.Message}",
+                        @"Data Load Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+
+                _initialLoadComplete = true;
+                toolStripStatusLabelTextMainForm.Text = @"Ready";
+                Message("Initial data load completed successfully", EventType.Information, 2205);
+            }
+            catch (Exception ex)
+            {
+                Message($"Error in OnShown initial load: {ex.Message}", EventType.Error, 2206);
+                MessageBox.Show(
+                    $@"Error initializing form:
+
+{ex.Message}",
+                    @"Initialization Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                toolStripStatusLabelTextMainForm.Text = @"Error";
+            }
+            finally
+            {
+                // Close the progress form on its own thread
+                if (progressForm != null)
+                {
+                    try
+                    {
+                        // Use Invoke to close the form on its own thread
+                        progressForm.Invoke((MethodInvoker)delegate
+                        {
+                            progressForm.Close();
+                        });
+                    }
+                    catch
+                    {
+                        // Ignore disposal errors
+                    }
+                }
+
+                // Clean up the event
+                progressFormReady?.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Overrides the OnFormClosing method to perform cleanup of remote sessions and runspaces when the form is closing.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
@@ -425,6 +432,18 @@ namespace HVTools.Forms
                     Message($"Error closing persistent runspace: {ex.Message}",
                         EventType.Warning, 2010);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Handles the DataBindingComplete event to apply color coding after data is fully bound
+        /// </summary>
+        private void DatagridviewVMOverView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Only apply color coding if binding was successful
+            if (e.ListChangedType == System.ComponentModel.ListChangedType.Reset)
+            {
+                ApplyColorCoding();
             }
         }
 
@@ -621,6 +640,13 @@ namespace HVTools.Forms
             }
         }
 
+        /// <summary>
+        /// Loads and displays an overview of virtual machines (VMs) from the current server or cluster context.
+        /// </summary>
+        /// <remarks>This method retrieves VM information based on the session context, using cluster node
+        /// iteration if connected to a cluster, or a standard retrieval for standalone or local sessions. The results
+        /// are presented in the VM overview grid. If no VMs are found, an informational message is shown. Errors
+        /// encountered during the operation are reported to the user.</remarks>
         private void LoadVmOverview()
         {
             try
