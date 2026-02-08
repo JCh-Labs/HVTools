@@ -3776,89 +3776,6 @@ Management:
             LoadClusterInformationView();
         }
 
-        /*
-        /// <summary>
-        /// Loads and displays virtual disk information in the hvDisks tab
-        /// </summary>
-        public void LoadVirtualDiskOverview()
-        {
-            try
-            {
-                Message("User requested virtual disk overview refresh",
-                    EventType.Information, 5030);
-
-                // Check if there's an active Hyper-V connection
-                if (!SessionContext.IsSessionActive())
-                {
-                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
-                        @"Connection Required",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Exclamation);
-                    return;
-                }
-
-                Cursor = Cursors.WaitCursor;
-                toolStripStatusLabelTextMainForm.Text = @"Loading virtual disk information...";
-
-                Message("Retrieving virtual disk details...",
-                    EventType.Information, 5031);
-
-                // Get virtual disk details
-                List<VirtualDiskInfo> diskDetails;
-
-                if (SessionContext.IsCluster && !SessionContext.IsLocal)
-                {
-                    // Cluster environment - get disks from all nodes
-                    diskDetails = VirtualDisks.GetVirtualDiskDetails(
-                        cmd => ExecutePowerShellCommand(cmd),
-                        (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd));
-                }
-                else
-                {
-                    // Single host or local
-                    diskDetails = VirtualDisks.GetVirtualDiskDetails(
-                        cmd => ExecutePowerShellCommand(cmd));
-                }
-
-                if (diskDetails != null && diskDetails.Count > 0)
-                {
-                    Message($"Retrieved {diskDetails.Count} virtual disk(s), updating DataGridView",
-                        EventType.Information, 5032);
-
-                    UpdateVirtualDisksDataGridView(diskDetails);
-
-                    toolStripStatusLabelTextMainForm.Text = $@"Loaded {diskDetails.Count} virtual disk(s)";
-
-                    Message($"Virtual disk overview loaded successfully with {diskDetails.Count} disk(s)",
-                        EventType.Information, 5033);
-                }
-                else
-                {
-                    Message("No virtual disks found",
-                        EventType.Warning, 5034);
-
-                    toolStripStatusLabelTextMainForm.Text = @"No virtual disks found";
-                }
-            }
-            catch (Exception ex)
-            {
-                string errorMsg = $"Error loading virtual disk overview: {ex.Message}";
-                Message(errorMsg, EventType.Error, 5035);
-
-                MessageBox.Show(errorMsg,
-                    @"Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-
-                toolStripStatusLabelTextMainForm.Text = @"Error loading virtual disk overview";
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
-        */
-
         /// <summary>
         /// Updates the datagridviewvDiskOverView DataGridView with virtual disk details
         /// </summary>
@@ -4452,7 +4369,7 @@ Management:
 • Avg Fragmentation: {avgFragmentation}%{clusterSection}
 
 💡 Recommendations:
-{GetDiskRecommendations(dynamicDisks, fixedDisks, spaceEfficiency, avgFragmentation, vhdDisks)}";
+{VirtualDisks.GetDiskRecommendations(dynamicDisks, fixedDisks, spaceEfficiency, avgFragmentation, vhdDisks)}";
 
                 Message($"Virtual disk summary generated - Total Disks: {totalDisks}, Total Size: {totalMaxSizeGb:F1} GB",
                     EventType.Information, 5044);
@@ -4475,43 +4392,6 @@ Management:
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
-        }
-
-        /// <summary>
-        /// Generates recommendations based on disk statistics
-        /// </summary>
-        private string GetDiskRecommendations(int dynamicDisks, int fixedDisks, double spaceEfficiency,
-            double avgFragmentation, int vhdDisks)
-        {
-            var recommendations = new List<string>();
-
-            // Dynamic vs Fixed recommendation
-            if (dynamicDisks > fixedDisks * 3)
-            {
-                recommendations.Add("• Consider using Fixed disks for production VMs for better performance");
-            }
-
-            // Space efficiency
-            if (spaceEfficiency < 50)
-            {
-                recommendations.Add($"• Low space efficiency ({spaceEfficiency}%) - consider compacting dynamic disks");
-            }
-
-            // Fragmentation
-            if (avgFragmentation > 15)
-            {
-                recommendations.Add($"• High fragmentation detected ({avgFragmentation}%) - consider defragmenting disks");
-            }
-
-            // VHD vs VHDX
-            if (vhdDisks > 0)
-            {
-                recommendations.Add($"• {vhdDisks} VHD disk(s) detected - consider migrating to VHDX format");
-            }
-
-            return recommendations.Count > 0
-                ? string.Join("\n", recommendations)
-                : "• Disk configuration looks optimal";
         }
 
         private void buttonExportVMvmOverviewView_Click(object sender, EventArgs e)

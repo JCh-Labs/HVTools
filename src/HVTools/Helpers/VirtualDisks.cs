@@ -554,5 +554,48 @@ namespace HVTools.Helpers
                 return false;
             }
         }
+
+        /// <summary>
+        /// Generates recommendations based on disk statistics
+        /// </summary>
+        /// <param name="dynamicDisks">Number of dynamic disks</param>
+        /// <param name="fixedDisks">Number of fixed disks</param>
+        /// <param name="spaceEfficiency">Space efficiency percentage</param>
+        /// <param name="avgFragmentation">Average fragmentation percentage</param>
+        /// <param name="vhdDisks">Number of VHD (legacy) disks</param>
+        /// <returns>Recommendations string</returns>
+        public static string GetDiskRecommendations(int dynamicDisks, int fixedDisks, double spaceEfficiency,
+            double avgFragmentation, int vhdDisks)
+        {
+            var recommendations = new List<string>();
+
+            // Dynamic vs Fixed recommendation
+            if (dynamicDisks > fixedDisks * 3)
+            {
+                recommendations.Add("• Consider using Fixed disks for production VMs for better performance");
+            }
+
+            // Space efficiency
+            if (spaceEfficiency < 50)
+            {
+                recommendations.Add($"• Low space efficiency ({spaceEfficiency}%) - consider compacting dynamic disks");
+            }
+
+            // Fragmentation
+            if (avgFragmentation > 15)
+            {
+                recommendations.Add($"• High fragmentation detected ({avgFragmentation}%) - consider defragmenting disks");
+            }
+
+            // VHD vs VHDX
+            if (vhdDisks > 0)
+            {
+                recommendations.Add($"• {vhdDisks} VHD disk(s) detected - consider migrating to VHDX format");
+            }
+
+            return recommendations.Count > 0
+                ? string.Join("\n", recommendations)
+                : "• Disk configuration looks optimal";
+        }
     }
 }
