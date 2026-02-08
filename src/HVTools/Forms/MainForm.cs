@@ -24,7 +24,7 @@ namespace HVTools.Forms
         {
             InitializeComponent();
             InitializeSession();
-        }
+        } 
 
         private void MainForm_Load(object sender, EventArgs e)
         {
