@@ -34,6 +34,25 @@ namespace HVTools.Forms
         }
 
         /// <summary>
+        /// Helper class for cluster node combobox items
+        /// </summary>
+        private class ClusterNodeComboItem
+        {
+            public string NodeName { get; }
+            public string NodeFqdn { get; }
+            public string DisplayText { get; }
+
+            public ClusterNodeComboItem(string nodeName, string nodeFqdn, string displayText, bool isCurrentNode)
+            {
+                NodeName = nodeName;
+                NodeFqdn = nodeFqdn;
+                DisplayText = displayText;
+            }
+
+            public override string ToString() => DisplayText;
+        }
+
+        /// <summary>
         /// Performs initial data load with progress form when MainForm is first shown
         /// </summary>
         protected override async void OnShown(EventArgs e)
@@ -5922,27 +5941,7 @@ Notes:
                 toolStripStatusLabelTextMainForm.Text = $@"Error loading data from '{shortNodeName}'";
             }
         }
-
-
-        /// <summary>
-        /// Helper class for cluster node combobox items
-        /// </summary>
-        private class ClusterNodeComboItem
-        {
-            public string NodeName { get; }
-            public string NodeFqdn { get; }
-            public string DisplayText { get; }
-
-            public ClusterNodeComboItem(string nodeName, string nodeFqdn, string displayText, bool isCurrentNode)
-            {
-                NodeName = nodeName;
-                NodeFqdn = nodeFqdn;
-                DisplayText = displayText;
-            }
-
-            public override string ToString() => DisplayText;
-        }
-
+        
         /// <summary>
         /// Updates the datagridviewHealthOverview DataGridView with host inventory details
         /// </summary>
