@@ -6059,11 +6059,11 @@ Notes:
 
                     AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%",
                         $"{cpuStatus} usage level",
-                        GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
+                        GetCpuPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
                         "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
                     AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%",
                         $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB",
-                        GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
+                        GetCpuPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
                         "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
                 }
                 else
@@ -6241,7 +6241,7 @@ Notes:
         /// <summary>
         /// Gets the status indicator for performance metrics
         /// </summary>
-        private string GetPerformanceStatus(double value, string type)
+        private string GetCpuPerformanceStatus(double value, string type)
         {
             if (type == "cpu" || type == "memory")
             {
