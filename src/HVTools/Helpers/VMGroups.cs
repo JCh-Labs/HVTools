@@ -493,8 +493,8 @@ namespace HVTools.Helpers
         }
 
         public static VmGroupCreationResult CreateHyperVvmGroup(
-            string groupName,
-            string groupType,
+            string? groupName,
+            string? groupType,
             Func<string, System.Collections.ObjectModel.Collection<PSObject>> executePowerShellCommand)
         {
             try

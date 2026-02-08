@@ -1487,10 +1487,10 @@ namespace HVTools.Forms
                     disconnectToolStripMenuItem.Enabled = false;
 
                     // Store server name before clearing
-                    string disconnectedServer = SessionContext.ServerName;
+                    string? disconnectedServer = SessionContext.ServerName;
 
                     // Clean up remote session if exists
-                    if (_psSession != null && _persistentRunspace != null)
+                    if (_persistentRunspace != null)
                     {
                         try
                         {
@@ -1530,7 +1530,7 @@ namespace HVTools.Forms
                     }
 
                     // Clear PS session reference
-                    _psSession = null;
+                    _psSession = null!;
 
                     // Clear global connection data (SessionContext)
                     SessionContext.Clear();
@@ -1549,7 +1549,7 @@ namespace HVTools.Forms
                     {
                         var loginResult = loginForm.ShowDialog();
 
-                        if (loginResult == DialogResult.OK && loginForm.Result != null && loginForm.Result.Success)
+                        if (loginResult == DialogResult.OK && loginForm.Result.Success)
                         {
                             // Authentication successful - close current form and open new MainForm
                             Message($"Reconnected successfully to '{loginForm.Result.ServerName}'",
@@ -1622,10 +1622,10 @@ namespace HVTools.Forms
                 {
                     var result = createGroupForm.ShowDialog();
 
-                    if (result == DialogResult.OK && createGroupForm.Result != null)
+                    if (result == DialogResult.OK)
                     {
-                        string groupName = createGroupForm.Result.GroupName;
-                        string groupType = createGroupForm.Result.GroupType;
+                        string? groupName = createGroupForm.Result.GroupName;
+                        string? groupType = createGroupForm.Result.GroupType;
 
                         Message($"Creating VM Group '{groupName}' of type '{groupType}'...",
                             EventType.Information, 2030);
