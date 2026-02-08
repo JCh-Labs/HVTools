@@ -119,6 +119,7 @@
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             toolstripstatuslabelMain_CreatedBy = new Label();
+            buttonSummaryvHostsView = new Button();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -241,6 +242,7 @@
             // 
             // tabpagehvHosts
             // 
+            tabpagehvHosts.Controls.Add(buttonSummaryvHostsView);
             tabpagehvHosts.Controls.Add(buttonLoadHostsrefresh);
             tabpagehvHosts.Controls.Add(datagridviewhvHosts);
             tabpagehvHosts.Controls.Add(label1);
@@ -1064,6 +1066,16 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
+            // buttonSummaryvHostsView
+            // 
+            buttonSummaryvHostsView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryvHostsView.Location = new Point(1406, 6);
+            buttonSummaryvHostsView.Name = "buttonSummaryvHostsView";
+            buttonSummaryvHostsView.Size = new Size(75, 23);
+            buttonSummaryvHostsView.TabIndex = 8;
+            buttonSummaryvHostsView.Text = "Summary";
+            buttonSummaryvHostsView.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1211,5 +1223,6 @@
         private Button buttonSummaryHealthOverviewHelp;
         private ComboBox comboBoxClusterNodeSelector;
         private Label labelClusterNodeSelector;
+        private Button buttonSummaryvHostsView;
     }
 }
