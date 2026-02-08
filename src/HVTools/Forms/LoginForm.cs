@@ -95,8 +95,8 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message("Determining default Hyper-V server name...",
-                    FileLogger.EventType.Information, 1047);
+                Message("Determining default Hyper-V server name...",
+                    EventType.Information, 1047);
 
                 // Check if local machine has Hyper-V role installed
                 bool hyperVInstalled = TestLocalHyperVInstallation();
@@ -109,8 +109,8 @@ namespace HVTools.Forms
 
                     //UpdateStatusLabel("Ready - Local Hyper-V detected", isSuccess: true);
                     UpdateStatusLabel("Ready - Local Hyper-V detected");
-                    FileLogger.Message($"Local Hyper-V installation detected - default server set to: '{Environment.MachineName}'",
-                        FileLogger.EventType.Information, 1048);
+                    Message($"Local Hyper-V installation detected - default server set to: '{Environment.MachineName}'",
+                        EventType.Information, 1048);
                 }
                 else
                 {
@@ -119,8 +119,8 @@ namespace HVTools.Forms
 
                     //UpdateStatusLabel("Ready - No local Hyper-V detected", isSuccess: false);
                     UpdateStatusLabel("Ready - No local Hyper-V detected");
-                    FileLogger.Message("No local Hyper-V detected - default server set to current machine name",
-                        FileLogger.EventType.Information, 1049);
+                    Message("No local Hyper-V detected - default server set to current machine name",
+                        EventType.Information, 1049);
                 }
             }
             catch (Exception ex)
@@ -128,8 +128,8 @@ namespace HVTools.Forms
                 // Fallback to machine name if anything goes wrong
                 textboxServer.Text = Environment.MachineName;
                 UpdateStatusLabel("Ready", isSuccess: null);
-                FileLogger.Message($"Error determining Hyper-V status, defaulting to machine name: {ex.Message}",
-                    FileLogger.EventType.Warning, 1050);
+                Message($"Error determining Hyper-V status, defaulting to machine name: {ex.Message}",
+                    EventType.Warning, 1050);
             }
         }
 
@@ -152,8 +152,8 @@ namespace HVTools.Forms
         private bool TestLocalHyperVInstallation()
         {
             // Show we are testing for Hyper-V status
-            FileLogger.Message("Testing for local Hyper-V installation...",
-                FileLogger.EventType.Information, 1051);
+            Message("Testing for local Hyper-V installation...",
+                EventType.Information, 1051);
 
             // Method 1: Service check
             if (TestHyperVService())
@@ -168,8 +168,8 @@ namespace HVTools.Forms
                 return true;
 
             // If no methods detected Hyper-V, return false
-            FileLogger.Message("No local Hyper-V installation detected",
-                FileLogger.EventType.Information, 1052);
+            Message("No local Hyper-V installation detected",
+                EventType.Information, 1052);
             return false;
         }
 
@@ -177,8 +177,8 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message("Checking Hyper-V service...",
-                    FileLogger.EventType.Information, 1072);
+                Message("Checking Hyper-V service...",
+                    EventType.Information, 1072);
 
                 using (ServiceController sc = new ServiceController("vmms"))
                 {
@@ -186,19 +186,19 @@ namespace HVTools.Forms
                     // This will throw InvalidOperationException if service doesn't exist
                     var status = sc.Status;
 
-                    FileLogger.Message($"Hyper-V service detected (Status: {status})",
-                        FileLogger.EventType.Information, 1073);
+                    Message($"Hyper-V service detected (Status: {status})",
+                        EventType.Information, 1073);
 
                     if (status == ServiceControllerStatus.Running)
                     {
-                        FileLogger.Message("Hyper-V Virtual Machine Management service is running",
-                            FileLogger.EventType.Information, 1074);
+                        Message("Hyper-V Virtual Machine Management service is running",
+                            EventType.Information, 1074);
                         return true;
                     }
                     else
                     {
-                        FileLogger.Message($"Hyper-V service exists but is not running (Status: {status})",
-                            FileLogger.EventType.Warning, 1075);
+                        Message($"Hyper-V service exists but is not running (Status: {status})",
+                            EventType.Warning, 1075);
                         return false;
                     }
                 }
@@ -206,14 +206,14 @@ namespace HVTools.Forms
             catch (InvalidOperationException)
             {
                 // Service doesn't exist
-                FileLogger.Message("Hyper-V Virtual Machine Management service not found",
-                    FileLogger.EventType.Information, 1076);
+                Message("Hyper-V Virtual Machine Management service not found",
+                    EventType.Information, 1076);
                 return false;
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error checking Hyper-V service: {ex.Message}",
-                    FileLogger.EventType.Warning, 1077);
+                Message($"Error checking Hyper-V service: {ex.Message}",
+                    EventType.Warning, 1077);
                 return false;
             }
         }
@@ -222,8 +222,8 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message("Checking Windows Optional Feature for Hyper-V using (WMI)...",
-                    FileLogger.EventType.Information, 1053);
+                Message("Checking Windows Optional Feature for Hyper-V using (WMI)...",
+                    EventType.Information, 1053);
 
                 // Query Win32_OptionalFeature for Hyper-V related features
                 using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(
@@ -239,8 +239,8 @@ namespace HVTools.Forms
                         // InstallState values: 1 = Enabled, 2 = Disabled, 3 = Absent
                         if (installState == 1)
                         {
-                            FileLogger.Message($"Hyper-V feature detected as enabled: {featureName}",
-                                FileLogger.EventType.Information, 1054);
+                            Message($"Hyper-V feature detected as enabled: {featureName}",
+                                EventType.Information, 1054);
 
                             // Verify service is running using 
                             if (TestHyperVServiceStatus())
@@ -249,26 +249,26 @@ namespace HVTools.Forms
                             }
                             else
                             {
-                                FileLogger.Message("Hyper-V feature is enabled but service is not running",
-                                    FileLogger.EventType.Warning, 1055);
+                                Message("Hyper-V feature is enabled but service is not running",
+                                    EventType.Warning, 1055);
                                 return false;
                             }
                         }
                     }
 
-                    FileLogger.Message("No enabled Hyper-V features found in WMI",
-                        FileLogger.EventType.Information, 1083);
+                    Message("No enabled Hyper-V features found in WMI",
+                        EventType.Information, 1083);
                 }
             }
             catch (ManagementException ex)
             {
-                FileLogger.Message($"WMI query for Windows Optional Features failed: {ex.Message}",
-                    FileLogger.EventType.Information, 1056);
+                Message($"WMI query for Windows Optional Features failed: {ex.Message}",
+                    EventType.Information, 1056);
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Windows Optional Feature check failed: {ex.Message}",
-                    FileLogger.EventType.Information, 1056);
+                Message($"Windows Optional Feature check failed: {ex.Message}",
+                    EventType.Information, 1056);
             }
 
             return false;
@@ -278,8 +278,8 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message("Checking Windows Server role for Hyper-V using (WMI)...",
-                    FileLogger.EventType.Information, 1062);
+                Message("Checking Windows Server role for Hyper-V using (WMI)...",
+                    EventType.Information, 1062);
 
                 // Query Win32_ServerFeature for Hyper-V role
                 // Hyper-V role ID is typically 20 (Microsoft-Hyper-V)
@@ -292,8 +292,8 @@ namespace HVTools.Forms
                         var feature = (ManagementObject)o;
                         string? featureName = feature["Name"]?.ToString();
 
-                        FileLogger.Message($"Hyper-V role detected on Windows Server: {featureName}",
-                            FileLogger.EventType.Information, 1063);
+                        Message($"Hyper-V role detected on Windows Server: {featureName}",
+                            EventType.Information, 1063);
 
                         // Verify service is running using 
                         if (TestHyperVServiceStatus())
@@ -302,25 +302,25 @@ namespace HVTools.Forms
                         }
                         else
                         {
-                            FileLogger.Message("Hyper-V role is installed but service is not running",
-                                FileLogger.EventType.Warning, 1064);
+                            Message("Hyper-V role is installed but service is not running",
+                                EventType.Warning, 1064);
                             return false;
                         }
                     }
 
-                    FileLogger.Message("No Hyper-V server roles found in WMI",
-                        FileLogger.EventType.Information, 1084);
+                    Message("No Hyper-V server roles found in WMI",
+                        EventType.Information, 1084);
                 }
             }
             catch (ManagementException ex)
             {
-                FileLogger.Message($"WMI query for Windows Server roles failed: {ex.Message}",
-                    FileLogger.EventType.Information, 1065);
+                Message($"WMI query for Windows Server roles failed: {ex.Message}",
+                    EventType.Information, 1065);
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Windows Server role check failed: {ex.Message}",
-                    FileLogger.EventType.Information, 1065);
+                Message($"Windows Server role check failed: {ex.Message}",
+                    EventType.Information, 1065);
             }
 
             return false;
@@ -330,8 +330,8 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message("Checking Hyper-V service status...",
-                    FileLogger.EventType.Information, 1078);
+                Message("Checking Hyper-V service status...",
+                    EventType.Information, 1078);
 
                 using (ServiceController sc = new ServiceController("vmms"))
                 {
@@ -339,28 +339,28 @@ namespace HVTools.Forms
 
                     if (status == ServiceControllerStatus.Running)
                     {
-                        FileLogger.Message("Hyper-V Virtual Machine Management service is running",
-                            FileLogger.EventType.Information, 1079);
+                        Message("Hyper-V Virtual Machine Management service is running",
+                            EventType.Information, 1079);
                         return true;
                     }
                     else
                     {
-                        FileLogger.Message($"Hyper-V Virtual Machine Management service is not running (Status: {status})",
-                            FileLogger.EventType.Warning, 1080);
+                        Message($"Hyper-V Virtual Machine Management service is not running (Status: {status})",
+                            EventType.Warning, 1080);
                         return false;
                     }
                 }
             }
             catch (InvalidOperationException)
             {
-                FileLogger.Message("Hyper-V Virtual Machine Management service not found",
-                    FileLogger.EventType.Warning, 1081);
+                Message("Hyper-V Virtual Machine Management service not found",
+                    EventType.Warning, 1081);
                 return false;
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error checking Hyper-V service status: {ex.Message}",
-                    FileLogger.EventType.Error, 1082);
+                Message($"Error checking Hyper-V service status: {ex.Message}",
+                    EventType.Error, 1082);
                 return false;
             }
         }
@@ -377,8 +377,8 @@ namespace HVTools.Forms
                 {
                     bool isLocal = IsLocalComputer(serverName);
 
-                    FileLogger.Message($"Testing connection to '{serverName}' (Local: {isLocal})...",
-                        FileLogger.EventType.Information, 1003);
+                    Message($"Testing connection to '{serverName}' (Local: {isLocal})...",
+                        EventType.Information, 1003);
 
                     if (isLocal)
                     {
@@ -391,8 +391,8 @@ namespace HVTools.Forms
                 }
                 catch (Exception ex)
                 {
-                    FileLogger.Message($"Connection test exception: {ex.Message}",
-                        FileLogger.EventType.Error, 1004);
+                    Message($"Connection test exception: {ex.Message}",
+                        EventType.Error, 1004);
                     return new ConnectionTestResult
                     {
                         Success = false,
@@ -437,15 +437,15 @@ namespace HVTools.Forms
 
                     if (localIPs.Contains(computerName))
                     {
-                        FileLogger.Message($"'{computerName}' found in local IP addresses",
-                            FileLogger.EventType.Information, 1043);
+                        Message($"'{computerName}' found in local IP addresses",
+                            EventType.Information, 1043);
                         return true;
                     }
                 }
                 catch (Exception ex)
                 {
-                    FileLogger.Message($"Error checking local IP addresses: {ex.Message}",
-                        FileLogger.EventType.Warning, 1046);
+                    Message($"Error checking local IP addresses: {ex.Message}",
+                        EventType.Warning, 1046);
                 }
             }
 
@@ -480,15 +480,15 @@ namespace HVTools.Forms
         {
             try
             {
-                FileLogger.Message($"Starting local Hyper-V connection test...",
-                    FileLogger.EventType.Information, 1030);
+                Message($"Starting local Hyper-V connection test...",
+                    EventType.Information, 1030);
 
                 // Check if Hyper-V module is available
                 using (Runspace runspace = RunspaceFactory.CreateRunspace())
                 {
                     runspace.Open();
-                    FileLogger.Message($"Local runspace opened successfully",
-                        FileLogger.EventType.Information, 1031);
+                    Message($"Local runspace opened successfully",
+                        EventType.Information, 1031);
 
                     using (PowerShell ps = PowerShell.Create())
                     {
@@ -496,15 +496,15 @@ namespace HVTools.Forms
 
                         // Check for Hyper-V module
                         ps.AddScript("Get-Module -ListAvailable -Name Hyper-V");
-                        FileLogger.Message($"Checking for Hyper-V PowerShell module...",
-                            FileLogger.EventType.Information, 1032);
+                        Message($"Checking for Hyper-V PowerShell module...",
+                            EventType.Information, 1032);
 
                         var moduleResult = ps.Invoke();
 
                         if (moduleResult == null || moduleResult.Count == 0)
                         {
-                            FileLogger.Message($"Hyper-V PowerShell module is not available on this system",
-                                FileLogger.EventType.Error, 1038);
+                            Message($"Hyper-V PowerShell module is not available on this system",
+                                EventType.Error, 1038);
 
                             return new ConnectionTestResult
                             {
@@ -513,8 +513,8 @@ namespace HVTools.Forms
                             };
                         }
 
-                        FileLogger.Message($"Hyper-V module found, importing module...",
-                            FileLogger.EventType.Information, 1033);
+                        Message($"Hyper-V module found, importing module...",
+                            EventType.Information, 1033);
 
                         // Import Hyper-V module
                         ps.Commands.Clear();
@@ -524,13 +524,13 @@ namespace HVTools.Forms
                         if (ps.HadErrors)
                         {
                             var error = ps.Streams.Error[0];
-                            FileLogger.Message($"Failed to import Hyper-V module: {error.Exception?.Message}",
-                                FileLogger.EventType.Error, 1085);
+                            Message($"Failed to import Hyper-V module: {error.Exception?.Message}",
+                                EventType.Error, 1085);
                         }
                         else
                         {
-                            FileLogger.Message("Hyper-V module imported successfully",
-                                FileLogger.EventType.Information, 1086);
+                            Message("Hyper-V module imported successfully",
+                                EventType.Information, 1086);
                         }
 
                         // Check administrator privileges
@@ -539,13 +539,13 @@ namespace HVTools.Forms
 
                         if (!isAdmin)
                         {
-                            FileLogger.Message("Administrator privileges required for local Hyper-V access if not member of 'Hyper-V Administrators' Group",
-                                FileLogger.EventType.Warning, 1087);
+                            Message("Administrator privileges required for local Hyper-V access if not member of 'Hyper-V Administrators' Group",
+                                EventType.Warning, 1087);
                         }
 
                         // Check Hyper-V service
-                        FileLogger.Message("Checking Hyper-V Virtual Machine Management service...",
-                            FileLogger.EventType.Information, 1088);
+                        Message("Checking Hyper-V Virtual Machine Management service...",
+                            EventType.Information, 1088);
 
                         using (ServiceController sc = new ServiceController(@"vmms"))
                         {
@@ -553,8 +553,8 @@ namespace HVTools.Forms
 
                             if (status != ServiceControllerStatus.Running)
                             {
-                                FileLogger.Message($"Hyper-V service is not running (Status: {status})",
-                                    FileLogger.EventType.Error, 1089);
+                                Message($"Hyper-V service is not running (Status: {status})",
+                                    EventType.Error, 1089);
 
                                 return new ConnectionTestResult
                                 {
@@ -563,16 +563,16 @@ namespace HVTools.Forms
                                 };
                             }
 
-                            FileLogger.Message("Hyper-V service is running",
-                                FileLogger.EventType.Information, 1090);
+                            Message("Hyper-V service is running",
+                                EventType.Information, 1090);
                         }
 
                         // Get VMHost information
                         ps.Commands.Clear();
                         ps.AddScript("Get-VMHost -ErrorAction Stop");
 
-                        FileLogger.Message($"Retrieving Hyper-V host information...",
-                            FileLogger.EventType.Information, 1091);
+                        Message($"Retrieving Hyper-V host information...",
+                            EventType.Information, 1091);
 
                         var hostResult = ps.Invoke();
 
@@ -581,8 +581,8 @@ namespace HVTools.Forms
                             var error = ps.Streams.Error[0];
                             string errorMessage = error.Exception?.Message ?? error.ToString();
 
-                            FileLogger.Message($"Failed to get VMHost information: {errorMessage}",
-                                FileLogger.EventType.Error, 1017);
+                            Message($"Failed to get VMHost information: {errorMessage}",
+                                EventType.Error, 1017);
 
                             // Check if it's an elevation/permission issue
                             if (errorMessage.Contains("required permission") ||
@@ -591,8 +591,8 @@ namespace HVTools.Forms
                                 errorMessage.Contains("authorization policy") ||
                                 errorMessage.Contains("elevation"))
                             {
-                                FileLogger.Message($"Access denied detected - elevation required",
-                                    FileLogger.EventType.Warning, 1036);
+                                Message($"Access denied detected - elevation required",
+                                    EventType.Warning, 1036);
 
                                 return new ConnectionTestResult
                                 {
@@ -612,8 +612,8 @@ namespace HVTools.Forms
 
                         if (hostResult == null || hostResult.Count == 0)
                         {
-                            FileLogger.Message("No VMHost information returned",
-                                FileLogger.EventType.Error, 1092);
+                            Message("No VMHost information returned",
+                                EventType.Error, 1092);
 
                             return new ConnectionTestResult
                             {
@@ -629,8 +629,8 @@ namespace HVTools.Forms
                         long memoryCapacity = Convert.ToInt64(vmHost.Properties["MemoryCapacity"]?.Value ?? 0);
                         double memoryGb = Math.Round(memoryCapacity / 1024.0 / 1024.0 / 1024.0, 2);
 
-                        FileLogger.Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
-                            FileLogger.EventType.Information, 1093);
+                        Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
+                            EventType.Information, 1093);
 
                         // Get Hyper-V version
                         string? hyperVVersion = "Unknown";
@@ -650,27 +650,27 @@ namespace HVTools.Forms
                                 }
                             }
 
-                            FileLogger.Message($"Hyper-V version: {hyperVVersion}",
-                                FileLogger.EventType.Information, 1094);
+                            Message($"Hyper-V version: {hyperVVersion}",
+                                EventType.Information, 1094);
                         }
                         catch (Exception ex)
                         {
-                            FileLogger.Message($"Could not determine Hyper-V version: {ex.Message}",
-                                FileLogger.EventType.Warning, 1095);
+                            Message($"Could not determine Hyper-V version: {ex.Message}",
+                                EventType.Warning, 1095);
                         }
 
                         // Get VM count
                         ps.Commands.Clear();
                         ps.AddScript("Get-VM -ErrorAction SilentlyContinue");
 
-                        FileLogger.Message($"Retrieving VM list...",
-                            FileLogger.EventType.Information, 1034);
+                        Message($"Retrieving VM list...",
+                            EventType.Information, 1034);
 
                         var vmResult = ps.Invoke();
                         int vmCount = vmResult?.Count ?? 0;
 
-                        FileLogger.Message($"Found {vmCount} virtual machines",
-                            FileLogger.EventType.Information, 1096);
+                        Message($"Found {vmCount} virtual machines",
+                            EventType.Information, 1096);
 
                         // Check for cluster configuration
                         bool isCluster = false;
@@ -691,8 +691,8 @@ namespace HVTools.Forms
                                 }
                             ");
 
-                            FileLogger.Message("Testing for cluster configuration...",
-                                FileLogger.EventType.Information, 1097);
+                            Message("Testing for cluster configuration...",
+                                EventType.Information, 1097);
 
                             var clusterResult = ps.Invoke();
 
@@ -705,24 +705,24 @@ namespace HVTools.Forms
                                 if (isCluster)
                                 {
                                     clusterName = hashtable["ClusterName"]?.ToString();
-                                    FileLogger.Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
-                                        FileLogger.EventType.Information, 1098);
+                                    Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
+                                        EventType.Information, 1098);
                                 }
                                 else
                                 {
-                                    FileLogger.Message($"Connected to standalone Hyper-V host: '{hostName}'",
-                                        FileLogger.EventType.Information, 1099);
+                                    Message($"Connected to standalone Hyper-V host: '{hostName}'",
+                                        EventType.Information, 1099);
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            FileLogger.Message($"Cluster detection check failed (this is normal for standalone hosts): {ex.Message}",
-                                FileLogger.EventType.Information, 1100);
+                            Message($"Cluster detection check failed (this is normal for standalone hosts): {ex.Message}",
+                                EventType.Information, 1100);
                         }
 
-                        FileLogger.Message($"Local Hyper-V connection successful",
-                            FileLogger.EventType.Information, 1005);
+                        Message($"Local Hyper-V connection successful",
+                            EventType.Information, 1005);
 
                         return new ConnectionTestResult
                         {
@@ -742,10 +742,10 @@ namespace HVTools.Forms
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Local Hyper-V test fatal error: {ex.GetType().Name} - {ex.Message}",
-                    FileLogger.EventType.Error, 1006);
-                FileLogger.Message($"Stack trace: {ex.StackTrace}",
-                    FileLogger.EventType.Error, 1006);
+                Message($"Local Hyper-V test fatal error: {ex.GetType().Name} - {ex.Message}",
+                    EventType.Error, 1006);
+                Message($"Stack trace: {ex.StackTrace}",
+                    EventType.Error, 1006);
 
                 // Check if it's a permission/elevation issue
                 string errorMessage = ex.Message;
@@ -761,8 +761,8 @@ namespace HVTools.Forms
                     errorMessage.Contains("Hyper-V Administrators") ||
                     errorMessage.Contains("elevation"))
                 {
-                    FileLogger.Message("Permission error detected - Administrator privileges or Hyper-V Administrators group membership required",
-                        FileLogger.EventType.Warning, 1095);
+                    Message("Permission error detected - Administrator privileges or Hyper-V Administrators group membership required",
+                        EventType.Warning, 1095);
 
                     return new ConnectionTestResult
                     {
@@ -791,17 +791,17 @@ namespace HVTools.Forms
 
             try
             {
-                FileLogger.Message($"Testing remote connection to '{serverName}' with credentials of '{credential?.UserName ?? "Windows Authentication"}'",
-                    FileLogger.EventType.Information, 1007);
+                Message($"Testing remote connection to '{serverName}' with credentials of '{credential?.UserName ?? "Windows Authentication"}'",
+                    EventType.Information, 1007);
 
                 // Test basic connectivity
-                FileLogger.Message($"Testing network connectivity to '{serverName}' on WinRM ports...",
-                    FileLogger.EventType.Information, 1101);
+                Message($"Testing network connectivity to '{serverName}' on WinRM ports...",
+                    EventType.Information, 1101);
 
                 if (!TestNetworkConnection(serverName, 5985) && !TestNetworkConnection(serverName, 5986))
                 {
-                    FileLogger.Message($"Network connectivity test failed - WinRM ports not accessible",
-                        FileLogger.EventType.Error, 1102);
+                    Message($"Network connectivity test failed - WinRM ports not accessible",
+                        EventType.Error, 1102);
 
                     return new ConnectionTestResult
                     {
@@ -811,15 +811,15 @@ namespace HVTools.Forms
                     };
                 }
 
-                FileLogger.Message($"Network connectivity test successful",
-                    FileLogger.EventType.Information, 1103);
+                Message($"Network connectivity test successful",
+                    EventType.Information, 1103);
 
                 // Test PowerShell remoting
                 tempRunspace = RunspaceFactory.CreateRunspace();
                 tempRunspace.Open();
 
-                FileLogger.Message($"Temporary runspace opened successfully",
-                    FileLogger.EventType.Information, 1104);
+                Message($"Temporary runspace opened successfully",
+                    EventType.Information, 1104);
 
                 using (PowerShell ps = PowerShell.Create())
                 {
@@ -835,8 +835,8 @@ namespace HVTools.Forms
                         ps.AddParameter("Credential", credential);
                     }
 
-                    FileLogger.Message($"Creating PowerShell session to '{serverName}'...",
-                        FileLogger.EventType.Information, 1022);
+                    Message($"Creating PowerShell session to '{serverName}'...",
+                        EventType.Information, 1022);
 
                     var sessionResult = ps.Invoke();
 
@@ -845,8 +845,8 @@ namespace HVTools.Forms
                         var error = ps.Streams.Error[0];
                         string errorMsg = error.Exception?.Message ?? error.ToString();
 
-                        FileLogger.Message($"PowerShell session creation failed: {errorMsg}",
-                            FileLogger.EventType.Error, 1023);
+                        Message($"PowerShell session creation failed: {errorMsg}",
+                            EventType.Error, 1023);
 
                         return new ConnectionTestResult
                         {
@@ -857,8 +857,8 @@ namespace HVTools.Forms
 
                     if (sessionResult == null || sessionResult.Count == 0)
                     {
-                        FileLogger.Message($"PowerShell session creation returned no results",
-                            FileLogger.EventType.Error, 1024);
+                        Message($"PowerShell session creation returned no results",
+                            EventType.Error, 1024);
 
                         return new ConnectionTestResult
                         {
@@ -868,8 +868,8 @@ namespace HVTools.Forms
                     }
 
                     tempSession = sessionResult[0];
-                    FileLogger.Message($"PowerShell session created successfully to '{serverName}'",
-                        FileLogger.EventType.Information, 1025);
+                    Message($"PowerShell session created successfully to '{serverName}'",
+                        EventType.Information, 1025);
 
                     // Enhanced Hyper-V availability and information gathering
                     ps.Commands.Clear();
@@ -943,8 +943,8 @@ namespace HVTools.Forms
                         return $result
                     "));
 
-                    FileLogger.Message($"Retrieving Hyper-V information from '{serverName}'...",
-                        FileLogger.EventType.Information, 1026);
+                    Message($"Retrieving Hyper-V information from '{serverName}'...",
+                        EventType.Information, 1026);
 
                     var hyperVResult = ps.Invoke();
 
@@ -953,8 +953,8 @@ namespace HVTools.Forms
                         var error = ps.Streams.Error[0];
                         string errorMsg = error.Exception?.Message ?? error.ToString();
 
-                        FileLogger.Message($"Hyper-V information retrieval failed: {errorMsg}",
-                            FileLogger.EventType.Error, 1027);
+                        Message($"Hyper-V information retrieval failed: {errorMsg}",
+                            EventType.Error, 1027);
 
                         return new ConnectionTestResult
                         {
@@ -974,8 +974,8 @@ namespace HVTools.Forms
                         {
                             string error = hashtable["Error"]?.ToString() ?? "Unknown error";
 
-                            FileLogger.Message($"Hyper-V not available on '{serverName}': {error}",
-                                FileLogger.EventType.Warning, 1028);
+                            Message($"Hyper-V not available on '{serverName}': {error}",
+                                EventType.Warning, 1028);
 
                             return new ConnectionTestResult
                             {
@@ -994,28 +994,28 @@ namespace HVTools.Forms
                         bool isCluster = Convert.ToBoolean(hashtable["IsCluster"] ?? false);
                         string clusterName = hashtable["ClusterName"]?.ToString()!;
 
-                        FileLogger.Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
-                            FileLogger.EventType.Information, 1105);
+                        Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
+                            EventType.Information, 1105);
 
-                        FileLogger.Message($"Hyper-V version: {hyperVVersion}",
-                            FileLogger.EventType.Information, 1106);
+                        Message($"Hyper-V version: {hyperVVersion}",
+                            EventType.Information, 1106);
 
-                        FileLogger.Message($"Found {vmCount} virtual machines",
-                            FileLogger.EventType.Information, 1107);
+                        Message($"Found {vmCount} virtual machines",
+                            EventType.Information, 1107);
 
                         if (isCluster)
                         {
-                            FileLogger.Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
-                                FileLogger.EventType.Information, 1108);
+                            Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
+                                EventType.Information, 1108);
                         }
                         else
                         {
-                            FileLogger.Message($"Connected to standalone Hyper-V host: '{hostName}'",
-                                FileLogger.EventType.Information, 1109);
+                            Message($"Connected to standalone Hyper-V host: '{hostName}'",
+                                EventType.Information, 1109);
                         }
 
-                        FileLogger.Message($"Remote Hyper-V connection successful",
-                            FileLogger.EventType.Information, 1008);
+                        Message($"Remote Hyper-V connection successful",
+                            EventType.Information, 1008);
 
                         return new ConnectionTestResult
                         {
@@ -1032,8 +1032,8 @@ namespace HVTools.Forms
                         };
                     }
 
-                    FileLogger.Message($"No results returned from Hyper-V information query on '{serverName}'",
-                        FileLogger.EventType.Error, 1029);
+                    Message($"No results returned from Hyper-V information query on '{serverName}'",
+                        EventType.Error, 1029);
 
                     return new ConnectionTestResult
                     {
@@ -1044,10 +1044,10 @@ namespace HVTools.Forms
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Remote connection test exception: {ex.GetType().Name} - {ex.Message}",
-                    FileLogger.EventType.Error, 1009);
-                FileLogger.Message($"Stack trace: {ex.StackTrace}",
-                    FileLogger.EventType.Error, 1009);
+                Message($"Remote connection test exception: {ex.GetType().Name} - {ex.Message}",
+                    EventType.Error, 1009);
+                Message($"Stack trace: {ex.StackTrace}",
+                    EventType.Error, 1009);
 
                 return new ConnectionTestResult
                 {
@@ -1062,8 +1062,8 @@ namespace HVTools.Forms
                 {
                     try
                     {
-                        FileLogger.Message($"Cleaning up temporary PowerShell session...",
-                            FileLogger.EventType.Information, 1110);
+                        Message($"Cleaning up temporary PowerShell session...",
+                            EventType.Information, 1110);
 
                         using (PowerShell ps = PowerShell.Create())
                         {
@@ -1073,13 +1073,13 @@ namespace HVTools.Forms
                             ps.Invoke();
                         }
 
-                        FileLogger.Message($"Temporary session cleaned up successfully",
-                            FileLogger.EventType.Information, 1111);
+                        Message($"Temporary session cleaned up successfully",
+                            EventType.Information, 1111);
                     }
                     catch (Exception ex)
                     {
-                        FileLogger.Message($"Error cleaning up temporary session: {ex.Message}",
-                            FileLogger.EventType.Warning, 1112);
+                        Message($"Error cleaning up temporary session: {ex.Message}",
+                            EventType.Warning, 1112);
                     }
                 }
 
@@ -1142,13 +1142,13 @@ namespace HVTools.Forms
                     writer.Write(encryptedPassword);
                 }
 
-                FileLogger.Message($"Credentials saved (encrypted) for server '{server}'",
-                    FileLogger.EventType.Information, 1010);
+                Message($"Credentials saved (encrypted) for server '{server}'",
+                    EventType.Information, 1010);
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Failed to save credentials: {ex.Message}",
-                    FileLogger.EventType.Error, 1011);
+                Message($"Failed to save credentials: {ex.Message}",
+                    EventType.Error, 1011);
             }
         }
 
@@ -1188,8 +1188,8 @@ namespace HVTools.Forms
                     // Verify the server name matches (security check)
                     if (!storedServer.Equals(serverName, StringComparison.OrdinalIgnoreCase))
                     {
-                        FileLogger.Message($"Server name mismatch in credential file for '{serverName}'",
-                            FileLogger.EventType.Warning, 1020);
+                        Message($"Server name mismatch in credential file for '{serverName}'",
+                            EventType.Warning, 1020);
                         return null!;
                     }
 
@@ -1203,8 +1203,8 @@ namespace HVTools.Forms
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Failed to load credentials for '{serverName}': {ex.Message}",
-                    FileLogger.EventType.Warning, 1013);
+                Message($"Failed to load credentials for '{serverName}': {ex.Message}",
+                    EventType.Warning, 1013);
                 return null!;
             }
         }
@@ -1250,7 +1250,7 @@ namespace HVTools.Forms
                     checkboxRemember.Checked = true;
 
                     // Log
-                    FileLogger.Message("Legacy credentials loaded", FileLogger.EventType.Information, 1012);
+                    Message("Legacy credentials loaded", EventType.Information, 1012);
 
                     // Migrate to new format
                     string server = textboxServer.Text;
@@ -1262,8 +1262,8 @@ namespace HVTools.Forms
                     try
                     {
                         File.Delete(credFile);
-                        FileLogger.Message("Migrated credentials to new server-specific format",
-                            FileLogger.EventType.Information, 1021);
+                        Message("Migrated credentials to new server-specific format",
+                            EventType.Information, 1021);
                     }
                     catch
                     {
@@ -1273,8 +1273,8 @@ namespace HVTools.Forms
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Failed to load legacy credentials: {ex.Message}",
-                    FileLogger.EventType.Warning, 1013);
+                Message($"Failed to load legacy credentials: {ex.Message}",
+                    EventType.Warning, 1013);
                 // Silently fail - credentials might be corrupted or from different user
             }
         }
@@ -1296,14 +1296,14 @@ namespace HVTools.Forms
                 if (File.Exists(credFile))
                 {
                     File.Delete(credFile);
-                    FileLogger.Message($"Saved credentials cleared for server '{serverName}'",
-                        FileLogger.EventType.Information, 1014);
+                    Message($"Saved credentials cleared for server '{serverName}'",
+                        EventType.Information, 1014);
                 }
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Failed to clear credentials: {ex.Message}",
-                    FileLogger.EventType.Warning, 1015);
+                Message($"Failed to clear credentials: {ex.Message}",
+                    EventType.Warning, 1015);
             }
         }
 
@@ -1347,8 +1347,8 @@ namespace HVTools.Forms
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Error updating status label: {ex.Message}",
-                    FileLogger.EventType.Warning, 1071);
+                Message($"Error updating status label: {ex.Message}",
+                    EventType.Warning, 1071);
             }
         }
 
@@ -1433,8 +1433,8 @@ namespace HVTools.Forms
             // Prevent double-click or multiple simultaneous login attempts
             if (_isConnecting || !ButtonLogin.Enabled)
             {
-                FileLogger.Message($"Login attempt blocked - already in progress or button disabled",
-                    FileLogger.EventType.Warning, 1042);
+                Message($"Login attempt blocked - already in progress or button disabled",
+                    EventType.Warning, 1042);
                 return;
             }
 
@@ -1502,8 +1502,8 @@ namespace HVTools.Forms
             Cursor = Cursors.WaitCursor;
 
             // Log start of connection attempt
-            FileLogger.Message($"Starting connection test to '{serverName}'",
-                FileLogger.EventType.Information, 1044);
+            Message($"Starting connection test to '{serverName}'",
+                EventType.Information, 1044);
 
             try
             {
@@ -1564,25 +1564,25 @@ namespace HVTools.Forms
                         connectionResult.FullyQualifiedDomainName
                     );
 
-                    FileLogger.Message($"Login successful for '{serverName}' as '{connectedUser}'",
-                        FileLogger.EventType.Information, 1016);
+                    Message($"Login successful for '{serverName}' as '{connectedUser}'",
+                        EventType.Information, 1016);
 
                     // Hide login form and show main form
-                    FileLogger.Message($"Hiding login form and showing MainForm...",
-                        FileLogger.EventType.Information, 1039);
+                    Message($"Hiding login form and showing MainForm...",
+                        EventType.Information, 1039);
 
                     Hide();
 
                     using (MainForm mainForm = new MainForm())
                     {
-                        FileLogger.Message($"MainForm created, showing dialog...",
-                            FileLogger.EventType.Information, 1040);
+                        Message($"MainForm created, showing dialog...",
+                            EventType.Information, 1040);
 
                         // Show main form as dialog
                         var mainResult = mainForm.ShowDialog();
 
-                        FileLogger.Message($"MainForm closed with result: {mainResult}",
-                            FileLogger.EventType.Information, 1041);
+                        Message($"MainForm closed with result: {mainResult}",
+                            EventType.Information, 1041);
 
                         // If main form closes, clear session and close application
                         if (mainResult == DialogResult.OK || mainResult == DialogResult.Cancel)
@@ -1605,8 +1605,8 @@ namespace HVTools.Forms
                             "  • Be a member of the 'Hyper-V Administrators' group\n\n" +
                             "Would you like to restart this application as Administrator now?";
 
-                        FileLogger.Message("Prompting user for elevation due to permission error",
-                            FileLogger.EventType.Information, 1096);
+                        Message("Prompting user for elevation due to permission error",
+                            EventType.Information, 1096);
 
                         var result = MessageBox.Show(elevationPrompt, @"Elevation Required",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -1615,15 +1615,15 @@ namespace HVTools.Forms
                         {
                             try
                             {
-                                FileLogger.Message("User requested application restart with elevation",
-                                    FileLogger.EventType.Information, 1000);
+                                Message("User requested application restart with elevation",
+                                    EventType.Information, 1000);
                                 ApplicationFunctions.RestartAsAdmin();
                                 Application.Exit();
                             }
                             catch (Exception ex)
                             {
-                                FileLogger.Message($"Failed to start as admin: {ex.Message}",
-                                    FileLogger.EventType.Error, 1001);
+                                Message($"Failed to start as admin: {ex.Message}",
+                                    EventType.Error, 1001);
                                 MessageBox.Show($@"Failed to restart as administrator:
 
 {ex.Message}
@@ -1635,8 +1635,8 @@ namespace HVTools.Forms
                         }
                         else
                         {
-                            FileLogger.Message("User declined elevation, showing error details",
-                                FileLogger.EventType.Information, 1097);
+                            Message("User declined elevation, showing error details",
+                                EventType.Information, 1097);
 
                             // Show alternative if user declines elevation
                             MessageBox.Show(
@@ -1665,7 +1665,7 @@ Error: {connectionResult.Error}",
             }
             catch (Exception ex)
             {
-                FileLogger.Message($"Connection error: {ex.Message}", FileLogger.EventType.Error, 1002);
+                Message($"Connection error: {ex.Message}", EventType.Error, 1002);
                 MessageBox.Show($@"Connection error: {ex.Message}", Globals.MsgBox.Error,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -1677,8 +1677,8 @@ Error: {connectionResult.Error}",
                 Cursor = Cursors.Default;
                 _isConnecting = false; // Reset the flag
 
-                FileLogger.Message($"Login attempt completed, resetting UI",
-                    FileLogger.EventType.Information, 1045);
+                Message($"Login attempt completed, resetting UI",
+                    EventType.Information, 1045);
             }
         }
 
@@ -1740,8 +1740,8 @@ Error: {connectionResult.Error}",
                     checkboxRemember.Checked = true;
 
                     // Log
-                    FileLogger.Message($"Loading saved credentials for server '{serverName}' into application",
-                        FileLogger.EventType.Information, 1019);
+                    Message($"Loading saved credentials for server '{serverName}' into application",
+                        EventType.Information, 1019);
                 }
                 else
                 {
