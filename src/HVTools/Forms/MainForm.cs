@@ -6041,11 +6041,11 @@ Notes:
                     isCluster ? "Physical resources on the current connected node only" : "Physical CPU cores and RAM available on this host");
                 AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVmProcessors} vCPUs",
                     $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1",
-                    GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"),
+                    HostHealth.GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"),
                     "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
                 AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGb:F1} GB",
                     $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1",
-                    GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"),
+                    HostHealth.GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"),
                     "Memory Overcommit = VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Enable Dynamic Memory on VMs or add physical RAM.");
 
                 // Performance Data section
@@ -6059,11 +6059,11 @@ Notes:
 
                     AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%",
                         $"{cpuStatus} usage level",
-                        GetCpuPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
+                        HostHealth.GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
                         "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
                     AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%",
                         $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB",
-                        GetCpuPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
+                        HostHealth.GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
                         "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
                 }
                 else
@@ -6217,39 +6217,6 @@ Notes:
                 "Standalone" => "Info",
                 _ => ""
             };
-        }
-
-        /// <summary>
-        /// Gets the status indicator for overcommit ratios
-        /// </summary>
-        private string GetOvercommitStatus(double ratio, string type)
-        {
-            if (type == "cpu")
-            {
-                if (ratio > 8) return "Critical";
-                if (ratio > 4) return "Warning";
-                return "Good";
-            }
-            else // memory
-            {
-                if (ratio > 1.5) return "Critical";
-                if (ratio > 1.0) return "Warning";
-                return "Good";
-            }
-        }
-
-        /// <summary>
-        /// Gets the status indicator for performance metrics
-        /// </summary>
-        private string GetCpuPerformanceStatus(double value, string type)
-        {
-            if (type == "cpu" || type == "memory")
-            {
-                if (value > 90) return "Critical";
-                if (value > 75) return "Warning";
-                return "Good";
-            }
-            return "";
         }
 
         /// <summary>

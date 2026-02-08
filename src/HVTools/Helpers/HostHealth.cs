@@ -1087,6 +1087,45 @@ try {{
 
             return string.Join("\n", recommendations);
         }
+
+        /// <summary>
+        /// Gets the status indicator for performance metrics
+        /// </summary>
+        /// <param name="value">The performance value (e.g., CPU usage percentage)</param>
+        /// <param name="type">The type of metric ("cpu" or "memory")</param>
+        /// <returns>Status string: "Critical", "Warning", "Good", or empty</returns>
+        public static string GetPerformanceStatus(double value, string type)
+        {
+            if (type == "cpu" || type == "memory")
+            {
+                if (value > 90) return "Critical";
+                if (value > 75) return "Warning";
+                return "Good";
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Gets the status indicator for overcommit ratios
+        /// </summary>
+        /// <param name="ratio">The overcommit ratio value</param>
+        /// <param name="type">The type of overcommit ("cpu" or "memory")</param>
+        /// <returns>Status string: "Critical", "Warning", or "Good"</returns>
+        public static string GetOvercommitStatus(double ratio, string type)
+        {
+            if (type == "cpu")
+            {
+                if (ratio > 8) return "Critical";
+                if (ratio > 4) return "Warning";
+                return "Good";
+            }
+            else // memory
+            {
+                if (ratio > 1.5) return "Critical";
+                if (ratio > 1.0) return "Warning";
+                return "Good";
+            }
+        }
     }
 }
 
