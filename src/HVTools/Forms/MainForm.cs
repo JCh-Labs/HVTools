@@ -781,7 +781,7 @@ namespace HVTools.Forms
                             var networkAdapterCount = VmHelpers.GetVmNetworkAdapterCount(vmName, cmd => ExecutePowerShellCommand(cmd));
                             row["Network Adapters"] = networkAdapterCount.ToString();
 
-                            var integrationServicesInfo = GetVmIntegrationServices(vmName);
+                            var integrationServicesInfo = VmHelpers.GetVmIntegrationServices(vmName, cmd => ExecutePowerShellCommand(cmd));
                             row["Integration Services"] = integrationServicesInfo;
 
                             var checkpointCount = VmHelpers.GetVmCheckpointCount(vmName, cmd => ExecutePowerShellCommand(cmd));
@@ -1306,99 +1306,6 @@ namespace HVTools.Forms
             catch
             {
                 return "";
-            }
-        }
-
-        private string GetVmIntegrationServices(string vmName)
-        {
-            try
-            {
-                var results = ExecutePowerShellCommand($"Get-VMIntegrationService -VMName '{vmName}'");
-
-                if (results == null || results.Count == 0)
-                    return "No services";
-
-                var enabledServicesList = new List<string>();
-                int totalServices = 0;
-
-                foreach (var service in results)
-                {
-                    totalServices++;
-
-                    var nameObj = service.Properties["Name"]?.Value;
-                    var enabledObj = service.Properties["Enabled"]?.Value;
-
-                    string name = nameObj?.ToString();
-
-                    // More robust boolean checking - handle both bool and string "True"/"False"
-                    bool isEnabled = false;
-                    if (enabledObj != null)
-                    {
-                        if (enabledObj is bool boolValue)
-                        {
-                            isEnabled = boolValue;
-                        }
-                        else if (enabledObj is string stringValue)
-                        {
-                            isEnabled = stringValue.Equals("True", StringComparison.OrdinalIgnoreCase);
-                        }
-                        else
-                        {
-                            // Try to parse as bool
-                            bool.TryParse(enabledObj.ToString(), out isEnabled);
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(name) && isEnabled)
-                    {
-                        // Shorten service names for display
-                        string displayName = name
-                            .Replace("Guest Service Interface", "Guest Svc")
-                            .Replace("Key-Value Pair Exchange", "KVP")
-                            .Replace("Time Synchronization", "Time Sync");
-
-                        enabledServicesList.Add(displayName);
-                    }
-                }
-
-                // Format output: show count and enabled service names
-                if (totalServices > 0)
-                {
-                    string displayText = $"{enabledServicesList.Count}/{totalServices} enabled";
-
-                    if (enabledServicesList.Count > 0)
-                    {
-                        /* Show first 3 enabled services
-                        var servicesToShow = enabledServicesList.Take(3).ToList();
-                        displayText += $" ({string.Join(", ", servicesToShow)}";
-
-                        if (enabledServicesList.Count > 3)
-                        {
-                            displayText += $", +{enabledServicesList.Count - 3}";
-                        }
-
-                        displayText += ")";*/
-
-                        // Show all enabled services
-                        displayText += $" ({string.Join(", ", enabledServicesList)})";
-                    }
-                    else
-                    {
-                        displayText += " (All disabled)";
-                    }
-
-                    return displayText;
-                }
-                else
-                {
-                    return "No services";
-                }
-            }
-            catch (Exception ex)
-            {
-                Message($"Error getting VM integration services for '{vmName}': {ex.Message}",
-                    EventType.Warning, 2150);
-                return "N/A";
             }
         }
 
