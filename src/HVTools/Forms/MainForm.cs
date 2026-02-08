@@ -775,16 +775,16 @@ namespace HVTools.Forms
                         // Standard approach - make additional calls (for standalone/local)
                         if (!string.IsNullOrEmpty(vmName))
                         {
-                            var totalDiskGb = GetVmTotalDiskSize(vmName);
+                            var totalDiskGb = VmHelpers.GetVmTotalDiskSize(vmName, cmd => ExecutePowerShellCommand(cmd), SessionContext.IsLocal);
                             row["Total Disk (GB)"] = totalDiskGb > 0 ? totalDiskGb.ToString("F2") : "";
 
-                            var networkAdapterCount = GetVmNetworkAdapterCount(vmName);
+                            var networkAdapterCount = VmHelpers.GetVmNetworkAdapterCount(vmName, cmd => ExecutePowerShellCommand(cmd));
                             row["Network Adapters"] = networkAdapterCount.ToString();
 
                             var integrationServicesInfo = GetVmIntegrationServices(vmName);
                             row["Integration Services"] = integrationServicesInfo;
 
-                            var checkpointCount = GetVmCheckpointCount(vmName);
+                            var checkpointCount = VmHelpers.GetVmCheckpointCount(vmName, cmd => ExecutePowerShellCommand(cmd));
                             row["Checkpoints"] = checkpointCount.ToString();
                         }
                         else
@@ -1290,60 +1290,6 @@ namespace HVTools.Forms
                 return $"{timeSpan.Minutes}m {timeSpan.Seconds}s";
         }
 
-        private double GetVmTotalDiskSize(string vmName)
-        {
-            try
-            {
-                var results = ExecutePowerShellCommand($"Get-VMHardDiskDrive -VMName '{vmName}'");
-
-                if (results == null || results.Count == 0)
-                    return 0;
-
-                double totalGb = 0;
-                foreach (var hdd in results)
-                {
-                    var path = hdd.Properties["Path"]?.Value?.ToString();
-                    if (!string.IsNullOrEmpty(path))
-                    {
-                        // For remote, we need to get file size through PS
-                        if (!SessionContext.IsLocal)
-                        {
-                            var sizeResult = ExecutePowerShellCommand($"(Get-Item '{path}').Length");
-                            if (sizeResult != null && sizeResult.Count > 0)
-                            {
-                                var size = Convert.ToInt64(sizeResult[0].BaseObject);
-                                totalGb += size / (1024.0 * 1024.0 * 1024.0);
-                            }
-                        }
-                        else if (File.Exists(path))
-                        {
-                            var fileInfo = new FileInfo(path);
-                            totalGb += fileInfo.Length / (1024.0 * 1024.0 * 1024.0);
-                        }
-                    }
-                }
-
-                return totalGb;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        private int GetVmNetworkAdapterCount(string vmName)
-        {
-            try
-            {
-                var results = ExecutePowerShellCommand($"Get-VMNetworkAdapter -VMName '{vmName}'");
-                return results?.Count ?? 0;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
         private string GetVmGroups(string vmName)
         {
             try
@@ -1360,19 +1306,6 @@ namespace HVTools.Forms
             catch
             {
                 return "";
-            }
-        }
-
-        private int GetVmCheckpointCount(string vmName)
-        {
-            try
-            {
-                var results = ExecutePowerShellCommand($"Get-VMSnapshot -VMName '{vmName}'");
-                return results?.Count ?? 0;
-            }
-            catch
-            {
-                return 0;
             }
         }
 
