@@ -1040,6 +1040,53 @@ try {{
 }}
 ";
         }
+
+        /// <summary>
+        /// Generates health recommendations based on metrics
+        /// </summary>
+        /// <param name="criticalCount">Number of critical issues</param>
+        /// <param name="warningCount">Number of warnings</param>
+        /// <param name="cpuOvercommit">CPU overcommit ratio as string (e.g., "4.5:1")</param>
+        /// <param name="memoryOvercommit">Memory overcommit ratio as string (e.g., "1.2:1")</param>
+        /// <returns>Formatted recommendations string</returns>
+        public static string GetHealthRecommendations(int criticalCount, int warningCount, string? cpuOvercommit, string? memoryOvercommit)
+        {
+            var recommendations = new List<string>();
+
+            if (criticalCount > 0)
+            {
+                recommendations.Add("• ?? Critical issues detected - investigate immediately");
+            }
+
+            if (warningCount > 0)
+            {
+                recommendations.Add($"• ? {warningCount} warning(s) detected - review and address");
+            }
+
+            // Parse overcommit ratios
+            if (double.TryParse(cpuOvercommit?.Replace(":1", ""), out double cpuRatio))
+            {
+                if (cpuRatio > 4)
+                {
+                    recommendations.Add($"• CPU overcommit ratio ({cpuRatio:F1}:1) is high - consider adding processors or reducing VM count");
+                }
+            }
+
+            if (double.TryParse(memoryOvercommit?.Replace(":1", ""), out double memRatio))
+            {
+                if (memRatio > 1.0)
+                {
+                    recommendations.Add($"• Memory overcommit ratio ({memRatio:F1}:1) exceeds 1:1 - monitor for memory pressure");
+                }
+            }
+
+            if (recommendations.Count == 0)
+            {
+                recommendations.Add("• ? Host appears healthy - no immediate actions required");
+            }
+
+            return string.Join("\n", recommendations);
+        }
     }
 }
 

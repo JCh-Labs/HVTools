@@ -6435,7 +6435,7 @@ Notes:
 • Current Memory Usage: {memoryUsage}
 
 💡 Recommendations:
-{GetHealthRecommendations(criticalCount, warningCount, cpuOvercommit, memoryOvercommit)}";
+{HostHealth.GetHealthRecommendations(criticalCount, warningCount, cpuOvercommit, memoryOvercommit)}";
 
                 Message($"Health summary generated - Status: {overallHealth}",
                     EventType.Information, 7121);
@@ -6473,48 +6473,6 @@ Notes:
                 }
             }
             return "N/A";
-        }
-
-        /// <summary>
-        /// Generates health recommendations based on metrics
-        /// </summary>
-        private string GetHealthRecommendations(int criticalCount, int warningCount, string cpuOvercommit, string memoryOvercommit)
-        {
-            var recommendations = new List<string>();
-
-            if (criticalCount > 0)
-            {
-                recommendations.Add("• ⚠️ Critical issues detected - investigate immediately");
-            }
-
-            if (warningCount > 0)
-            {
-                recommendations.Add($"• ⚡ {warningCount} warning(s) detected - review and address");
-            }
-
-            // Parse overcommit ratios
-            if (double.TryParse(cpuOvercommit?.Replace(":1", ""), out double cpuRatio))
-            {
-                if (cpuRatio > 4)
-                {
-                    recommendations.Add($"• CPU overcommit ratio ({cpuRatio:F1}:1) is high - consider adding processors or reducing VM count");
-                }
-            }
-
-            if (double.TryParse(memoryOvercommit?.Replace(":1", ""), out double memRatio))
-            {
-                if (memRatio > 1.0)
-                {
-                    recommendations.Add($"• Memory overcommit ratio ({memRatio:F1}:1) exceeds 1:1 - monitor for memory pressure");
-                }
-            }
-
-            if (recommendations.Count == 0)
-            {
-                recommendations.Add("• ✅ Host appears healthy - no immediate actions required");
-            }
-
-            return string.Join("\n", recommendations);
         }
 
         private void buttonSummaryHealthOverviewHelp_Click(object sender, EventArgs e)
