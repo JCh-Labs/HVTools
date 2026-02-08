@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace HVTools.Helpers
 {
     /// <summary>
-    /// Represents detailed information about a Hyper-V host
+    /// Represents detailed information about a Hyper-V host, including hardware, software, licensing, and virtualization details.
     /// </summary>
     public class HostDetailsInfo
     {
@@ -444,6 +444,13 @@ namespace HVTools.Helpers
             }
         }
 
+        /// <summary>
+        /// Retrieves the string representation of the specified property from a JSON element.
+        /// </summary>
+        /// <param name="element">The JSON element containing the property to retrieve.</param>
+        /// <param name="propertyName">The name of the property whose value is to be returned as a string.</param>
+        /// <returns>A string containing the value of the specified property. Returns an empty string if the property does not
+        /// exist or its value is null.</returns>
         private static string GetJsonString(JsonElement element, string propertyName)
         {
             try
@@ -460,6 +467,14 @@ namespace HVTools.Helpers
             }
         }
 
+        /// <summary>
+        /// Retrieves the integer value of the specified property from a JSON element.
+        /// </summary>
+        /// <remarks>If the property is not found, is not a number or a string representing an integer, or
+        /// if an error occurs during parsing, the method returns 0.</remarks>
+        /// <param name="element">The JSON element containing the property to retrieve.</param>
+        /// <param name="propertyName">The name of the property whose integer value is to be extracted.</param>
+        /// <returns>The integer value of the specified property if it exists and can be parsed as an integer; otherwise, 0.</returns>
         private static int GetJsonInt(JsonElement element, string propertyName)
         {
             try
@@ -483,6 +498,16 @@ namespace HVTools.Helpers
             }
         }
 
+        /// <summary>
+        /// Retrieves the value of a specified property from a JSON element as a double.
+        /// </summary>
+        /// <remarks>If the property is a number, its value is returned as a double. If the property is a
+        /// string that can be parsed as a double, the parsed value is returned. If the property does not exist or
+        /// cannot be converted to a double, 0 is returned. No exception is thrown for invalid or missing
+        /// properties.</remarks>
+        /// <param name="element">The JSON element containing the property to retrieve.</param>
+        /// <param name="propertyName">The name of the property whose value is to be returned as a double.</param>
+        /// <returns>The double value of the specified property if it exists and can be converted; otherwise, 0.</returns>
         private static double GetJsonDouble(JsonElement element, string propertyName)
         {
             try
@@ -1090,6 +1115,16 @@ try {
             }
         }
 
+        /// <summary>
+        /// Retrieves the value of a specified property from a PowerShell object as a string.
+        /// </summary>
+        /// <remarks>If the property is not found or an error occurs during retrieval, the method returns
+        /// an empty string. This method does not throw exceptions for missing properties or invalid input.</remarks>
+        /// <param name="psObject">The PowerShell object from which to retrieve the property value. Cannot be null.</param>
+        /// <param name="propertyName">The name of the property to retrieve. Case-sensitive. Cannot be null or empty.</param>
+        /// <returns>A string containing the value of the specified property, or an empty string if the property does not exist
+        /// or its value is null.</returns>
+
         private static string GetStringProperty(PSObject psObject, string propertyName)
         {
             try
@@ -1102,6 +1137,17 @@ try {
                 return "";
             }
         }
+
+        /// <summary>
+        /// Retrieves the value of the specified property from the given PSObject as an integer.
+        /// </summary>
+        /// <remarks>If the property is missing or its value is not convertible to an integer, the method
+        /// returns 0. This method does not throw exceptions for invalid property names or conversion
+        /// failures.</remarks>
+        /// <param name="psObject">The PSObject instance from which to retrieve the property value. Cannot be null.</param>
+        /// <param name="propertyName">The name of the property to retrieve. If the property does not exist or its value cannot be converted to an
+        /// integer, 0 is returned.</param>
+        /// <returns>The integer value of the specified property if it exists and can be converted; otherwise, 0.</returns>
 
         private static int GetIntProperty(PSObject psObject, string propertyName)
         {
@@ -1119,6 +1165,16 @@ try {
                 return 0;
             }
         }
+
+        /// <summary>
+        /// Retrieves the value of the specified property from the given PSObject and converts it to a double.
+        /// </summary>
+        /// <remarks>If the property is missing or its value is not convertible to a double, the method
+        /// returns 0. No exception is thrown in these cases.</remarks>
+        /// <param name="psObject">The PSObject instance from which to retrieve the property value. Cannot be null.</param>
+        /// <param name="propertyName">The name of the property to retrieve. If the property does not exist or its value cannot be converted to a
+        /// double, 0 is returned.</param>
+        /// <returns>The double value of the specified property if it exists and can be converted; otherwise, 0.</returns>
 
         private static double GetDoubleProperty(PSObject psObject, string propertyName)
         {
