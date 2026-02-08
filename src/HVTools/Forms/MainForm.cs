@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using HVTools.Class;
@@ -3404,8 +3405,10 @@ Management:
                 // Check if connected to a cluster
                 if (!SessionContext.IsCluster)
                 {
-                    MessageBox.Show($"The connected host '{SessionContext.ServerName}' is not part of a cluster.\n\n" +
-                                  "This is a standalone Hyper-V host.",
+                    MessageBox.Show($@"The connected host '{SessionContext.ServerName}' is not part of a cluster.
+
+" +
+                                  @"This is a standalone Hyper-V host.",
                         @"Not a Cluster",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -3826,14 +3829,16 @@ Management:
                 {
                     labelClusterNameValue.Text = @"Not a Cluster";
                     labelClusterNameValue.ForeColor = Color.Gray;
-                    labelTotalNodesValue.Text = "-";
-                    labelCurrentNodeValue.Text = "-";
-                    labelClusterNetworksValue.Text = "-";
-                    labelSharedVolumesValue.Text = "-";
+                    labelTotalNodesValue.Text = @"-";
+                    labelCurrentNodeValue.Text = @"-";
+                    labelClusterNetworksValue.Text = @"-";
+                    labelSharedVolumesValue.Text = @"-";
                     labelClusterNodes.Text = @"Cluster Nodes (0 total)";
                     labelClusterVMs.Text = @"Highly Available VMs (0 VMs)";
 
-                    MessageBox.Show($"The connected host '{SessionContext.ServerName}' is not part of a cluster.\n\n" +
+                    MessageBox.Show($@"The connected host '{SessionContext.ServerName}' is not part of a cluster.
+
+" +
                                   @"This is a standalone Hyper-V host.",
                         @"Not a Cluster",
                         MessageBoxButtons.OK,
@@ -3868,14 +3873,14 @@ Management:
                 labelSharedVolumesValue.Text = clusterInfo.SharedStorage.Count.ToString();
 
                 // Update Cluster Nodes DataGridView
-                labelClusterNodes.Text = $"Cluster Nodes ({clusterInfo.Nodes.Count} total)";
+                labelClusterNodes.Text = $@"Cluster Nodes ({clusterInfo.Nodes.Count} total)";
                 UpdateClusterNodesDataGridView(clusterInfo.Nodes);
 
                 // Update Cluster VMs DataGridView
-                labelClusterVMs.Text = $"Highly Available VMs ({clusterInfo.VirtualMachines.Count} VMs)";
+                labelClusterVMs.Text = $@"Highly Available VMs ({clusterInfo.VirtualMachines.Count} VMs)";
                 UpdateClusterVMsDataGridView(clusterInfo.VirtualMachines);
 
-                toolStripStatusLabelTextMainForm.Text = $"Cluster info loaded - {clusterInfo.Nodes.Count} nodes, {clusterInfo.VirtualMachines.Count} VMs";
+                toolStripStatusLabelTextMainForm.Text = $@"Cluster info loaded - {clusterInfo.Nodes.Count} nodes, {clusterInfo.VirtualMachines.Count} VMs";
 
                 Message($"Cluster information loaded successfully - {clusterInfo.Nodes.Count} nodes, {clusterInfo.VirtualMachines.Count} VMs",
                     EventType.Information, 4022);
@@ -4106,7 +4111,7 @@ Management:
 
                     UpdateVirtualDisksDataGridView(diskDetails);
 
-                    toolStripStatusLabelTextMainForm.Text = $"Loaded {diskDetails.Count} virtual disk(s)";
+                    toolStripStatusLabelTextMainForm.Text = $@"Loaded {diskDetails.Count} virtual disk(s)";
 
                     Message($"Virtual disk overview loaded successfully with {diskDetails.Count} disk(s)",
                         EventType.Information, 5033);
@@ -4116,7 +4121,7 @@ Management:
                     Message("No virtual disks found",
                         EventType.Warning, 5034);
 
-                    toolStripStatusLabelTextMainForm.Text = "No virtual disks found";
+                    toolStripStatusLabelTextMainForm.Text = @"No virtual disks found";
                 }
             }
             catch (Exception ex)
@@ -4129,7 +4134,7 @@ Management:
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
-                toolStripStatusLabelTextMainForm.Text = "Error loading virtual disk overview";
+                toolStripStatusLabelTextMainForm.Text = @"Error loading virtual disk overview";
             }
             finally
             {
@@ -4386,7 +4391,7 @@ Management:
                 }
 
                 // Update status label on UI thread before starting
-                toolStripStatusLabelTextMainForm.Text = "Loading virtual disk information...";
+                toolStripStatusLabelTextMainForm.Text = @"Loading virtual disk information...";
 
                 // Execute with progress form
                 ExecuteWithProgressForm<List<VirtualDiskInfo>>(() =>
@@ -4426,7 +4431,7 @@ Management:
                             // Update DataGridView on UI thread
                             UpdateVirtualDisksDataGridView(diskDetails);
 
-                            toolStripStatusLabelTextMainForm.Text = $"Loaded {diskDetails.Count} virtual disk(s)";
+                            toolStripStatusLabelTextMainForm.Text = $@"Loaded {diskDetails.Count} virtual disk(s)";
 
                             Message($"Virtual disk overview loaded successfully with {diskDetails.Count} disk(s)",
                                 EventType.Information, 5033);
@@ -4435,7 +4440,7 @@ Management:
                             int diskCount = diskDetails.Count;
 
                             // Update status label
-                            toolStripStatusLabelTextMainForm.Text = $"Virtual disk overview refreshed - {diskCount} disk(s) found";
+                            toolStripStatusLabelTextMainForm.Text = $@"Virtual disk overview refreshed - {diskCount} disk(s) found";
 
                             /*MessageBox.Show($"Virtual disk overview refreshed successfully.\n\nFound {diskCount} virtual disk(s).",
                                 "Refresh Complete",
@@ -4465,7 +4470,7 @@ Management:
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
 
-                        toolStripStatusLabelTextMainForm.Text = "Error displaying virtual disk data";
+                        toolStripStatusLabelTextMainForm.Text = @"Error displaying virtual disk data";
                     }
 
                 }, "Virtual Disk Overview Refresh");
@@ -4480,7 +4485,7 @@ Management:
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
-                toolStripStatusLabelTextMainForm.Text = "Error loading virtual disks";
+                toolStripStatusLabelTextMainForm.Text = @"Error loading virtual disks";
             }
         }
 
@@ -4835,7 +4840,7 @@ Management:
                 for (int i = 0; i < datagridviewVMOverView.Columns.Count; i++)
                 {
                     var col = datagridviewVMOverView.Columns[i];
-                    if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == "☑" || col.HeaderText == "☐")
+                    if (col.Name == "Export" || col.DataPropertyName == "Export" || col.HeaderText == @"☑" || col.HeaderText == @"☐")
                     {
                         exportColumnIndex = i;
 #if DEBUG
@@ -5032,7 +5037,7 @@ Would you like to open the file location?",
                     });
 
                     // Count checkpoints from the grid on UI thread
-                    int totalCheckpoints = 0;
+                    int totalCheckpoints;
                     int standardCheckpoints = 0;
                     int productionCheckpoints = 0;
 
@@ -5052,7 +5057,7 @@ Would you like to open the file location?",
                         Message($"VM checkpoints refresh completed - Total: {totalCheckpoints}, Standard: {standardCheckpoints}, Production: {productionCheckpoints}",
                             EventType.Information, 6052);
 
-                        toolStripStatusLabelTextMainForm.Text = $"VM checkpoints loaded - Total: {totalCheckpoints}, Standard: {standardCheckpoints}, Production: {productionCheckpoints}";
+                        toolStripStatusLabelTextMainForm.Text = $@"VM checkpoints loaded - Total: {totalCheckpoints}, Standard: {standardCheckpoints}, Production: {productionCheckpoints}";
                     });
 
                 }, "VM Checkpoints Refresh");
@@ -5515,7 +5520,7 @@ Would you like to open the file location?",
                     if (creationTime != null && creationTime is DateTime dt)
                     {
                         row["Created"] = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                        row["Age (Days)"] = Math.Round((DateTime.Now - dt).TotalDays, 1).ToString();
+                        row["Age (Days)"] = Math.Round((DateTime.Now - dt).TotalDays, 1).ToString(CultureInfo.CurrentCulture);
                     }
                     else
                     {
@@ -5530,7 +5535,7 @@ Would you like to open the file location?",
                     var sizeBytes = checkpoint.Properties["SizeBytes"]?.Value;
                     if (sizeBytes != null && long.TryParse(sizeBytes.ToString(), out long bytes))
                     {
-                        row["Size (MB)"] = Math.Round(bytes / (1024.0 * 1024.0), 2).ToString();
+                        row["Size (MB)"] = Math.Round(bytes / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
                     }
                     else
                     {
@@ -5540,7 +5545,7 @@ Would you like to open the file location?",
                     var sizeOfSystemFiles = checkpoint.Properties["SizeOfSystemFiles"]?.Value;
                     if (sizeOfSystemFiles != null && long.TryParse(sizeOfSystemFiles.ToString(), out long systemFilesBytes))
                     {
-                        row["System Files (MB)"] = Math.Round(systemFilesBytes / (1024.0 * 1024.0), 2).ToString();
+                        row["System Files (MB)"] = Math.Round(systemFilesBytes / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
                     }
                     else
                     {
@@ -5560,7 +5565,7 @@ Would you like to open the file location?",
                     var memoryStartup = checkpoint.Properties["MemoryStartup"]?.Value;
                     if (memoryStartup != null && long.TryParse(memoryStartup.ToString(), out long memStartupBytes))
                     {
-                        row["Memory Startup (MB)"] = Math.Round(memStartupBytes / (1024.0 * 1024.0), 0).ToString();
+                        row["Memory Startup (MB)"] = Math.Round(memStartupBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
                     }
                     else
                     {
@@ -5570,7 +5575,7 @@ Would you like to open the file location?",
                     var memoryMinimum = checkpoint.Properties["MemoryMinimum"]?.Value;
                     if (memoryMinimum != null && long.TryParse(memoryMinimum.ToString(), out long memMinBytes))
                     {
-                        row["Memory Minimum (MB)"] = Math.Round(memMinBytes / (1024.0 * 1024.0), 0).ToString();
+                        row["Memory Minimum (MB)"] = Math.Round(memMinBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
                     }
                     else
                     {
@@ -5580,7 +5585,7 @@ Would you like to open the file location?",
                     var memoryMaximum = checkpoint.Properties["MemoryMaximum"]?.Value;
                     if (memoryMaximum != null && long.TryParse(memoryMaximum.ToString(), out long memMaxBytes))
                     {
-                        row["Memory Maximum (MB)"] = Math.Round(memMaxBytes / (1024.0 * 1024.0), 0).ToString();
+                        row["Memory Maximum (MB)"] = Math.Round(memMaxBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
                     }
                     else
                     {
@@ -6055,7 +6060,7 @@ Notes:
                             double cpuOvercommit = inventory.ResourceAllocation.CpuOvercommitRatio;
                             double memOvercommit = inventory.ResourceAllocation.MemoryOvercommitRatio;
 
-                            toolStripStatusLabelTextMainForm.Text = $"Health inventory loaded - VMs: {totalVMs} ({runningVMs} running), CPU Overcommit: {cpuOvercommit:F2}:1, Memory Overcommit: {memOvercommit:F2}:1";
+                            toolStripStatusLabelTextMainForm.Text = $@"Health inventory loaded - VMs: {totalVMs} ({runningVMs} running), CPU Overcommit: {cpuOvercommit:F2}:1, Memory Overcommit: {memOvercommit:F2}:1";
 
                             Message($"Host health inventory loaded successfully",
                                 EventType.Information, 7104);
@@ -6326,14 +6331,12 @@ Notes:
             public string NodeName { get; }
             public string NodeFqdn { get; }
             public string DisplayText { get; }
-            public bool IsCurrentNode { get; }
 
             public ClusterNodeComboItem(string nodeName, string nodeFqdn, string displayText, bool isCurrentNode)
             {
                 NodeName = nodeName;
                 NodeFqdn = nodeFqdn;
                 DisplayText = displayText;
-                IsCurrentNode = isCurrentNode;
             }
 
             public override string ToString() => DisplayText;
@@ -6424,7 +6427,7 @@ Notes:
                 }
 
                 // Resource Allocation section
-                double memoryAllocatedGB = inventory.ResourceAllocation.TotalVmMemoryMb / 1024.0;
+                double memoryAllocatedGb = inventory.ResourceAllocation.TotalVmMemoryMb / 1024.0;
                 string cpuGuidance = inventory.ResourceAllocation.CpuOvercommitRatio > 4 ? "⚠️ High overcommit" :
                                      inventory.ResourceAllocation.CpuOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
                 string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" :
@@ -6440,7 +6443,7 @@ Notes:
                     $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1",
                     GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"),
                     "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGB:F1} GB",
+                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGb:F1} GB",
                     $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1",
                     GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"),
                     "Memory Overcommit = VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Enable Dynamic Memory on VMs or add physical RAM.");
@@ -6519,16 +6522,16 @@ Notes:
                 }
 
                 // Idle Resources section
-                int idleVMCount = inventory.IdleResources.IdleVmNames.Count;
+                int idleVmCount = inventory.IdleResources.IdleVmNames.Count;
                 int unusedAdapterCount = inventory.IdleResources.UnusedNetworkAdapterNames.Count;
 
-                if (idleVMCount > 0)
+                if (idleVmCount > 0)
                 {
-                    string idleVMList = idleVMCount <= 5
+                    string idleVmList = idleVmCount <= 5
                         ? string.Join(", ", inventory.IdleResources.IdleVmNames)
-                        : string.Join(", ", inventory.IdleResources.IdleVmNames.Take(5)) + $"... (+{idleVMCount - 5} more)";
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVMCount.ToString(),
-                        $"⚠️ VMs stopped for >30 days: {idleVMList}", "Warning",
+                        : string.Join(", ", inventory.IdleResources.IdleVmNames.Take(5)) + $"... (+{idleVmCount - 5} more)";
+                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVmCount.ToString(),
+                        $"⚠️ VMs stopped for >30 days: {idleVmList}", "Warning",
                         "VMs that have been powered off for over 30 days. These may be candidates for deletion to reclaim storage and licensing.");
                 }
 
