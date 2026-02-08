@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Management.Automation;
@@ -117,7 +118,7 @@ namespace HVTools.Forms
 
                             var domainResult = ExecutePowerShellCommand(getDomainScript);
 
-                            if (domainResult != null && domainResult.Count > 0)
+                            if (domainResult.Count > 0)
                             {
                                 string remoteDomain = domainResult[0].BaseObject?.ToString();
                                 if (!string.IsNullOrEmpty(remoteDomain))
@@ -179,9 +180,9 @@ namespace HVTools.Forms
                         string getHostnameScript = "$env:COMPUTERNAME";
                         var hostnameResult = ExecutePowerShellCommand(getHostnameScript);
 
-                        if (hostnameResult != null && hostnameResult.Count > 0)
+                        if (hostnameResult.Count > 0)
                         {
-                            string hostname = hostnameResult[0].BaseObject?.ToString();
+                            string? hostname = hostnameResult[0].BaseObject?.ToString();
                             if (!string.IsNullOrEmpty(hostname))
                             {
                                 serverDisplay = $"{SessionContext.ServerName} ({hostname})";
@@ -283,7 +284,7 @@ namespace HVTools.Forms
 
                 Message("Starting initial data load for MainForm", EventType.Information, 2200);
 
-                Exception loadException = null;
+                Exception? loadException = null;
 
                 // Load VM Overview in background
                 Message("Loading VM Overview data...", EventType.Information, 2201);
@@ -375,7 +376,7 @@ namespace HVTools.Forms
                 }
 
                 // Clean up the event
-                progressFormReady?.Dispose();
+                progressFormReady.Dispose();
             }
         }
 
@@ -396,7 +397,7 @@ namespace HVTools.Forms
             }
 
             // Clean up remote session if exists
-            if (_psSession != null && _persistentRunspace != null)
+            if (_persistentRunspace != null)
             {
                 try
                 {
@@ -454,7 +455,7 @@ namespace HVTools.Forms
         /// <param name="operationName">Name of the operation for logging</param>
         private async void ExecuteWithProgressForm(Action operation, string operationName)
         {
-            ValidationProgressForm progressForm = null;
+            ValidationProgressForm progressForm = null!;
 
             try
             {
@@ -467,7 +468,7 @@ namespace HVTools.Forms
 
                 Message($"Starting background operation: {operationName}", EventType.Information, 6001);
 
-                Exception taskException = null;
+                Exception taskException = null!;
 
                 // Run operation in background task
                 await Task.Run(() =>
@@ -487,11 +488,11 @@ namespace HVTools.Forms
                 // Close progress form on UI thread (we're back on UI thread after await)
                 try
                 {
-                    if (progressForm != null && !progressForm.IsDisposed)
+                    if (!progressForm.IsDisposed)
                     {
                         progressForm.Close();
                         progressForm.Dispose();
-                        progressForm = null;
+                        progressForm = null!;
                     }
 
                     if (taskException != null)
@@ -516,7 +517,7 @@ namespace HVTools.Forms
                     EventType.Error, 6005);
 
                 // Clean up progress form if there was an error
-                if (progressForm != null && !progressForm.IsDisposed)
+                if (!progressForm.IsDisposed)
                 {
                     try
                     {
@@ -547,7 +548,7 @@ namespace HVTools.Forms
         /// <param name="operationName">Name of the operation for logging</param>
         private async void ExecuteWithProgressForm<T>(Func<T> operation, Action<T> onComplete, string operationName)
         {
-            ValidationProgressForm progressForm = null;
+            ValidationProgressForm progressForm = null!;
 
             try
             {
@@ -560,8 +561,8 @@ namespace HVTools.Forms
 #if DEBUG
                 Message($"Starting background operation: {operationName}", EventType.Information, 6006);
 #endif
-                T result = default;
-                Exception taskException = null;
+                T? result = default;
+                Exception taskException = null!;
 
                 // Run operation in background task
                 await Task.Run(() =>
@@ -592,8 +593,7 @@ namespace HVTools.Forms
                     }
                     else if (onComplete != null)
                     {
-                        // Execute completion handler BEFORE closing progress form
-                        onComplete(result);
+                        onComplete(result!);
                     }
                 }
                 catch (Exception ex)
@@ -604,11 +604,11 @@ namespace HVTools.Forms
                 finally
                 {
                     // Close progress form AFTER completion handler finishes
-                    if (progressForm != null && !progressForm.IsDisposed)
+                    if (!progressForm.IsDisposed)
                     {
                         progressForm.Close();
                         progressForm.Dispose();
-                        progressForm = null;
+                        progressForm = null!;
                     }
                 }
             }
@@ -618,7 +618,7 @@ namespace HVTools.Forms
                     EventType.Error, 6010);
 
                 // Clean up progress form if there was an error
-                if (progressForm != null && !progressForm.IsDisposed)
+                if (!progressForm.IsDisposed)
                 {
                     try
                     {
@@ -670,7 +670,7 @@ namespace HVTools.Forms
                     results = ExecutePowerShellCommand("Get-VM");
                 }
 
-                if (results == null || results.Count == 0)
+                if (results.Count == 0)
                 {
                     MessageBox.Show(@"No VMs found.", @"Information",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -702,7 +702,7 @@ namespace HVTools.Forms
         {
             try
             {
-                if (results == null || results.Count == 0)
+                if (results.Count == 0)
                 {
                     Message("No VM results to display",
                         EventType.Warning, 2187);
@@ -1015,7 +1015,7 @@ namespace HVTools.Forms
 
                 var nodesResult = ExecutePowerShellCommand(getNodesScript);
 
-                if (nodesResult == null || nodesResult.Count == 0)
+                if (nodesResult.Count == 0)
                 {
                     Message("No cluster nodes found, falling back to standard Get-VM",
                         EventType.Warning, 2175);
@@ -1030,7 +1030,7 @@ namespace HVTools.Forms
                     if (!string.IsNullOrEmpty(nodeName))
                     {
                         // If the original connection used FQDN, construct FQDNs for cluster nodes
-                        if (SessionContext.ServerName.Contains('.') && !nodeName.Contains('.'))
+                        if (SessionContext.ServerName != null && SessionContext.ServerName.Contains('.') && !nodeName.Contains('.'))
                         {
                             string domain = SessionContext.ServerName.Substring(SessionContext.ServerName.IndexOf('.'));
                             nodeName = nodeName + domain;
@@ -1129,7 +1129,7 @@ namespace HVTools.Forms
 
                         var nodeVMs = ExecutePowerShellCommandOnNode(node, getDetailedVMsScript);
 
-                        if (nodeVMs != null && nodeVMs.Count > 0)
+                        if (nodeVMs.Count > 0)
                         {
                             foreach (var vm in nodeVMs)
                             {
@@ -1180,7 +1180,7 @@ namespace HVTools.Forms
                 {
                     Message($"Persistent runspace not available for node command execution",
                         EventType.Error, 2184);
-                    return null;
+                    return null!;
                 }
 
                 using (PowerShell ps = PowerShell.Create())
@@ -1228,11 +1228,11 @@ namespace HVTools.Forms
             {
                 Message($"Error executing command on node '{nodeName}': {ex.Message}",
                     EventType.Error, 2186);
-                return null;
+                return null!;
             }
         }
 
-        private System.Collections.ObjectModel.Collection<PSObject> ExecutePowerShellCommand(string command, Dictionary<string, object> parameters = null)
+        private Collection<PSObject> ExecutePowerShellCommand(string command)
         {
             try
             {
