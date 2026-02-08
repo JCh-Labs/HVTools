@@ -1126,6 +1126,23 @@ try {{
                 return "Good";
             }
         }
+
+        /// <summary>
+        /// Gets the status indicator for node state
+        /// </summary>
+        /// <param name="nodeState">The node state (e.g., "Up", "Online", "Down", "Paused", "Standalone")</param>
+        /// <returns>Status string: "Good", "Critical", "Warning", "Info", or empty</returns>
+        public static string GetNodeStateStatus(string nodeState)
+        {
+            return nodeState switch
+            {
+                "Up" or "Online" => "Good",
+                "Down" or "Offline" => "Critical",
+                "Paused" => "Warning",
+                "Standalone" => "Info",
+                _ => ""
+            };
+        }
     }
 }
 

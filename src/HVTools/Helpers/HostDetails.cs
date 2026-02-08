@@ -1136,5 +1136,21 @@ try {
                 return 0;
             }
         }
+
+        /// <summary>
+        /// Formats link speed from bytes/sec to human-readable format
+        /// </summary>
+        private static string FormatLinkSpeed(long linkSpeed)
+        {
+            if (linkSpeed >= 1_000_000_000_000)
+                return $"{linkSpeed / 1_000_000_000_000.0:F1} Tbps";
+            if (linkSpeed >= 1_000_000_000)
+                return $"{linkSpeed / 1_000_000_000.0:F1} Gbps";
+            if (linkSpeed >= 1_000_000)
+                return $"{linkSpeed / 1_000_000.0:F1} Mbps";
+            if (linkSpeed >= 1_000)
+                return $"{linkSpeed / 1_000.0:F1} Kbps";
+            return $"{linkSpeed} bps";
+        }
     }
 }

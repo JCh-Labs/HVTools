@@ -6015,7 +6015,7 @@ Notes:
 
                     AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Nodes", nodeList,
                         $"Current Node: {inventory.HostInfo.ComputerName}",
-                        GetNodeStateStatus(inventory.HostInfo.NodeState),
+                        HostHealth.GetNodeStateStatus(inventory.HostInfo.NodeState),
                         "All cluster nodes and their states. Data shown is from the current connected node only.");
                 }
                 else
@@ -6204,36 +6204,7 @@ Notes:
             dataTable.Rows.Add(row);
         }
 
-        /// <summary>
-        /// Gets the status indicator for node state
-        /// </summary>
-        private string GetNodeStateStatus(string nodeState)
-        {
-            return nodeState switch
-            {
-                "Up" or "Online" => "Good",
-                "Down" or "Offline" => "Critical",
-                "Paused" => "Warning",
-                "Standalone" => "Info",
-                _ => ""
-            };
-        }
-
-        /// <summary>
-        /// Formats link speed from bytes/sec to human-readable format
-        /// </summary>
-        private string FormatLinkSpeed(long linkSpeed)
-        {
-            if (linkSpeed >= 1_000_000_000_000)
-                return $"{linkSpeed / 1_000_000_000_000.0:F1} Tbps";
-            if (linkSpeed >= 1_000_000_000)
-                return $"{linkSpeed / 1_000_000_000.0:F1} Gbps";
-            if (linkSpeed >= 1_000_000)
-                return $"{linkSpeed / 1_000_000.0:F1} Mbps";
-            if (linkSpeed >= 1_000)
-                return $"{linkSpeed / 1_000.0:F1} Kbps";
-            return $"{linkSpeed} bps";
-        }
+        
 
         /// <summary>
         /// Applies color coding to the health overview DataGridView based on status
