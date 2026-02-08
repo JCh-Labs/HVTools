@@ -9,16 +9,16 @@ namespace HVTools.Forms
 {
     public partial class MainForm : Form
     {
-        private PSObject _psSession = null;
-        private Runspace _persistentRunspace = null;
+        private PSObject _psSession;
+        private Runspace? _persistentRunspace;
 
-        private bool _initialLoadComplete = false;
-        private bool _exitConfirmed = false;
+        private bool _initialLoadComplete;
+        private bool _exitConfirmed;
 
         // Store current health inventory for node switching
         private HostHealthInfo? _currentHealthInventory = null;
-        private bool _isLoadingNodeData = false;
-        private string? _currentlyDisplayedNodeName = null; // Track which node's data is displayed
+        private bool _isLoadingNodeData;
+        private string? _currentlyDisplayedNodeName; // Track which node's data is displayed
 
         public MainForm()
         {
@@ -939,10 +939,6 @@ namespace HVTools.Forms
                         column.ReadOnly = true;
                     }
                 }
-
-                // Add column header click event to toggle all checkboxes (only once)
-                datagridviewVMOverView.ColumnHeaderMouseClick -= DatagridviewVMOverView_ColumnHeaderMouseClick; // Remove existing
-                datagridviewVMOverView.ColumnHeaderMouseClick += DatagridviewVMOverView_ColumnHeaderMouseClick;
 
                 // Color coding will be applied automatically via DataBindingComplete event
             }

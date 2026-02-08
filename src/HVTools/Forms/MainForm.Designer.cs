@@ -153,6 +153,7 @@
             datagridviewVMOverView.Size = new Size(1601, 774);
             datagridviewVMOverView.TabIndex = 0;
             datagridviewVMOverView.CellContentDoubleClick += datagridviewVMOverView_CellContentDoubleClick;
+            datagridviewVMOverView.ColumnHeaderMouseClick += DatagridviewVMOverView_ColumnHeaderMouseClick;
             datagridviewVMOverView.DataBindingComplete += DatagridviewVMOverView_DataBindingComplete;
             // 
             // tabcontrolMainForm
