@@ -5616,7 +5616,16 @@ Notes:
                 ? string.Join("\n", recommendations)
                 : "• Checkpoint management looks good - no immediate actions needed";
         }
-
+        
+        /// <summary>
+        /// Handles the Click event for the Load Health Overview button, initiating retrieval and display of the current
+        /// Hyper-V host health and inventory information.
+        /// </summary>
+        /// <remarks>If there is no active Hyper-V connection, the method prompts the user to connect
+        /// before proceeding. The health overview is loaded asynchronously, and the UI is updated with the retrieved
+        /// inventory data or an error message if retrieval fails.</remarks>
+        /// <param name="sender">The source of the event, typically the Load Health Overview button.</param>
+        /// <param name="e">An EventArgs object containing the event data.</param>
         private void buttonLoadHealthOverview_Click(object sender, EventArgs e)
         {
             try
@@ -6204,8 +6213,6 @@ Notes:
             dataTable.Rows.Add(row);
         }
 
-        
-
         /// <summary>
         /// Applies color coding to the health overview DataGridView based on status
         /// </summary>
@@ -6480,6 +6487,11 @@ Unused Resources:
                 MessageBoxIcon.Information);
         }
 
+        /// <summary>
+        /// Starts the process to download the latest release from GitHub when the menu item is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void downloadLastestReleaseFromGitHubToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Start GitHub repo
