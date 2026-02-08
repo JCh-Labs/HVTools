@@ -2090,7 +2090,7 @@ namespace HVTools.Forms
             }
         }
 
-        private bool ExportToCsv(string filePath, List<VmGroupInfo> vmGroups)
+        private bool ExportVmGroupsToCsv(string filePath, List<VmGroupInfo> vmGroups)
         {
             try
             {
@@ -2642,7 +2642,7 @@ namespace HVTools.Forms
                     EventType.Information, 2152);
 
                 // Execute with progress form - use generic version to keep PowerShell work in background
-                ExecuteWithProgressForm<System.Collections.ObjectModel.Collection<PSObject>>(() =>
+                ExecuteWithProgressForm(() =>
                 {
                     // Get VM data with ALL details in background thread (PowerShell work - no UI blocking)
                     Message("Retrieving VM data from server...",
@@ -2706,7 +2706,7 @@ namespace HVTools.Forms
                         Message($"VM overview refresh completed - Total: {totalVMs}, Running: {runningVMs}",
                             EventType.Information, 2153);
 
-                        toolStripStatusLabelTextMainForm.Text = $"VM overview refreshed successfully. Total VMs: {totalVMs}, Running VMs: {runningVMs}";
+                        toolStripStatusLabelTextMainForm.Text = $@"VM overview refreshed successfully. Total VMs: {totalVMs}, Running VMs: {runningVMs}";
                     }
                     catch (Exception ex)
                     {
@@ -4712,7 +4712,7 @@ Management:
                                     break;
 
                                 case ".csv":
-                                    success = ExportToCsv(filePath, vmGroups);
+                                    success = ExportVmGroupsToCsv(filePath, vmGroups);
                                     break;
 
                                 case ".xml":
