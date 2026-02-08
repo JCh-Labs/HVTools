@@ -832,7 +832,7 @@ namespace HVTools.Forms
                     // Get VM groups - always need to query this as it's not node-specific
                     if (!string.IsNullOrEmpty(vmName))
                     {
-                        var groups = GetVmGroups(vmName);
+                        var groups = VmGroups.GetVmGroups(vmName, cmd => ExecutePowerShellCommand(cmd));
                         row["VM Groups"] = groups;
                     }
                     else
@@ -1288,25 +1288,6 @@ namespace HVTools.Forms
                 return $"{(int)timeSpan.TotalHours}h {timeSpan.Minutes}m";
             else
                 return $"{timeSpan.Minutes}m {timeSpan.Seconds}s";
-        }
-
-        private string GetVmGroups(string vmName)
-        {
-            try
-            {
-                var results = ExecutePowerShellCommand($"Get-VMGroup | Where-Object {{ $_.VMMembers.Name -contains '{vmName}' }} | Select-Object -ExpandProperty Name");
-
-                if (results != null && results.Count > 0)
-                {
-                    return string.Join(", ", results.Select(g => g.ToString()));
-                }
-
-                return "N/A";
-            }
-            catch
-            {
-                return "";
-            }
         }
 
         private void ApplyColorCoding()

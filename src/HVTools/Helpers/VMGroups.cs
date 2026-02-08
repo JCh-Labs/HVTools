@@ -673,5 +673,31 @@ namespace HVTools.Helpers
                 };
             }
         }
+
+        /// <summary>
+        /// Gets the VM groups that a specific VM belongs to
+        /// </summary>
+        /// <param name="vmName">The name of the VM</param>
+        /// <param name="executePowerShellCommand">Function to execute PowerShell commands</param>
+        /// <returns>Comma-separated list of group names, or "N/A" if not in any groups</returns>
+        public static string GetVmGroups(string vmName,
+            Func<string, System.Collections.ObjectModel.Collection<PSObject>?> executePowerShellCommand)
+        {
+            try
+            {
+                var results = executePowerShellCommand($"Get-VMGroup | Where-Object {{ $_.VMMembers.Name -contains '{vmName}' }} | Select-Object -ExpandProperty Name");
+
+                if (results != null && results.Count > 0)
+                {
+                    return string.Join(", ", results.Select(g => g.ToString()));
+                }
+
+                return "N/A";
+            }
+            catch
+            {
+                return "";
+            }
+        }
     }
 }
