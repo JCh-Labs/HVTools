@@ -177,12 +177,12 @@ Outline the file contents of the repository. It helps users navigate the codebas
 ### User Interface
 - **Tabbed Interface**:
   - VM Overview (primary inventory view)
-  - VM Groups (group management)
-  - Hosts (detailed host information)
-  - Clusters (cluster-specific data)
-  - Virtual Disks (storage inventory)
-  - Checkpoints (snapshot management)
-  - and more...
+     - VM Groups (group management)
+     - Hosts (detailed host information)
+     - Clusters (cluster-specific data)
+     - Virtual Disks (storage inventory)
+     - Checkpoints (snapshot management)
+     - and more...
 
 - **Visual Indicators**:
   - Color-coded VM states (Green=Running, Red=Off, Yellow=Paused)
