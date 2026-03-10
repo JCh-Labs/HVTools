@@ -1825,5 +1825,74 @@ Error: {connectionResult.Error}",
         {
             Close();
         }
+
+        private void myWebpageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Globals.ToolStings.UrlMyWebPage,
+                    UseShellExecute = true
+                });
+
+                // Log the opening of the URL message
+                Message("User clicked the 'My webpage' link to open the URL: '" + Globals.ToolStings.UrlMyWebPage + "'", EventType.Information, 1084);
+            }
+            catch (Exception ex)
+            {
+                // Show an error message if the URL could not be opened
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyWebPage + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Log the error message
+                Message("Failed to open the URL: " + ex.Message, EventType.Error, 1085);
+            }
+        }
+
+        private void myBlogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Globals.ToolStings.UrlMyBlog,
+                    UseShellExecute = true
+                });
+
+                // Log the opening of the URL message
+                Message("User clicked the 'My webpage' link to open the URL: '" + Globals.ToolStings.UrlMyBlog + "'", EventType.Information, 1086);
+            }
+            catch (Exception ex)
+            {
+                // Show an error message if the URL could not be opened
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyBlog + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Log the error message
+                Message("Failed to open the URL: " + ex.Message, EventType.Error, 1087);
+            }
+        }
+
+        private void guideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Globals.ToolStings.UrlGitHub,
+                    UseShellExecute = true
+                });
+
+                // Log the opening of the URL message
+                Message("User clicked the 'Guide' link to open the URL: '" + Globals.ToolStings.UrlGitHub + "'", EventType.Information, 1094);
+            }
+            catch (Exception ex)
+            {
+                // Show an error message if the URL could not be opened
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyBlog + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Log the error message
+                Message("Failed to open the URL: " + ex.Message, EventType.Error, 1095);
+            }
+        }
     }
 }

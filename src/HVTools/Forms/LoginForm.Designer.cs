@@ -52,6 +52,10 @@
             menuToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            onlineToolStripMenuItem = new ToolStripMenuItem();
+            myWebpageToolStripMenuItem = new ToolStripMenuItem();
+            myBlogToolStripMenuItem = new ToolStripMenuItem();
+            guideToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             groupAuth.SuspendLayout();
             statusStripLoginForm.SuspendLayout();
@@ -270,7 +274,7 @@
             // 
             // menuToolStripMenuItem
             // 
-            menuToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, exitToolStripMenuItem });
+            menuToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, exitToolStripMenuItem, onlineToolStripMenuItem });
             menuToolStripMenuItem.Name = "menuToolStripMenuItem";
             menuToolStripMenuItem.Size = new Size(50, 20);
             menuToolStripMenuItem.Text = "Menu";
@@ -278,16 +282,44 @@
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(107, 22);
+            aboutToolStripMenuItem.Size = new Size(180, 22);
             aboutToolStripMenuItem.Text = "About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(107, 22);
+            exitToolStripMenuItem.Size = new Size(180, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // onlineToolStripMenuItem
+            // 
+            onlineToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { myWebpageToolStripMenuItem, myBlogToolStripMenuItem, guideToolStripMenuItem });
+            onlineToolStripMenuItem.Name = "onlineToolStripMenuItem";
+            onlineToolStripMenuItem.Size = new Size(180, 22);
+            onlineToolStripMenuItem.Text = "Online";
+            // 
+            // myWebpageToolStripMenuItem
+            // 
+            myWebpageToolStripMenuItem.Name = "myWebpageToolStripMenuItem";
+            myWebpageToolStripMenuItem.Size = new Size(180, 22);
+            myWebpageToolStripMenuItem.Text = "My webpage";
+            myWebpageToolStripMenuItem.Click += myWebpageToolStripMenuItem_Click;
+            // 
+            // myBlogToolStripMenuItem
+            // 
+            myBlogToolStripMenuItem.Name = "myBlogToolStripMenuItem";
+            myBlogToolStripMenuItem.Size = new Size(180, 22);
+            myBlogToolStripMenuItem.Text = "My blog";
+            myBlogToolStripMenuItem.Click += myBlogToolStripMenuItem_Click;
+            // 
+            // guideToolStripMenuItem
+            // 
+            guideToolStripMenuItem.Name = "guideToolStripMenuItem";
+            guideToolStripMenuItem.Size = new Size(180, 22);
+            guideToolStripMenuItem.Text = "Guide";
+            guideToolStripMenuItem.Click += guideToolStripMenuItem_Click;
             // 
             // LoginForm
             // 
@@ -347,5 +379,9 @@
         private ToolStripMenuItem menuToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem onlineToolStripMenuItem;
+        private ToolStripMenuItem myWebpageToolStripMenuItem;
+        private ToolStripMenuItem myBlogToolStripMenuItem;
+        private ToolStripMenuItem guideToolStripMenuItem;
     }
 }

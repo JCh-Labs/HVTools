@@ -2381,7 +2381,25 @@ namespace HVTools.Forms
 
         private void guideToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Globals.ToolStings.UrlGitHub,
+                    UseShellExecute = true
+                });
 
+                // Log the opening of the URL message
+                Message("User clicked the 'Guide' link to open the URL: '" + Globals.ToolStings.UrlGitHub + "'", EventType.Information, 1092);
+            }
+            catch (Exception ex)
+            {
+                // Show an error message if the URL could not be opened
+                MessageBox.Show(@"Failed to open the URL '" + Globals.ToolStings.UrlMyBlog + @"'. Error: " + ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Log the error message
+                Message("Failed to open the URL: " + ex.Message, EventType.Error, 1093);
+            }
         }
 
         private void changelogToolStripMenuItem_Click(object sender, EventArgs e)
