@@ -17,6 +17,8 @@
 [//]: #https://img.shields.io/badge/PowerShell-5.1%2B-blue
 
 <div align="center">
+  <a href="https://hvtools.app">🌐 Visit Website</a>
+  ·
   <a href="https://github.com/michaelmsonne/HVTools/issues/new?assignees=&labels=bug&HVTools=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
   ·
   <a href="https://github.com/michaelmsonne/HVTools/issues/new?assignees=&labels=enhancement&HVTools=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
@@ -51,6 +53,8 @@
 **HVTools** is a comprehensive inventory, documentation, and management tool for Microsoft Hyper-V environments - the equivalent of RVTools for VMware environments. 
 
 Just as RVTools helps VMware administrators document and inventory their vSphere infrastructure, HVTools provides detailed information about your Hyper-V hosts, virtual machines, clusters, and configurations, with powerful export capabilities for reporting and documentation purposes.
+
+🌐 **Visit [hvtools.app](https://hvtools.app)** for more information, documentation, and downloads.
 
 ### Why HVTools?
 
@@ -229,9 +233,11 @@ Outline the file contents of the repository. It helps users navigate the codebas
 
 ## Download
 
-[Download the latest version](../../releases/latest)
+**🌐 Official Website:** [hvtools.app/download](https://hvtools.app/index.html#download)
 
-[Version History](CHANGELOG.md)
+**📦 GitHub Releases:** [Download the latest version](../../releases/latest)
+
+**📋 Version History:** [CHANGELOG.md](CHANGELOG.md)
 
 ## ⚡ Getting Started
 ### 🛠 Prerequisites
@@ -427,13 +433,19 @@ Outline the file contents of the repository. It helps users navigate the codebas
 ![Login Screen - Connect to local or remote Hyper-V hosts with flexible authentication]
 
 ### VM Overview
-![Complete VM inventory with detailed properties, color-coded states, and export capabilities]
+Complete VM inventory with detailed properties, color-coded states, and export capabilities:
+
+![[.\landingpage\assets\images\screenshot-dashboard.png]](landingpage/assets/images/screenshot-dashboard.png)
 
 ### VM Groups Management
-![Create and manage VM Groups for logical organization]
+Create and manage VM Groups for logical organization
+
+![\landingpage\assets\images\screenshot-vm-groups.png](landingpage/assets/images/screenshot-vm-groups.png)
 
 ### Host Information
-![Comprehensive hardware and software information for all hosts]
+Comprehensive hardware and software information for all hosts
+
+![\landingpage\assets\images\screenshot-host-view.png](landingpage/assets/images/screenshot-host-view.png)
 
 ### Cluster Management
 ![Cluster health, node status, and Highly Available VM distribution]
@@ -447,6 +459,7 @@ Outline the file contents of the repository. It helps users navigate the codebas
 ### Export Options
 ![Multiple export formats with selective VM export capabilities]
 
+and more comming...
 
 # 🧪 Testing
 
