@@ -1,14 +1,19 @@
 # HVTools
 
 <p align="center">
+  <a href="https://github.com/michaelmsonne/HVTools/releases/latest"><img alt="GitHub release" src="https://img.shields.io/github/v/release/michaelmsonne/HVTools?include_prereleases&logo=github"></a>
+  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/downloads/michaelmsonne/HVTools/total.svg" alt="Total Downloads"></a>
+  <a href="https://github.com/michaelmsonne/HVTools/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/michaelmsonne/HVTools"></a>
+  <a href="https://github.com/michaelmsonne/HVTools/pulls"><img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/michaelmsonne/HVTools"></a><br>
+  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/top/michaelmsonne/HVTools.svg" alt="Top Language"></a>
+  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/code-size/michaelmsonne/HVTools.svg" alt="Code Size"></a>
+  <img src="https://img.shields.io/badge/C%23-239120?logo=csharp&logoColor=white" alt="C#">
+  <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet" alt=".NET 10">
+  <img src="https://img.shields.io/badge/Platform-Windows-0078D7" alt="Platform">
+  <a href="https://github.com/michaelmsonne/HVTools/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a><br>
   <a href="https://www.linkedin.com/in/michaelmsonne/"><img alt="Made by" src="https://img.shields.io/static/v1?label=made%20by&message=Michael%20Morten%20Sonne&color=04D361"></a>
-  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/top/HVTools/GitHubBackupTool.svg"></a>
-  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/code-size/HVTools/GitHubBackupTool.svg"></a>
-  <img src="https://img.shields.io/badge/C%23-239120?logo=csharp&logoColor=white" alt="C#"></a>
-  <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet" alt=".NET 10"></a>
-  <img src="https://img.shields.io/badge/Platform-Windows-0078D7" alt="Platform"></a>
-  <a href="https://github.com/michaelmsonne/HVTools/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/downloads/michaelmsonne/HVTools/total.svg"></a><br>
+  <a href="https://github.com/michaelmsonne/HVTools/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/michaelmsonne/HVTools?style=social"></a>
+  <a href="https://github.com/michaelmsonne/HVTools/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/michaelmsonne/HVTools?style=social"></a><br>
   <a href="https://www.buymeacoffee.com/sonnes" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 117px !important;"></a>
   
 </p> 
@@ -430,36 +435,51 @@ Outline the file contents of the repository. It helps users navigate the codebas
 # 📸 Screenshots
 
 ### Login Screen
-![Login Screen - Connect to local or remote Hyper-V hosts with flexible authentication]
+<!-- TODO: Add login screen screenshot -->
+![Login Screen - Connect to local or remote Hyper-V hosts with flexible authentication](landingpage/assets/images/screenshot-login.png)
+
+*Connect to local or remote Hyper-V hosts with flexible authentication options.*
 
 ### VM Overview
-Complete VM inventory with detailed properties, color-coded states, and export capabilities:
+![VM Overview - Complete VM inventory with detailed properties](landingpage/assets/images/screenshot-dashboard.png)
 
-![[.\landingpage\assets\images\screenshot-dashboard.png]](landingpage/assets/images/screenshot-dashboard.png)
+*Complete VM inventory with detailed properties, color-coded states, and export capabilities.*
 
 ### VM Groups Management
-Create and manage VM Groups for logical organization
+![VM Groups - Create and manage VM Groups for logical organization](landingpage/assets/images/screenshot-vm-groups.png)
 
-![\landingpage\assets\images\screenshot-vm-groups.png](landingpage/assets/images/screenshot-vm-groups.png)
+*Create and manage VM Groups for logical organization and bulk operations.*
 
 ### Host Information
-Comprehensive hardware and software information for all hosts
+![Host Information - Comprehensive hardware and software details](landingpage/assets/images/screenshot-host-view.png)
 
-![\landingpage\assets\images\screenshot-host-view.png](landingpage/assets/images/screenshot-host-view.png)
+*Comprehensive hardware and software information for all hosts in your environment.*
 
 ### Cluster Management
-![Cluster health, node status, and Highly Available VM distribution]
+<!-- TODO: Add cluster management screenshot -->
+![Cluster Management - Cluster health and node status](landingpage/assets/images/screenshot-cluster.png)
+
+*Cluster health, node status, and Highly Available VM distribution across nodes.*
 
 ### Virtual Disks
-![Complete virtual disk inventory with space efficiency analysis]
+<!-- TODO: Add virtual disks screenshot -->
+![Virtual Disks - Complete disk inventory with space efficiency analysis](landingpage/assets/images/screenshot-virtual-disks.png)
+
+*Complete virtual disk inventory with space efficiency analysis and optimization recommendations.*
 
 ### VM Checkpoints
-![Checkpoint management with age tracking and storage monitoring]
+<!-- TODO: Add checkpoints screenshot -->
+![VM Checkpoints - Checkpoint management with age tracking](landingpage/assets/images/screenshot-checkpoints.png)
+
+*Checkpoint management with age tracking and storage consumption monitoring.*
 
 ### Export Options
-![Multiple export formats with selective VM export capabilities]
+<!-- TODO: Add export options screenshot -->
+![Export Options - Multiple export formats](landingpage/assets/images/screenshot-export.png)
 
-and more comming...
+*Multiple export formats with selective VM export capabilities (JSON, CSV, XML, TXT).*
+
+*...and more features coming soon!*
 
 # 🧪 Testing
 
@@ -520,8 +540,7 @@ and more comming...
 - **Hyper-V** - Core Hyper-V management cmdlets
 - **FailoverClusters** - Cluster management (for clustered environments)
 
-## Used libraries for the tool:
-- [Newtonsoft.Json](https://www.newtonsoft.com/json) - for JSON serialization and deserialization
+## Used 3rd party NuGet packages:
 - [Microsoft.PowerShell.Commands.Diagnostics](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Diagnostics/) (v7.5.4) - PowerShell diagnostic commands
 - [Microsoft.PowerShell.Commands.Management](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Management/) (v7.5.4) - PowerShell management cmdlets for Hyper-V and system administration
 - [Microsoft.PowerShell.Commands.Utility](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Utility/) (v7.5.4) - PowerShell utility commands for data manipulation
