@@ -521,8 +521,13 @@ and more comming...
 - **FailoverClusters** - Cluster management (for clustered environments)
 
 ## Used 3rd party libraries for the tool:
-- [Newtonsoft.Json](https://www.newtonsoft.com/json) - for JSON serialization and deserialization
-- 
+- [Microsoft.PowerShell.Commands.Diagnostics](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Diagnostics/) (v7.5.4) - PowerShell diagnostic commands
+- [Microsoft.PowerShell.Commands.Management](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Management/) (v7.5.4) - PowerShell management cmdlets for Hyper-V and system administration
+- [Microsoft.PowerShell.Commands.Utility](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Utility/) (v7.5.4) - PowerShell utility commands for data manipulation
+- [Microsoft.PowerShell.ConsoleHost](https://www.nuget.org/packages/Microsoft.PowerShell.ConsoleHost/) (v7.5.3) - PowerShell console host for script execution
+- [Microsoft.PowerShell.Security](https://www.nuget.org/packages/Microsoft.PowerShell.Security/) (v7.5.4) - PowerShell security cmdlets for credential management
+- [Microsoft.WSMan.Management](https://www.nuget.org/packages/Microsoft.WSMan.Management/) (v7.5.4) - WS-Management cmdlets for remote PowerShell sessions
+- [System.Management.Automation](https://www.nuget.org/packages/System.Management.Automation/) (v7.5.4) - PowerShell SDK for automation and scripting
 
 # Contributing
 If you want to contribute to this project, please open an issue or submit a pull request. I welcome contributions :)
