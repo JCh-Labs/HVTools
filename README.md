@@ -520,7 +520,7 @@ and more comming...
 - **Hyper-V** - Core Hyper-V management cmdlets
 - **FailoverClusters** - Cluster management (for clustered environments)
 
-## Used 3rd party libraries for the tool:
+## Used libraries for the tool:
 - [Newtonsoft.Json](https://www.newtonsoft.com/json) - for JSON serialization and deserialization
 - [Microsoft.PowerShell.Commands.Diagnostics](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Diagnostics/) (v7.5.4) - PowerShell diagnostic commands
 - [Microsoft.PowerShell.Commands.Management](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Management/) (v7.5.4) - PowerShell management cmdlets for Hyper-V and system administration
