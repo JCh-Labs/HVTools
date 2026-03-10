@@ -521,6 +521,7 @@ and more comming...
 - **FailoverClusters** - Cluster management (for clustered environments)
 
 ## Used 3rd party libraries for the tool:
+- [Newtonsoft.Json](https://www.newtonsoft.com/json) - for JSON serialization and deserialization
 - [Microsoft.PowerShell.Commands.Diagnostics](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Diagnostics/) (v7.5.4) - PowerShell diagnostic commands
 - [Microsoft.PowerShell.Commands.Management](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Management/) (v7.5.4) - PowerShell management cmdlets for Hyper-V and system administration
 - [Microsoft.PowerShell.Commands.Utility](https://www.nuget.org/packages/Microsoft.PowerShell.Commands.Utility/) (v7.5.4) - PowerShell utility commands for data manipulation
