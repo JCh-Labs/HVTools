@@ -11,11 +11,8 @@
         {
             // Changelog content
             var changelogContent =
-                                   " Version 1.0.0.0 (xx-xx-xxxx):\n" +
-                                   " New Features\n" +
-                                   " - Export command script (.ps1) feature:\n" +
-                                   "   - Supports Windows Certificate Store, PFX, and Azure Trusted Signing modes with per-file signing and exit code checks\n" +
-                                   "   - Optional BatchMode for Trusted Signing (single signtool call for multiple files)";
+    $" Version 1.0.0.0 (xx-xx-xxxx):{Environment.NewLine}" +
+    $" First release";
 
             // Set the content in the RichTextBox control
             richTextBoxChangelog.Text = changelogContent;

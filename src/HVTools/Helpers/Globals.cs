@@ -34,7 +34,16 @@
 
         internal class ToolProperties
         {
-            internal static string ToolVersion = Application.ProductVersion.Split('+')[0];
+            internal static string ToolVersion
+            {
+                get
+                {
+                    string versionString = Application.ProductVersion.Split('+')[0];
+                    Version version = new Version(versionString);
+                    int revision = version.Revision >= 0 ? version.Revision : 0;
+                    return $"{version.Major}.{version.Minor}.{version.Build}.{revision}";
+                }
+            }
         }
 
         internal static async Task<string> FetchCurrentCertificateThumbprintAsync()
