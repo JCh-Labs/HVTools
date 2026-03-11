@@ -11,8 +11,8 @@
         {
             // Changelog content
             var changelogContent =
-    $" Version 1.0.0.0 (xx-xx-xxxx):{Environment.NewLine}" +
-    $" First release";
+    $" Version 1.0.0.0 alpha 1 (11-03-2026):{Environment.NewLine}" +
+    $" First public release";
 
             // Set the content in the RichTextBox control
             richTextBoxChangelog.Text = changelogContent;

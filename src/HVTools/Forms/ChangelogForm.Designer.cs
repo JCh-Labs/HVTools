@@ -39,7 +39,7 @@
             richTextBoxChangelog.Name = "richTextBoxChangelog";
             richTextBoxChangelog.ReadOnly = true;
             richTextBoxChangelog.Size = new Size(661, 485);
-            richTextBoxChangelog.TabIndex = 0;
+            richTextBoxChangelog.TabIndex = 1;
             // 
             // ChangelogForm
             // 
