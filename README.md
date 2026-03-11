@@ -3,6 +3,7 @@
 <p align="center">
   <a href="https://github.com/michaelmsonne/HVTools/releases/latest"><img alt="GitHub release" src="https://img.shields.io/github/v/release/michaelmsonne/HVTools?include_prereleases&logo=github"></a>
   <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/downloads/michaelmsonne/HVTools/total.svg" alt="Total Downloads"></a>
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=michaelmsonne.HVTools.README" alt="Visitors">
   <a href="https://github.com/michaelmsonne/HVTools/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/michaelmsonne/HVTools"></a>
   <a href="https://github.com/michaelmsonne/HVTools/pulls"><img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/michaelmsonne/HVTools"></a><br>
   <a href="https://github.com/michaelmsonne/HVTools"><img src="https://img.shields.io/github/languages/top/michaelmsonne/HVTools.svg" alt="Top Language"></a>
