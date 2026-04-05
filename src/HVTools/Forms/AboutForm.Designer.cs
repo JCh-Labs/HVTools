@@ -41,6 +41,8 @@
             pictureBoxBuyMeACoffee = new PictureBox();
             linkLabelLinkedIn = new LinkLabel();
             labelSignedBuildState = new Label();
+            linkLabelWebsite = new LinkLabel();
+            labelInspiredBy = new Label();
             tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)logoPictureBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxBuyMeACoffee).BeginInit();
@@ -70,7 +72,7 @@
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 23F));
-            tableLayoutPanel.Size = new Size(487, 307);
+            tableLayoutPanel.Size = new Size(599, 338);
             tableLayoutPanel.TabIndex = 0;
             // 
             // logoPictureBox
@@ -81,7 +83,7 @@
             logoPictureBox.Margin = new Padding(4, 3, 4, 3);
             logoPictureBox.Name = "logoPictureBox";
             tableLayoutPanel.SetRowSpan(logoPictureBox, 6);
-            logoPictureBox.Size = new Size(152, 301);
+            logoPictureBox.Size = new Size(189, 332);
             logoPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             logoPictureBox.TabIndex = 12;
             logoPictureBox.TabStop = false;
@@ -89,11 +91,11 @@
             // labelProductName
             // 
             labelProductName.Dock = DockStyle.Fill;
-            labelProductName.Location = new Point(167, 0);
+            labelProductName.Location = new Point(204, 0);
             labelProductName.Margin = new Padding(7, 0, 4, 0);
             labelProductName.MaximumSize = new Size(0, 20);
             labelProductName.Name = "labelProductName";
-            labelProductName.Size = new Size(316, 20);
+            labelProductName.Size = new Size(391, 20);
             labelProductName.TabIndex = 19;
             labelProductName.Text = "Product Name";
             labelProductName.TextAlign = ContentAlignment.MiddleLeft;
@@ -101,11 +103,11 @@
             // labelVersion
             // 
             labelVersion.Dock = DockStyle.Fill;
-            labelVersion.Location = new Point(167, 30);
+            labelVersion.Location = new Point(204, 33);
             labelVersion.Margin = new Padding(7, 0, 4, 0);
             labelVersion.MaximumSize = new Size(0, 20);
             labelVersion.Name = "labelVersion";
-            labelVersion.Size = new Size(316, 20);
+            labelVersion.Size = new Size(391, 20);
             labelVersion.TabIndex = 0;
             labelVersion.Text = "Version";
             labelVersion.TextAlign = ContentAlignment.MiddleLeft;
@@ -113,11 +115,11 @@
             // labelCopyright
             // 
             labelCopyright.Dock = DockStyle.Fill;
-            labelCopyright.Location = new Point(167, 60);
+            labelCopyright.Location = new Point(204, 66);
             labelCopyright.Margin = new Padding(7, 0, 4, 0);
             labelCopyright.MaximumSize = new Size(0, 20);
             labelCopyright.Name = "labelCopyright";
-            labelCopyright.Size = new Size(316, 20);
+            labelCopyright.Size = new Size(391, 20);
             labelCopyright.TabIndex = 21;
             labelCopyright.Text = "Copyright";
             labelCopyright.TextAlign = ContentAlignment.MiddleLeft;
@@ -125,11 +127,11 @@
             // labelCompanyName
             // 
             labelCompanyName.Dock = DockStyle.Fill;
-            labelCompanyName.Location = new Point(167, 90);
+            labelCompanyName.Location = new Point(204, 99);
             labelCompanyName.Margin = new Padding(7, 0, 4, 0);
             labelCompanyName.MaximumSize = new Size(0, 20);
             labelCompanyName.Name = "labelCompanyName";
-            labelCompanyName.Size = new Size(316, 20);
+            labelCompanyName.Size = new Size(391, 20);
             labelCompanyName.TabIndex = 22;
             labelCompanyName.Text = "Company Name";
             labelCompanyName.TextAlign = ContentAlignment.MiddleLeft;
@@ -137,13 +139,13 @@
             // textBoxDescription
             // 
             textBoxDescription.Dock = DockStyle.Fill;
-            textBoxDescription.Location = new Point(167, 123);
+            textBoxDescription.Location = new Point(204, 135);
             textBoxDescription.Margin = new Padding(7, 3, 4, 3);
             textBoxDescription.Multiline = true;
             textBoxDescription.Name = "textBoxDescription";
             textBoxDescription.ReadOnly = true;
             textBoxDescription.ScrollBars = ScrollBars.Both;
-            textBoxDescription.Size = new Size(316, 147);
+            textBoxDescription.Size = new Size(391, 163);
             textBoxDescription.TabIndex = 23;
             textBoxDescription.TabStop = false;
             textBoxDescription.Text = resources.GetString("textBoxDescription.Text");
@@ -152,7 +154,7 @@
             // 
             okButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             okButton.DialogResult = DialogResult.Cancel;
-            okButton.Location = new Point(395, 277);
+            okButton.Location = new Point(507, 308);
             okButton.Margin = new Padding(4, 3, 4, 3);
             okButton.Name = "okButton";
             okButton.Size = new Size(88, 27);
@@ -162,7 +164,7 @@
             // linkLabelBlog
             // 
             linkLabelBlog.AutoSize = true;
-            linkLabelBlog.Location = new Point(178, 292);
+            linkLabelBlog.Location = new Point(216, 322);
             linkLabelBlog.Margin = new Padding(4, 0, 4, 0);
             linkLabelBlog.Name = "linkLabelBlog";
             linkLabelBlog.Size = new Size(51, 15);
@@ -174,7 +176,7 @@
             // linkLabelGitHub
             // 
             linkLabelGitHub.AutoSize = true;
-            linkLabelGitHub.Location = new Point(236, 292);
+            linkLabelGitHub.Location = new Point(274, 322);
             linkLabelGitHub.Margin = new Padding(4, 0, 4, 0);
             linkLabelGitHub.Name = "linkLabelGitHub";
             linkLabelGitHub.Size = new Size(45, 15);
@@ -187,7 +189,7 @@
             // 
             pictureBoxBuyMeACoffee.Image = (Image)resources.GetObject("pictureBoxBuyMeACoffee.Image");
             pictureBoxBuyMeACoffee.InitialImage = null;
-            pictureBoxBuyMeACoffee.Location = new Point(27, 269);
+            pictureBoxBuyMeACoffee.Location = new Point(45, 294);
             pictureBoxBuyMeACoffee.Margin = new Padding(4, 3, 4, 3);
             pictureBoxBuyMeACoffee.Name = "pictureBoxBuyMeACoffee";
             pictureBoxBuyMeACoffee.Size = new Size(126, 44);
@@ -199,7 +201,7 @@
             // linkLabelLinkedIn
             // 
             linkLabelLinkedIn.AutoSize = true;
-            linkLabelLinkedIn.Location = new Point(288, 292);
+            linkLabelLinkedIn.Location = new Point(326, 322);
             linkLabelLinkedIn.Margin = new Padding(4, 0, 4, 0);
             linkLabelLinkedIn.Name = "linkLabelLinkedIn";
             linkLabelLinkedIn.Size = new Size(52, 15);
@@ -211,12 +213,33 @@
             // labelSignedBuildState
             // 
             labelSignedBuildState.AutoSize = true;
-            labelSignedBuildState.Location = new Point(271, 43);
+            labelSignedBuildState.Location = new Point(332, 46);
             labelSignedBuildState.Margin = new Padding(4, 0, 4, 0);
             labelSignedBuildState.Name = "labelSignedBuildState";
             labelSignedBuildState.Size = new Size(70, 15);
             labelSignedBuildState.TabIndex = 5;
             labelSignedBuildState.Text = "SignedBuild";
+            // 
+            // linkLabelWebsite
+            // 
+            linkLabelWebsite.AutoSize = true;
+            linkLabelWebsite.Location = new Point(384, 322);
+            linkLabelWebsite.Name = "linkLabelWebsite";
+            linkLabelWebsite.Size = new Size(49, 15);
+            linkLabelWebsite.TabIndex = 6;
+            linkLabelWebsite.TabStop = true;
+            linkLabelWebsite.Text = "Website";
+            linkLabelWebsite.LinkClicked += linkLabelWebsite_LinkClicked;
+            // 
+            // labelInspiredBy
+            // 
+            labelInspiredBy.AutoSize = true;
+            labelInspiredBy.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            labelInspiredBy.Location = new Point(21, 21);
+            labelInspiredBy.Name = "labelInspiredBy";
+            labelInspiredBy.Size = new Size(173, 15);
+            labelInspiredBy.TabIndex = 7;
+            labelInspiredBy.Text = "Inspired by RVTools for VMware";
             // 
             // AboutForm
             // 
@@ -224,7 +247,9 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(507, 327);
+            ClientSize = new Size(619, 358);
+            Controls.Add(labelInspiredBy);
+            Controls.Add(linkLabelWebsite);
             Controls.Add(labelSignedBuildState);
             Controls.Add(linkLabelLinkedIn);
             Controls.Add(pictureBoxBuyMeACoffee);
@@ -264,5 +289,7 @@
         private System.Windows.Forms.PictureBox pictureBoxBuyMeACoffee;
         private System.Windows.Forms.LinkLabel linkLabelLinkedIn;
         private System.Windows.Forms.Label labelSignedBuildState;
+        private LinkLabel linkLabelWebsite;
+        private Label labelInspiredBy;
     }
 }

@@ -30,6 +30,7 @@
             internal static string UrlLinkedIn = @"https://www.linkedin.com/in/michaelmsonne/";
             internal static string UrlGitHub = @"https://github.com/michaelmsonne/";
             internal static string UrlGitHubDownload = @"https://github.com/michaelmsonne/HVTools/releases/";
+            internal static string Website = @"https://hvtools.app/";
         }
 
         internal class ToolProperties

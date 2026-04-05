@@ -55,7 +55,7 @@ namespace HVTools.Forms
                 {
                     X509Certificate2 certificate = new X509Certificate2(X509Certificate.CreateFromSignedFile(filePath));
                     string currentThumbprint = await Globals.FetchCurrentCertificateThumbprintAsync();
-                    
+
                     // Check if the thumbprint matches the current one from Michael Morten Sonne at GitHub or the hardcoded one (if offline)
                     // After await, we're automatically back on the UI thread in modern .NET
                     if (certificate.Thumbprint != null && certificate.Thumbprint.Equals(currentThumbprint, StringComparison.OrdinalIgnoreCase))
@@ -237,6 +237,18 @@ namespace HVTools.Forms
             try
             {
                 Process.Start(Globals.ToolStings.UrlLinkedIn);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, Globals.ToolName.FullName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void linkLabelWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            try
+            {
+                Process.Start(Globals.ToolStings.Website);
             }
             catch (Exception ex)
             {
