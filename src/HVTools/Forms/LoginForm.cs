@@ -56,6 +56,7 @@ namespace HVTools.Forms
         {
             InitializeComponent();
             InitializeFormEvents();
+            InitializeConnectionSettings();
             InitializeHyperVDefaults();
             LoadSavedCredentials();
             SetToolName();
@@ -146,6 +147,84 @@ namespace HVTools.Forms
 
             // Update UI based on initial selection
             RadioAuth_CheckedChanged(null!, null!);
+        }
+
+        private void InitializeConnectionSettings()
+        {
+            // Set default values for connection settings controls
+            checkboxUseSSL.Checked = _currentConnectionSettings.UseSSL;
+            numericPort.Value = _currentConnectionSettings.Port;
+            numericTimeout.Value = _currentConnectionSettings.TimeoutSeconds;
+            checkboxSkipCACheck.Checked = _currentConnectionSettings.SkipCACheck;
+            checkboxSkipCNCheck.Checked = _currentConnectionSettings.SkipCNCheck;
+
+            // Set authentication mechanism
+            comboAuthMechanism.SelectedItem = _currentConnectionSettings.AuthenticationMechanism;
+            if (comboAuthMechanism.SelectedIndex == -1)
+            {
+                comboAuthMechanism.SelectedIndex = 0; // Default
+            }
+
+            // Enable/disable SSL-related controls
+            UpdateSSLControls();
+
+            // Update status label to show current settings
+            UpdateConnectionSettingsStatus();
+
+            // Hide advanced settings by default
+            groupConnectionSettings.Visible = false;
+
+            Message("Connection settings initialized from defaults",
+                EventType.Information, 2007);
+        }
+
+        private void UpdateSSLControls()
+        {
+            bool sslEnabled = checkboxUseSSL.Checked;
+            checkboxSkipCACheck.Enabled = sslEnabled;
+            checkboxSkipCNCheck.Enabled = sslEnabled;
+
+            // Auto-set port when SSL checkbox changes
+            if (numericPort.Value == 0 || numericPort.Value == 5985 || numericPort.Value == 5986)
+            {
+                // Only auto-change if user hasn't set a custom port
+                numericPort.Value = 0; // Will be auto-selected as 5985/5986 based on SSL
+            }
+        }
+
+        private void UpdateConnectionSettingsStatus()
+        {
+            // Build status message showing current connection settings
+            string protocol = checkboxUseSSL.Checked ? "HTTPS" : "HTTP";
+            string port = numericPort.Value == 0 ? "Auto" : numericPort.Value.ToString();
+            string authMechanism = comboAuthMechanism.SelectedItem?.ToString() ?? "Default";
+
+            // Show auth context from authentication method selection
+            string authContext = radioWindows.Checked 
+                ? $"Windows ({WindowsIdentity.GetCurrent().Name})" 
+                : "Custom Credentials";
+
+            // Build comprehensive status message
+            string statusMessage = $"{authContext} | {protocol}:{port} | {authMechanism}";
+
+            UpdateStatusLabel(statusMessage);
+
+            Message($"Status updated - {statusMessage}",
+                EventType.Information, 2015);
+        }
+
+        private void ApplyUIToConnectionSettings()
+        {
+            _currentConnectionSettings.UseSSL = checkboxUseSSL.Checked;
+            _currentConnectionSettings.Port = (int)numericPort.Value;
+            _currentConnectionSettings.AuthenticationMechanism = comboAuthMechanism.SelectedItem?.ToString() ?? "Default";
+            _currentConnectionSettings.SkipCACheck = checkboxSkipCACheck.Checked;
+            _currentConnectionSettings.SkipCNCheck = checkboxSkipCNCheck.Checked;
+            _currentConnectionSettings.TimeoutSeconds = (int)numericTimeout.Value;
+
+            string protocol = _currentConnectionSettings.UseSSL ? "HTTPS" : "HTTP";
+            Message($"Connection settings updated from UI - {protocol}, Port: {_currentConnectionSettings.Port}, Auth: {_currentConnectionSettings.AuthenticationMechanism}",
+                EventType.Information, 2008);
         }
 
         #region Hyper-V Detection Methods
@@ -833,7 +912,11 @@ namespace HVTools.Forms
                         port = _currentConnectionSettings.UseSSL ? 5986 : 5985;
                     }
 
-                    Message($"Creating PowerShell session to '{serverName}' (SSL: {_currentConnectionSettings.UseSSL}, Port: {port}, Auth: {_currentConnectionSettings.AuthenticationMechanism}, Timeout: {_currentConnectionSettings.TimeoutSeconds}s)...",
+                    string credentialContext = credential != null
+                        ? $"Explicit Credentials ({credential.UserName})"
+                        : $"Current User ({WindowsIdentity.GetCurrent().Name})";
+
+                    Message($"Connection Settings Applied - Target: '{serverName}', Protocol: {(_currentConnectionSettings.UseSSL ? "HTTPS" : "HTTP")}, Port: {port}, Auth: {_currentConnectionSettings.AuthenticationMechanism}, Credentials: {credentialContext}, Timeout: {_currentConnectionSettings.TimeoutSeconds}s",
                         EventType.Information, 1113);
 
                     var connectionInfo = new WSManConnectionInfo
@@ -845,8 +928,8 @@ namespace HVTools.Forms
                             typeof(AuthenticationMechanism),
                             _currentConnectionSettings.AuthenticationMechanism,
                             true),
-                        OperationTimeout = TimeSpan.FromSeconds(_currentConnectionSettings.TimeoutSeconds).Milliseconds,
-                        OpenTimeout = TimeSpan.FromSeconds(_currentConnectionSettings.TimeoutSeconds).Milliseconds
+                        OperationTimeout = (int)TimeSpan.FromSeconds(_currentConnectionSettings.TimeoutSeconds).TotalMilliseconds,
+                        OpenTimeout = (int)TimeSpan.FromSeconds(_currentConnectionSettings.TimeoutSeconds).TotalMilliseconds
                     };
 
                     // Apply certificate validation settings
@@ -855,7 +938,7 @@ namespace HVTools.Forms
                         connectionInfo.SkipCACheck = _currentConnectionSettings.SkipCACheck;
                         connectionInfo.SkipCNCheck = _currentConnectionSettings.SkipCNCheck;
 
-                        Message($"SSL certificate validation - SkipCACheck: {_currentConnectionSettings.SkipCACheck}, SkipCNCheck: {_currentConnectionSettings.SkipCNCheck}",
+                        Message($"SSL/HTTPS enabled - Certificate validation: CA Check: {!_currentConnectionSettings.SkipCACheck}, CN Check: {!_currentConnectionSettings.SkipCNCheck}",
                             EventType.Information, 1114);
                     }
 
@@ -863,14 +946,19 @@ namespace HVTools.Forms
                     if (credential != null)
                     {
                         connectionInfo.Credential = credential;
-                        Message($"Using explicit credentials for connection",
+                        Message($"Authentication: Using explicit credentials for user '{credential.UserName}'",
                             EventType.Information, 1115);
                     }
                     else
                     {
-                        Message($"Using current user credentials for connection",
+                        Message($"Authentication: Using current Windows user context '{WindowsIdentity.GetCurrent().Name}'",
                             EventType.Information, 1116);
                     }
+
+                    // Log the actual connection URI being used
+                    string connectionUri = $"{connectionInfo.Scheme}://{connectionInfo.ComputerName}:{connectionInfo.Port}/wsman";
+                    Message($"WinRM Connection URI: {connectionUri}",
+                        EventType.Information, 1120);
 
                     // Create the remote runspace using the configured connection info
                     Runspace remoteRunspace;
@@ -881,6 +969,25 @@ namespace HVTools.Forms
 
                         Message($"Remote runspace opened successfully to '{serverName}'",
                             EventType.Information, 1117);
+
+                        // Validate connection state
+                        Message($"Connection State: {remoteRunspace.RunspaceStateInfo.State}, Availability: {remoteRunspace.RunspaceAvailability}",
+                            EventType.Information, 1121);
+
+                        // Get the authenticated user on remote system to validate credentials
+                        using (PowerShell validatePs = PowerShell.Create())
+                        {
+                            validatePs.Runspace = remoteRunspace;
+                            validatePs.AddScript("$env:USERNAME + '@' + $env:USERDOMAIN");
+                            var userResult = validatePs.Invoke();
+
+                            if (userResult != null && userResult.Count > 0)
+                            {
+                                string authenticatedAs = userResult[0]?.ToString() ?? "Unknown";
+                                Message($"Successfully authenticated on remote system as: {authenticatedAs}",
+                                    EventType.Information, 1122);
+                            }
+                        }
 
                         Message($"PowerShell session created successfully to '{serverName}'",
                             EventType.Information, 1025);
@@ -994,100 +1101,100 @@ namespace HVTools.Forms
                         }
 
                         if (hyperVResult != null && hyperVResult.Count > 0)
+                        {
+                            var result = hyperVResult[0];
+                            var hashtable = (System.Collections.Hashtable)result.BaseObject;
+
+                            bool available = (bool)hashtable["Available"]!;
+
+                            if (!available)
                             {
-                                var result = hyperVResult[0];
-                                var hashtable = (System.Collections.Hashtable)result.BaseObject;
+                                string error = hashtable["Error"]?.ToString() ?? "Unknown error";
 
-                                bool available = (bool)hashtable["Available"]!;
+                                Message($"Hyper-V not available on '{serverName}': {error}",
+                                    EventType.Warning, 1028);
 
-                                if (!available)
-                                {
-                                    string error = hashtable["Error"]?.ToString() ?? "Unknown error";
-
-                                    Message($"Hyper-V not available on '{serverName}': {error}",
-                                        EventType.Warning, 1028);
-
-                                    // Close the remote runspace before returning
-                                    try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
-
-                                    return new ConnectionTestResult
-                                    {
-                                        Success = false,
-                                        Error = $"Hyper-V module not available or accessible on '{serverName}'. {error}"
-                                    };
-                                }
-
-                                // Extract all information
-                                int vmCount = Convert.ToInt32(hashtable["VMCount"] ?? 0);
-                                string hostName = hashtable["HostName"]?.ToString() ?? serverName;
-                                string fqdn = hashtable["FQDN"]?.ToString() ?? hostName;
-                                int logicalProcessors = Convert.ToInt32(hashtable["LogicalProcessors"] ?? 0);
-                                double memoryGb = Convert.ToDouble(hashtable["MemoryGB"] ?? 0);
-                                string hyperVVersion = hashtable["HyperVVersion"]?.ToString() ?? "Unknown";
-                                bool isCluster = Convert.ToBoolean(hashtable["IsCluster"] ?? false);
-                                string clusterName = hashtable["ClusterName"]?.ToString()!;
-
-                                Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
-                                    EventType.Information, 1105);
-
-                                Message($"Hyper-V version: {hyperVVersion}",
-                                    EventType.Information, 1106);
-
-                                Message($"Found {vmCount} virtual machines",
-                                    EventType.Information, 1107);
-
-                                if (isCluster)
-                                {
-                                    Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
-                                        EventType.Information, 1108);
-                                }
-                                else
-                                {
-                                    Message($"Connected to standalone Hyper-V host: '{hostName}'",
-                                        EventType.Information, 1109);
-                                }
-
-                                Message($"Remote Hyper-V connection successful",
-                                    EventType.Information, 1008);
-
-                                // Close the remote runspace after successful test
+                                // Close the remote runspace before returning
                                 try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
 
                                 return new ConnectionTestResult
                                 {
-                                    Success = true,
-                                    VmCount = vmCount,
-                                    IsLocal = false,
-                                    HostName = hostName,
-                                    FullyQualifiedDomainName = fqdn,
-                                    HyperVVersion = hyperVVersion,
-                                    LogicalProcessorCount = logicalProcessors,
-                                    TotalMemoryGb = memoryGb,
-                                    IsCluster = isCluster,
-                                    ClusterName = clusterName
+                                    Success = false,
+                                    Error = $"Hyper-V module not available or accessible on '{serverName}'. {error}"
                                 };
                             }
 
-                                        Message($"No results returned from Hyper-V information query on '{serverName}'",
-                                            EventType.Error, 1029);
+                            // Extract all information
+                            int vmCount = Convert.ToInt32(hashtable["VMCount"] ?? 0);
+                            string hostName = hashtable["HostName"]?.ToString() ?? serverName;
+                            string fqdn = hashtable["FQDN"]?.ToString() ?? hostName;
+                            int logicalProcessors = Convert.ToInt32(hashtable["LogicalProcessors"] ?? 0);
+                            double memoryGb = Convert.ToDouble(hashtable["MemoryGB"] ?? 0);
+                            string hyperVVersion = hashtable["HyperVVersion"]?.ToString() ?? "Unknown";
+                            bool isCluster = Convert.ToBoolean(hashtable["IsCluster"] ?? false);
+                            string clusterName = hashtable["ClusterName"]?.ToString()!;
 
-                                                    // Close the remote runspace before returning
-                                                    try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
+                            Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
+                                EventType.Information, 1105);
 
-                                                    return new ConnectionTestResult
-                                                    {
-                                                        Success = false,
-                                                        Error = $"No response from Hyper-V information query on '{serverName}'"
-                                                    };
-                                                }
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Message($"Remote connection test exception: {ex.GetType().Name} - {ex.Message}",
-                                                EventType.Error, 1009);
-                                            Message($"Stack trace: {ex.StackTrace}",
-                                                EventType.Error, 1009);
+                            Message($"Hyper-V version: {hyperVVersion}",
+                                EventType.Information, 1106);
+
+                            Message($"Found {vmCount} virtual machines",
+                                EventType.Information, 1107);
+
+                            if (isCluster)
+                            {
+                                Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
+                                    EventType.Information, 1108);
+                            }
+                            else
+                            {
+                                Message($"Connected to standalone Hyper-V host: '{hostName}'",
+                                    EventType.Information, 1109);
+                            }
+
+                            Message($"Remote Hyper-V connection successful",
+                                EventType.Information, 1008);
+
+                            // Close the remote runspace after successful test
+                            try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
+
+                            return new ConnectionTestResult
+                            {
+                                Success = true,
+                                VmCount = vmCount,
+                                IsLocal = false,
+                                HostName = hostName,
+                                FullyQualifiedDomainName = fqdn,
+                                HyperVVersion = hyperVVersion,
+                                LogicalProcessorCount = logicalProcessors,
+                                TotalMemoryGb = memoryGb,
+                                IsCluster = isCluster,
+                                ClusterName = clusterName
+                            };
+                        }
+
+                        Message($"No results returned from Hyper-V information query on '{serverName}'",
+                            EventType.Error, 1029);
+
+                        // Close the remote runspace before returning
+                        try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
+
+                        return new ConnectionTestResult
+                        {
+                            Success = false,
+                            Error = $"No response from Hyper-V information query on '{serverName}'"
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Remote connection test exception: {ex.GetType().Name} - {ex.Message}",
+                    EventType.Error, 1009);
+                Message($"Stack trace: {ex.StackTrace}",
+                    EventType.Error, 1009);
 
                 return new ConnectionTestResult
                 {
@@ -1381,6 +1488,16 @@ namespace HVTools.Forms
             {
                 checkboxRemember.Checked = false;
             }
+
+            // Update status to show current authentication context with connection settings
+            UpdateConnectionSettingsStatus();
+
+            string authContext = useCustomAuth 
+                ? "Custom Credentials" 
+                : $"Windows Auth ({WindowsIdentity.GetCurrent().Name})";
+
+            Message($"Authentication method changed to: {authContext}",
+                EventType.Information, 1126);
         }
 
         private void TextboxServer_KeyDown(object sender, KeyEventArgs e)
@@ -1452,6 +1569,9 @@ namespace HVTools.Forms
                 return;
             }
 
+            // Apply UI connection settings to the current settings object
+            ApplyUIToConnectionSettings();
+
             // Set flag to indicate connection in progress
             _isConnecting = true;
 
@@ -1519,9 +1639,29 @@ namespace HVTools.Forms
             Message($"Starting connection test to '{serverName}'",
                 EventType.Information, 1044);
 
+            bool useWindowsAuth = radioWindows.Checked;
+
+            // Validate authentication method alignment
+            string expectedAuthMechanism = useWindowsAuth ? "Default" : _currentConnectionSettings.AuthenticationMechanism;
+
+            // Warn if there might be authentication conflicts
+            if (useWindowsAuth && (_currentConnectionSettings.AuthenticationMechanism == "Basic" ||
+                                   _currentConnectionSettings.AuthenticationMechanism == "CredSSP"))
+            {
+                Message($"Warning: Windows Authentication selected but Connection Settings specify '{_currentConnectionSettings.AuthenticationMechanism}'. This may cause authentication issues.",
+                    EventType.Warning, 1123);
+            }
+            else if (!useWindowsAuth && _currentConnectionSettings.AuthenticationMechanism == "Kerberos")
+            {
+                Message($"Info: Using explicit credentials with Kerberos authentication. Ensure credentials are domain credentials.",
+                    EventType.Information, 1124);
+            }
+
+            Message($"Authentication Mode: {(useWindowsAuth ? "Windows Authentication (Current User)" : "Custom Credentials")}",
+                EventType.Information, 1125);
+
             try
             {
-                bool useWindowsAuth = radioWindows.Checked;
                 PSCredential? credentials = null;
 
                 if (!useWindowsAuth)
@@ -1548,6 +1688,15 @@ namespace HVTools.Forms
                         ? "Windows Authentication"
                         : "Custom Credentials";
 
+                    // Build detailed connection summary
+                    string protocol = _currentConnectionSettings.UseSSL ? "HTTPS" : "HTTP";
+                    int actualPort = _currentConnectionSettings.Port > 0
+                        ? _currentConnectionSettings.Port
+                        : (_currentConnectionSettings.UseSSL ? 5986 : 5985);
+                    string authMechanism = _currentConnectionSettings.AuthenticationMechanism;
+
+                    string connectionSummary = $"{connectionType} via {protocol}:{actualPort} using {authMechanism}";
+
                     // Store result for legacy compatibility
                     Result = new LoginResult
                     {
@@ -1556,7 +1705,7 @@ namespace HVTools.Forms
                         UseWindowsAuth = useWindowsAuth,
                         Credentials = credentials,
                         ConnectedUser = connectedUser,
-                        ConnectionType = connectionType,
+                        ConnectionType = connectionSummary,
                         VmCount = connectionResult.VmCount
                     };
 
@@ -1566,7 +1715,7 @@ namespace HVTools.Forms
                         useWindowsAuth,
                         credentials,
                         connectedUser,
-                        connectionType,
+                        connectionSummary,
                         connectionResult.VmCount,
                         connectionResult.IsLocal,
                         connectionResult.HostName,
@@ -1579,7 +1728,7 @@ namespace HVTools.Forms
                         _currentConnectionSettings
                     );
 
-                    Message($"Login successful for '{serverName}' as '{connectedUser}'",
+                    Message($"Login successful for '{serverName}' as '{connectedUser}' using {connectionSummary}",
                         EventType.Information, 1016);
 
                     // Hide login form and show main form
@@ -1723,7 +1872,7 @@ namespace HVTools.Forms
                 }
 
                 Message($"Connection error: {message}", EventType.Error, 1002);
-                MessageBox.Show($"Failed to connect:\n\n{message}{tips}", 
+                MessageBox.Show($"Failed to connect:\n\n{message}{tips}",
                     "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 UpdateStatusLabel("Connection failed");
@@ -1954,21 +2103,89 @@ namespace HVTools.Forms
             }
         }
 
-        private void connectionSettingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Message("User opened Connection Settings dialog", EventType.Information, 2003);
+        #region Connection Settings Event Handlers
 
-            using (ConnectionSettingsDialog dialog = new ConnectionSettingsDialog(_currentConnectionSettings))
+        private void CheckboxUseSSL_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateSSLControls();
+            UpdateConnectionSettingsStatus();
+            Message($"SSL/HTTPS {(checkboxUseSSL.Checked ? "enabled" : "disabled")}",
+                EventType.Information, 2009);
+        }
+
+        private void NumericPort_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateConnectionSettingsStatus();
+            Message($"Connection port set to: {(numericPort.Value == 0 ? "Auto" : numericPort.Value.ToString())}",
+                EventType.Information, 2010);
+        }
+
+        private void ComboAuthMechanism_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string mechanism = comboAuthMechanism.SelectedItem?.ToString() ?? "Default";
+            UpdateConnectionSettingsStatus();
+            Message($"Authentication mechanism set to: {mechanism}",
+                EventType.Information, 2011);
+        }
+
+        private void CheckboxSkipCACheck_CheckedChanged(object sender, EventArgs e)
+        {
+            Message($"Skip CA Check: {checkboxSkipCACheck.Checked}",
+                EventType.Information, 2012);
+        }
+
+        private void CheckboxSkipCNCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            Message($"Skip CN Check: {checkboxSkipCNCheck.Checked}",
+                EventType.Information, 2013);
+        }
+
+        private void NumericTimeout_ValueChanged(object sender, EventArgs e)
+        {
+            Message($"Connection timeout set to: {numericTimeout.Value} seconds",
+                EventType.Information, 2014);
+        }
+
+        #endregion
+
+        private void LinkLabelToggleAdvanced_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Toggle visibility of advanced settings
+            bool isExpanded = !groupConnectionSettings.Visible;
+            groupConnectionSettings.Visible = isExpanded;
+
+            // Update link text and form height
+            if (isExpanded)
             {
-                if (dialog.ShowDialog() == DialogResult.OK)
+                linkLabelToggleAdvanced.Text = "▲ Hide Advanced Settings";
+                ClientSize = new Size(500, 633); // Expanded height
+                statusStripLoginForm.Location = new Point(0, 611);
+                Message("Advanced connection settings expanded", EventType.Information, 2016);
+            }
+            else
+            {
+                linkLabelToggleAdvanced.Text = "▼ Show Advanced Settings";
+                ClientSize = new Size(500, 480); // Collapsed height
+                statusStripLoginForm.Location = new Point(0, 458);
+                Message("Advanced connection settings collapsed", EventType.Information, 2017);
+            }
+        }
+
+        private void buttonReset_Click(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Are you sure you want to reset all connection settings to their default values?",
+                "Reset Settings",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                if (result == DialogResult.Yes)
                 {
-                    _currentConnectionSettings = dialog.Settings;
-                    UpdateStatusLabel("Connection settings updated");
-                    Message("Connection settings updated by user", EventType.Information, 2004);
-                }
-                else
-                {
-                    Message("Connection settings dialog cancelled", EventType.Information, 2005);
+                    _currentConnectionSettings = ConnectionSettings.GetDefault();
+                    InitializeConnectionSettings();
+                    Message("Connection settings reset to defaults", EventType.Information, 2002);
                 }
             }
         }
