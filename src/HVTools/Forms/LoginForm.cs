@@ -2174,19 +2174,16 @@ namespace HVTools.Forms
         private void buttonReset_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-                "Are you sure you want to reset all connection settings to their default values?",
-                "Reset Settings",
+                @"Are you sure you want to reset all connection settings to their default values?",
+                @"Reset Settings",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                if (result == DialogResult.Yes)
-                {
-                    _currentConnectionSettings = ConnectionSettings.GetDefault();
-                    InitializeConnectionSettings();
-                    Message("Connection settings reset to defaults", EventType.Information, 2002);
-                }
+                _currentConnectionSettings = ConnectionSettings.GetDefault();
+                InitializeConnectionSettings();
+                Message("Connection settings reset to defaults", EventType.Information, 2002);
             }
         }
     }
