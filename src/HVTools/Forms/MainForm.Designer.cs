@@ -143,13 +143,18 @@
             every5MinutesToolStripMenuItem = new ToolStripMenuItem();
             every10MinutesToolStripMenuItem = new ToolStripMenuItem();
             toolsToolStripMenuItem = new ToolStripMenuItem();
+            copySelectionToClipboardToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             pictureboxSupportMe = new PictureBox();
             statusStripMainForm = new StatusStrip();
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             toolstripstatuslabelMain_CreatedBy = new Label();
-            copySelectionToClipboardToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator5 = new ToolStripSeparator();
+            findInCurrentViewToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator6 = new ToolStripSeparator();
+            testConnectionToolStripMenuItem = new ToolStripMenuItem();
+            testClusterConnectionToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -1267,33 +1272,40 @@
             // disabledMinuteToolStripMenuItem
             // 
             disabledMinuteToolStripMenuItem.Name = "disabledMinuteToolStripMenuItem";
-            disabledMinuteToolStripMenuItem.Size = new Size(163, 22);
+            disabledMinuteToolStripMenuItem.Size = new Size(180, 22);
             disabledMinuteToolStripMenuItem.Text = "Disabled";
             // 
             // every1MinuteToolStripMenuItem
             // 
             every1MinuteToolStripMenuItem.Name = "every1MinuteToolStripMenuItem";
-            every1MinuteToolStripMenuItem.Size = new Size(163, 22);
+            every1MinuteToolStripMenuItem.Size = new Size(180, 22);
             every1MinuteToolStripMenuItem.Text = "Every 1 minute";
             // 
             // every5MinutesToolStripMenuItem
             // 
             every5MinutesToolStripMenuItem.Name = "every5MinutesToolStripMenuItem";
-            every5MinutesToolStripMenuItem.Size = new Size(163, 22);
+            every5MinutesToolStripMenuItem.Size = new Size(180, 22);
             every5MinutesToolStripMenuItem.Text = "Every 5 minutes";
             // 
             // every10MinutesToolStripMenuItem
             // 
             every10MinutesToolStripMenuItem.Name = "every10MinutesToolStripMenuItem";
-            every10MinutesToolStripMenuItem.Size = new Size(163, 22);
+            every10MinutesToolStripMenuItem.Size = new Size(180, 22);
             every10MinutesToolStripMenuItem.Text = "Every 10 minutes";
             // 
             // toolsToolStripMenuItem
             // 
-            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { copySelectionToClipboardToolStripMenuItem });
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { copySelectionToClipboardToolStripMenuItem, toolStripSeparator5, findInCurrentViewToolStripMenuItem, toolStripSeparator6, testConnectionToolStripMenuItem, testClusterConnectionToolStripMenuItem });
             toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             toolsToolStripMenuItem.Size = new Size(47, 20);
             toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // copySelectionToClipboardToolStripMenuItem
+            // 
+            copySelectionToClipboardToolStripMenuItem.Name = "copySelectionToClipboardToolStripMenuItem";
+            copySelectionToClipboardToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
+            copySelectionToClipboardToolStripMenuItem.Size = new Size(261, 22);
+            copySelectionToClipboardToolStripMenuItem.Text = "Copy selection to clipboard";
             // 
             // helpToolStripMenuItem
             // 
@@ -1348,12 +1360,33 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
-            // copySelectionToClipboardToolStripMenuItem
+            // toolStripSeparator5
             // 
-            copySelectionToClipboardToolStripMenuItem.Name = "copySelectionToClipboardToolStripMenuItem";
-            copySelectionToClipboardToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-            copySelectionToClipboardToolStripMenuItem.Size = new Size(261, 22);
-            copySelectionToClipboardToolStripMenuItem.Text = "Copy selection to clipboard";
+            toolStripSeparator5.Name = "toolStripSeparator5";
+            toolStripSeparator5.Size = new Size(258, 6);
+            // 
+            // findInCurrentViewToolStripMenuItem
+            // 
+            findInCurrentViewToolStripMenuItem.Name = "findInCurrentViewToolStripMenuItem";
+            findInCurrentViewToolStripMenuItem.Size = new Size(261, 22);
+            findInCurrentViewToolStripMenuItem.Text = "Find in current view";
+            // 
+            // toolStripSeparator6
+            // 
+            toolStripSeparator6.Name = "toolStripSeparator6";
+            toolStripSeparator6.Size = new Size(258, 6);
+            // 
+            // testConnectionToolStripMenuItem
+            // 
+            testConnectionToolStripMenuItem.Name = "testConnectionToolStripMenuItem";
+            testConnectionToolStripMenuItem.Size = new Size(261, 22);
+            testConnectionToolStripMenuItem.Text = "Test connection";
+            // 
+            // testClusterConnectionToolStripMenuItem
+            // 
+            testClusterConnectionToolStripMenuItem.Name = "testClusterConnectionToolStripMenuItem";
+            testClusterConnectionToolStripMenuItem.Size = new Size(261, 22);
+            testClusterConnectionToolStripMenuItem.Text = "Test Cluster connection";
             // 
             // MainForm
             // 
@@ -1539,5 +1572,10 @@
         private TabPage tabPagehvReplication;
         private TabPage tabPagehvDVD;
         private ToolStripMenuItem copySelectionToClipboardToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator5;
+        private ToolStripMenuItem findInCurrentViewToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator6;
+        private ToolStripMenuItem testConnectionToolStripMenuItem;
+        private ToolStripMenuItem testClusterConnectionToolStripMenuItem;
     }
 }
