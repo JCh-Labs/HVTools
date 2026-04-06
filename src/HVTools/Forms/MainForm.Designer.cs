@@ -36,6 +36,20 @@
             buttonSummaryhvOverviewView = new Button();
             buttonLoadVMsrefresh = new Button();
             labelOverviewHelpText = new Label();
+            tabPagehvCPU = new TabPage();
+            tabPagehvMemory = new TabPage();
+            tabPagehvDisks = new TabPage();
+            buttonSummaryvDiskView = new Button();
+            buttonLoadvDiskrefresh = new Button();
+            labelvDiskOverviewText = new Label();
+            datagridviewvDiskOverView = new DataGridView();
+            tabpagehvNetworking = new TabPage();
+            tabpagehvCheckpoints = new TabPage();
+            buttonSummaryvCheckpointsView = new Button();
+            buttonLoadvCheckpointsrefresh = new Button();
+            labelvCheckpointsOverviewText = new Label();
+            datagridviewCheckpointOverView = new DataGridView();
+            tabPagehvDVD = new TabPage();
             tabpagehvHosts = new TabPage();
             buttonSummaryvHostsView = new Button();
             buttonLoadHostsrefresh = new Button();
@@ -62,20 +76,9 @@
             buttonSummaryClustersOverviewView = new Button();
             tabpagehvStorage = new TabPage();
             labelvStorageOverviewText = new Label();
-            tabPagehvDisks = new TabPage();
-            buttonSummaryvDiskView = new Button();
-            buttonLoadvDiskrefresh = new Button();
-            labelvDiskOverviewText = new Label();
-            datagridviewvDiskOverView = new DataGridView();
-            tabpagehvCheckpoints = new TabPage();
-            buttonSummaryvCheckpointsView = new Button();
-            buttonLoadvCheckpointsrefresh = new Button();
-            labelvCheckpointsOverviewText = new Label();
-            datagridviewCheckpointOverView = new DataGridView();
-            tabpagehvReplica = new TabPage();
+            tabPagehvReplication = new TabPage();
             tabpagehvResources = new TabPage();
             tabpageManageNetwork = new TabPage();
-            tabpagehvNetworking = new TabPage();
             tabpagehvSecurity = new TabPage();
             tabpagehvPerformance = new TabPage();
             tabpagehvCompliance = new TabPage();
@@ -141,6 +144,10 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
+            tabPagehvDisks.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).BeginInit();
+            tabpagehvCheckpoints.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewCheckpointOverView).BeginInit();
             tabpagehvHosts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewhvHosts).BeginInit();
             tabpagehvClusters.SuspendLayout();
@@ -148,10 +155,6 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewClusterNodes).BeginInit();
             groupBoxClusterInfo.SuspendLayout();
             tabpagehvStorage.SuspendLayout();
-            tabPagehvDisks.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).BeginInit();
-            tabpagehvCheckpoints.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewCheckpointOverView).BeginInit();
             tabpageVMGroups.SuspendLayout();
             groupBox2.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -179,15 +182,18 @@
             // 
             tabcontrolMainForm.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabcontrolMainForm.Controls.Add(tabpagehvOverview);
+            tabcontrolMainForm.Controls.Add(tabPagehvCPU);
+            tabcontrolMainForm.Controls.Add(tabPagehvMemory);
+            tabcontrolMainForm.Controls.Add(tabPagehvDisks);
+            tabcontrolMainForm.Controls.Add(tabpagehvNetworking);
+            tabcontrolMainForm.Controls.Add(tabpagehvCheckpoints);
+            tabcontrolMainForm.Controls.Add(tabPagehvDVD);
             tabcontrolMainForm.Controls.Add(tabpagehvHosts);
             tabcontrolMainForm.Controls.Add(tabpagehvClusters);
             tabcontrolMainForm.Controls.Add(tabpagehvStorage);
-            tabcontrolMainForm.Controls.Add(tabPagehvDisks);
-            tabcontrolMainForm.Controls.Add(tabpagehvCheckpoints);
-            tabcontrolMainForm.Controls.Add(tabpagehvReplica);
+            tabcontrolMainForm.Controls.Add(tabPagehvReplication);
             tabcontrolMainForm.Controls.Add(tabpagehvResources);
             tabcontrolMainForm.Controls.Add(tabpageManageNetwork);
-            tabcontrolMainForm.Controls.Add(tabpagehvNetworking);
             tabcontrolMainForm.Controls.Add(tabpagehvSecurity);
             tabcontrolMainForm.Controls.Add(tabpagehvPerformance);
             tabcontrolMainForm.Controls.Add(tabpagehvCompliance);
@@ -213,7 +219,7 @@
             tabpagehvOverview.Padding = new Padding(3);
             tabpagehvOverview.Size = new Size(1613, 815);
             tabpagehvOverview.TabIndex = 0;
-            tabpagehvOverview.Text = "vmInfo";
+            tabpagehvOverview.Text = "vInfo";
             tabpagehvOverview.UseVisualStyleBackColor = true;
             // 
             // buttonExportVMvmOverviewView
@@ -258,6 +264,148 @@
             labelOverviewHelpText.TabIndex = 1;
             labelOverviewHelpText.Text = "This view provides provides overview and core functionality within the Hyper-V space for information about VMs\r\nand other data that extends that functionality over multiple servers.";
             // 
+            // tabPagehvCPU
+            // 
+            tabPagehvCPU.Location = new Point(4, 24);
+            tabPagehvCPU.Name = "tabPagehvCPU";
+            tabPagehvCPU.Size = new Size(1613, 815);
+            tabPagehvCPU.TabIndex = 17;
+            tabPagehvCPU.Text = "vCPU";
+            tabPagehvCPU.UseVisualStyleBackColor = true;
+            // 
+            // tabPagehvMemory
+            // 
+            tabPagehvMemory.Location = new Point(4, 24);
+            tabPagehvMemory.Name = "tabPagehvMemory";
+            tabPagehvMemory.Size = new Size(1613, 815);
+            tabPagehvMemory.TabIndex = 18;
+            tabPagehvMemory.Text = "vMemory";
+            tabPagehvMemory.UseVisualStyleBackColor = true;
+            // 
+            // tabPagehvDisks
+            // 
+            tabPagehvDisks.Controls.Add(buttonSummaryvDiskView);
+            tabPagehvDisks.Controls.Add(buttonLoadvDiskrefresh);
+            tabPagehvDisks.Controls.Add(labelvDiskOverviewText);
+            tabPagehvDisks.Controls.Add(datagridviewvDiskOverView);
+            tabPagehvDisks.Location = new Point(4, 24);
+            tabPagehvDisks.Name = "tabPagehvDisks";
+            tabPagehvDisks.Size = new Size(1613, 815);
+            tabPagehvDisks.TabIndex = 16;
+            tabPagehvDisks.Text = "vDisks";
+            tabPagehvDisks.UseVisualStyleBackColor = true;
+            // 
+            // buttonSummaryvDiskView
+            // 
+            buttonSummaryvDiskView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryvDiskView.Location = new Point(1410, 6);
+            buttonSummaryvDiskView.Name = "buttonSummaryvDiskView";
+            buttonSummaryvDiskView.Size = new Size(75, 23);
+            buttonSummaryvDiskView.TabIndex = 7;
+            buttonSummaryvDiskView.Text = "Summary";
+            buttonSummaryvDiskView.UseVisualStyleBackColor = true;
+            buttonSummaryvDiskView.Click += buttonSummaryvDiskView_Click;
+            // 
+            // buttonLoadvDiskrefresh
+            // 
+            buttonLoadvDiskrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonLoadvDiskrefresh.Location = new Point(1491, 6);
+            buttonLoadvDiskrefresh.Name = "buttonLoadvDiskrefresh";
+            buttonLoadvDiskrefresh.Size = new Size(116, 23);
+            buttonLoadvDiskrefresh.TabIndex = 6;
+            buttonLoadvDiskrefresh.Text = "&Load vDisk/refresh";
+            buttonLoadvDiskrefresh.UseVisualStyleBackColor = true;
+            buttonLoadvDiskrefresh.Click += buttonLoadvDiskrefresh_Click;
+            // 
+            // labelvDiskOverviewText
+            // 
+            labelvDiskOverviewText.AutoSize = true;
+            labelvDiskOverviewText.Location = new Point(6, 3);
+            labelvDiskOverviewText.Name = "labelvDiskOverviewText";
+            labelvDiskOverviewText.Size = new Size(486, 30);
+            labelvDiskOverviewText.TabIndex = 5;
+            labelvDiskOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for\r\ninformation about VMs and other data that extends that functionality over multiple servers.";
+            // 
+            // datagridviewvDiskOverView
+            // 
+            datagridviewvDiskOverView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            datagridviewvDiskOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            datagridviewvDiskOverView.Location = new Point(6, 35);
+            datagridviewvDiskOverView.Name = "datagridviewvDiskOverView";
+            datagridviewvDiskOverView.Size = new Size(1601, 774);
+            datagridviewvDiskOverView.TabIndex = 4;
+            // 
+            // tabpagehvNetworking
+            // 
+            tabpagehvNetworking.Location = new Point(4, 24);
+            tabpagehvNetworking.Name = "tabpagehvNetworking";
+            tabpagehvNetworking.Size = new Size(1613, 815);
+            tabpagehvNetworking.TabIndex = 6;
+            tabpagehvNetworking.Text = "vNetwork";
+            tabpagehvNetworking.UseVisualStyleBackColor = true;
+            // 
+            // tabpagehvCheckpoints
+            // 
+            tabpagehvCheckpoints.Controls.Add(buttonSummaryvCheckpointsView);
+            tabpagehvCheckpoints.Controls.Add(buttonLoadvCheckpointsrefresh);
+            tabpagehvCheckpoints.Controls.Add(labelvCheckpointsOverviewText);
+            tabpagehvCheckpoints.Controls.Add(datagridviewCheckpointOverView);
+            tabpagehvCheckpoints.Location = new Point(4, 24);
+            tabpagehvCheckpoints.Name = "tabpagehvCheckpoints";
+            tabpagehvCheckpoints.Size = new Size(1613, 815);
+            tabpagehvCheckpoints.TabIndex = 7;
+            tabpagehvCheckpoints.Text = "vCheckpoint";
+            tabpagehvCheckpoints.UseVisualStyleBackColor = true;
+            // 
+            // buttonSummaryvCheckpointsView
+            // 
+            buttonSummaryvCheckpointsView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryvCheckpointsView.Location = new Point(1372, 6);
+            buttonSummaryvCheckpointsView.Name = "buttonSummaryvCheckpointsView";
+            buttonSummaryvCheckpointsView.Size = new Size(75, 23);
+            buttonSummaryvCheckpointsView.TabIndex = 11;
+            buttonSummaryvCheckpointsView.Text = "Summary";
+            buttonSummaryvCheckpointsView.UseVisualStyleBackColor = true;
+            buttonSummaryvCheckpointsView.Click += buttonSummaryvCheckpointsView_Click;
+            // 
+            // buttonLoadvCheckpointsrefresh
+            // 
+            buttonLoadvCheckpointsrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonLoadvCheckpointsrefresh.Location = new Point(1453, 6);
+            buttonLoadvCheckpointsrefresh.Name = "buttonLoadvCheckpointsrefresh";
+            buttonLoadvCheckpointsrefresh.Size = new Size(154, 23);
+            buttonLoadvCheckpointsrefresh.TabIndex = 10;
+            buttonLoadvCheckpointsrefresh.Text = "&Load Checkpoints/refresh";
+            buttonLoadvCheckpointsrefresh.UseVisualStyleBackColor = true;
+            buttonLoadvCheckpointsrefresh.Click += buttonLoadvCheckpointsrefresh_Click;
+            // 
+            // labelvCheckpointsOverviewText
+            // 
+            labelvCheckpointsOverviewText.AutoSize = true;
+            labelvCheckpointsOverviewText.Location = new Point(6, 3);
+            labelvCheckpointsOverviewText.Name = "labelvCheckpointsOverviewText";
+            labelvCheckpointsOverviewText.Size = new Size(548, 30);
+            labelvCheckpointsOverviewText.TabIndex = 9;
+            labelvCheckpointsOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for\r\ninformation about VM checkpoints and other data that extends that functionality over multiple servers.";
+            // 
+            // datagridviewCheckpointOverView
+            // 
+            datagridviewCheckpointOverView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            datagridviewCheckpointOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            datagridviewCheckpointOverView.Location = new Point(6, 35);
+            datagridviewCheckpointOverView.Name = "datagridviewCheckpointOverView";
+            datagridviewCheckpointOverView.Size = new Size(1601, 774);
+            datagridviewCheckpointOverView.TabIndex = 8;
+            // 
+            // tabPagehvDVD
+            // 
+            tabPagehvDVD.Location = new Point(4, 24);
+            tabPagehvDVD.Name = "tabPagehvDVD";
+            tabPagehvDVD.Size = new Size(1613, 815);
+            tabPagehvDVD.TabIndex = 20;
+            tabPagehvDVD.Text = "vDVD";
+            tabPagehvDVD.UseVisualStyleBackColor = true;
+            // 
             // tabpagehvHosts
             // 
             tabpagehvHosts.Controls.Add(buttonSummaryvHostsView);
@@ -268,7 +416,7 @@
             tabpagehvHosts.Name = "tabpagehvHosts";
             tabpagehvHosts.Size = new Size(1613, 815);
             tabpagehvHosts.TabIndex = 3;
-            tabpagehvHosts.Text = "hvHosts";
+            tabpagehvHosts.Text = "vHosts";
             tabpagehvHosts.UseVisualStyleBackColor = true;
             // 
             // buttonSummaryvHostsView
@@ -327,7 +475,7 @@
             tabpagehvClusters.Name = "tabpagehvClusters";
             tabpagehvClusters.Size = new Size(1613, 815);
             tabpagehvClusters.TabIndex = 4;
-            tabpagehvClusters.Text = "hvClusters";
+            tabpagehvClusters.Text = "vCluster";
             tabpagehvClusters.UseVisualStyleBackColor = true;
             // 
             // datagridviewClusterVMs
@@ -531,7 +679,7 @@
             tabpagehvStorage.Name = "tabpagehvStorage";
             tabpagehvStorage.Size = new Size(1613, 815);
             tabpagehvStorage.TabIndex = 5;
-            tabpagehvStorage.Text = "hvStorage";
+            tabpagehvStorage.Text = "vStorage";
             tabpagehvStorage.UseVisualStyleBackColor = true;
             // 
             // labelvStorageOverviewText
@@ -543,120 +691,14 @@
             labelvStorageOverviewText.TabIndex = 6;
             labelvStorageOverviewText.Text = resources.GetString("labelvStorageOverviewText.Text");
             // 
-            // tabPagehvDisks
+            // tabPagehvReplication
             // 
-            tabPagehvDisks.Controls.Add(buttonSummaryvDiskView);
-            tabPagehvDisks.Controls.Add(buttonLoadvDiskrefresh);
-            tabPagehvDisks.Controls.Add(labelvDiskOverviewText);
-            tabPagehvDisks.Controls.Add(datagridviewvDiskOverView);
-            tabPagehvDisks.Location = new Point(4, 24);
-            tabPagehvDisks.Name = "tabPagehvDisks";
-            tabPagehvDisks.Size = new Size(1613, 815);
-            tabPagehvDisks.TabIndex = 16;
-            tabPagehvDisks.Text = "hvDisks";
-            tabPagehvDisks.UseVisualStyleBackColor = true;
-            // 
-            // buttonSummaryvDiskView
-            // 
-            buttonSummaryvDiskView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSummaryvDiskView.Location = new Point(1410, 6);
-            buttonSummaryvDiskView.Name = "buttonSummaryvDiskView";
-            buttonSummaryvDiskView.Size = new Size(75, 23);
-            buttonSummaryvDiskView.TabIndex = 7;
-            buttonSummaryvDiskView.Text = "Summary";
-            buttonSummaryvDiskView.UseVisualStyleBackColor = true;
-            buttonSummaryvDiskView.Click += buttonSummaryvDiskView_Click;
-            // 
-            // buttonLoadvDiskrefresh
-            // 
-            buttonLoadvDiskrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonLoadvDiskrefresh.Location = new Point(1491, 6);
-            buttonLoadvDiskrefresh.Name = "buttonLoadvDiskrefresh";
-            buttonLoadvDiskrefresh.Size = new Size(116, 23);
-            buttonLoadvDiskrefresh.TabIndex = 6;
-            buttonLoadvDiskrefresh.Text = "&Load vDisk/refresh";
-            buttonLoadvDiskrefresh.UseVisualStyleBackColor = true;
-            buttonLoadvDiskrefresh.Click += buttonLoadvDiskrefresh_Click;
-            // 
-            // labelvDiskOverviewText
-            // 
-            labelvDiskOverviewText.AutoSize = true;
-            labelvDiskOverviewText.Location = new Point(6, 3);
-            labelvDiskOverviewText.Name = "labelvDiskOverviewText";
-            labelvDiskOverviewText.Size = new Size(486, 30);
-            labelvDiskOverviewText.TabIndex = 5;
-            labelvDiskOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for\r\ninformation about VMs and other data that extends that functionality over multiple servers.";
-            // 
-            // datagridviewvDiskOverView
-            // 
-            datagridviewvDiskOverView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            datagridviewvDiskOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            datagridviewvDiskOverView.Location = new Point(6, 35);
-            datagridviewvDiskOverView.Name = "datagridviewvDiskOverView";
-            datagridviewvDiskOverView.Size = new Size(1601, 774);
-            datagridviewvDiskOverView.TabIndex = 4;
-            // 
-            // tabpagehvCheckpoints
-            // 
-            tabpagehvCheckpoints.Controls.Add(buttonSummaryvCheckpointsView);
-            tabpagehvCheckpoints.Controls.Add(buttonLoadvCheckpointsrefresh);
-            tabpagehvCheckpoints.Controls.Add(labelvCheckpointsOverviewText);
-            tabpagehvCheckpoints.Controls.Add(datagridviewCheckpointOverView);
-            tabpagehvCheckpoints.Location = new Point(4, 24);
-            tabpagehvCheckpoints.Name = "tabpagehvCheckpoints";
-            tabpagehvCheckpoints.Size = new Size(1613, 815);
-            tabpagehvCheckpoints.TabIndex = 7;
-            tabpagehvCheckpoints.Text = "hvCheckpoints";
-            tabpagehvCheckpoints.UseVisualStyleBackColor = true;
-            // 
-            // buttonSummaryvCheckpointsView
-            // 
-            buttonSummaryvCheckpointsView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSummaryvCheckpointsView.Location = new Point(1372, 6);
-            buttonSummaryvCheckpointsView.Name = "buttonSummaryvCheckpointsView";
-            buttonSummaryvCheckpointsView.Size = new Size(75, 23);
-            buttonSummaryvCheckpointsView.TabIndex = 11;
-            buttonSummaryvCheckpointsView.Text = "Summary";
-            buttonSummaryvCheckpointsView.UseVisualStyleBackColor = true;
-            buttonSummaryvCheckpointsView.Click += buttonSummaryvCheckpointsView_Click;
-            // 
-            // buttonLoadvCheckpointsrefresh
-            // 
-            buttonLoadvCheckpointsrefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonLoadvCheckpointsrefresh.Location = new Point(1453, 6);
-            buttonLoadvCheckpointsrefresh.Name = "buttonLoadvCheckpointsrefresh";
-            buttonLoadvCheckpointsrefresh.Size = new Size(154, 23);
-            buttonLoadvCheckpointsrefresh.TabIndex = 10;
-            buttonLoadvCheckpointsrefresh.Text = "&Load Checkpoints/refresh";
-            buttonLoadvCheckpointsrefresh.UseVisualStyleBackColor = true;
-            buttonLoadvCheckpointsrefresh.Click += buttonLoadvCheckpointsrefresh_Click;
-            // 
-            // labelvCheckpointsOverviewText
-            // 
-            labelvCheckpointsOverviewText.AutoSize = true;
-            labelvCheckpointsOverviewText.Location = new Point(6, 3);
-            labelvCheckpointsOverviewText.Name = "labelvCheckpointsOverviewText";
-            labelvCheckpointsOverviewText.Size = new Size(548, 30);
-            labelvCheckpointsOverviewText.TabIndex = 9;
-            labelvCheckpointsOverviewText.Text = "This view provides provides overview and core functionality within the Hyper-V space for\r\ninformation about VM checkpoints and other data that extends that functionality over multiple servers.";
-            // 
-            // datagridviewCheckpointOverView
-            // 
-            datagridviewCheckpointOverView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            datagridviewCheckpointOverView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            datagridviewCheckpointOverView.Location = new Point(6, 35);
-            datagridviewCheckpointOverView.Name = "datagridviewCheckpointOverView";
-            datagridviewCheckpointOverView.Size = new Size(1601, 774);
-            datagridviewCheckpointOverView.TabIndex = 8;
-            // 
-            // tabpagehvReplica
-            // 
-            tabpagehvReplica.Location = new Point(4, 24);
-            tabpagehvReplica.Name = "tabpagehvReplica";
-            tabpagehvReplica.Size = new Size(1613, 815);
-            tabpagehvReplica.TabIndex = 8;
-            tabpagehvReplica.Text = "hvReplica";
-            tabpagehvReplica.UseVisualStyleBackColor = true;
+            tabPagehvReplication.Location = new Point(4, 24);
+            tabPagehvReplication.Name = "tabPagehvReplication";
+            tabPagehvReplication.Size = new Size(1613, 815);
+            tabPagehvReplication.TabIndex = 19;
+            tabPagehvReplication.Text = "vReplication";
+            tabPagehvReplication.UseVisualStyleBackColor = true;
             // 
             // tabpagehvResources
             // 
@@ -664,7 +706,7 @@
             tabpagehvResources.Name = "tabpagehvResources";
             tabpagehvResources.Size = new Size(1613, 815);
             tabpagehvResources.TabIndex = 9;
-            tabpagehvResources.Text = "hvResources";
+            tabpagehvResources.Text = "vResources";
             tabpagehvResources.UseVisualStyleBackColor = true;
             // 
             // tabpageManageNetwork
@@ -673,17 +715,8 @@
             tabpageManageNetwork.Name = "tabpageManageNetwork";
             tabpageManageNetwork.Size = new Size(1613, 815);
             tabpageManageNetwork.TabIndex = 2;
-            tabpageManageNetwork.Text = "hvNetwork";
+            tabpageManageNetwork.Text = "vNetwork";
             tabpageManageNetwork.UseVisualStyleBackColor = true;
-            // 
-            // tabpagehvNetworking
-            // 
-            tabpagehvNetworking.Location = new Point(4, 24);
-            tabpagehvNetworking.Name = "tabpagehvNetworking";
-            tabpagehvNetworking.Size = new Size(1613, 815);
-            tabpagehvNetworking.TabIndex = 6;
-            tabpagehvNetworking.Text = "hvNetworking";
-            tabpagehvNetworking.UseVisualStyleBackColor = true;
             // 
             // tabpagehvSecurity
             // 
@@ -691,7 +724,7 @@
             tabpagehvSecurity.Name = "tabpagehvSecurity";
             tabpagehvSecurity.Size = new Size(1613, 815);
             tabpagehvSecurity.TabIndex = 10;
-            tabpagehvSecurity.Text = "hvSecurity";
+            tabpagehvSecurity.Text = "vSecurity";
             tabpagehvSecurity.UseVisualStyleBackColor = true;
             // 
             // tabpagehvPerformance
@@ -700,7 +733,7 @@
             tabpagehvPerformance.Name = "tabpagehvPerformance";
             tabpagehvPerformance.Size = new Size(1613, 815);
             tabpagehvPerformance.TabIndex = 11;
-            tabpagehvPerformance.Text = "hvPerformance";
+            tabpagehvPerformance.Text = "vPerformance";
             tabpagehvPerformance.UseVisualStyleBackColor = true;
             // 
             // tabpagehvCompliance
@@ -709,7 +742,7 @@
             tabpagehvCompliance.Name = "tabpagehvCompliance";
             tabpagehvCompliance.Size = new Size(1613, 815);
             tabpagehvCompliance.TabIndex = 12;
-            tabpagehvCompliance.Text = "hvCompliance";
+            tabpagehvCompliance.Text = "vCompliance";
             tabpagehvCompliance.UseVisualStyleBackColor = true;
             // 
             // tabpagehvInventory
@@ -718,7 +751,7 @@
             tabpagehvInventory.Name = "tabpagehvInventory";
             tabpagehvInventory.Size = new Size(1613, 815);
             tabpagehvInventory.TabIndex = 13;
-            tabpagehvInventory.Text = "hvInventory";
+            tabpagehvInventory.Text = "vInventory";
             tabpagehvInventory.UseVisualStyleBackColor = true;
             // 
             // tabpageCreateVM
@@ -727,7 +760,7 @@
             tabpageCreateVM.Name = "tabpageCreateVM";
             tabpageCreateVM.Size = new Size(1613, 815);
             tabpageCreateVM.TabIndex = 14;
-            tabpageCreateVM.Text = "Create VM´s";
+            tabpageCreateVM.Text = "Create VM";
             tabpageCreateVM.UseVisualStyleBackColor = true;
             // 
             // tabpageVMGroups
@@ -742,7 +775,7 @@
             tabpageVMGroups.Padding = new Padding(3);
             tabpageVMGroups.Size = new Size(1613, 815);
             tabpageVMGroups.TabIndex = 1;
-            tabpageVMGroups.Text = "hvVMGroups";
+            tabpageVMGroups.Text = "vVMGroup";
             tabpageVMGroups.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -1227,6 +1260,12 @@
             tabcontrolMainForm.ResumeLayout(false);
             tabpagehvOverview.ResumeLayout(false);
             tabpagehvOverview.PerformLayout();
+            tabPagehvDisks.ResumeLayout(false);
+            tabPagehvDisks.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).EndInit();
+            tabpagehvCheckpoints.ResumeLayout(false);
+            tabpagehvCheckpoints.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)datagridviewCheckpointOverView).EndInit();
             tabpagehvHosts.ResumeLayout(false);
             tabpagehvHosts.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewhvHosts).EndInit();
@@ -1238,12 +1277,6 @@
             groupBoxClusterInfo.PerformLayout();
             tabpagehvStorage.ResumeLayout(false);
             tabpagehvStorage.PerformLayout();
-            tabPagehvDisks.ResumeLayout(false);
-            tabPagehvDisks.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewvDiskOverView).EndInit();
-            tabpagehvCheckpoints.ResumeLayout(false);
-            tabpagehvCheckpoints.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)datagridviewCheckpointOverView).EndInit();
             tabpageVMGroups.ResumeLayout(false);
             tabpageVMGroups.PerformLayout();
             groupBox2.ResumeLayout(false);
@@ -1287,7 +1320,6 @@
         private TabPage tabpagehvStorage;
         private TabPage tabpagehvNetworking;
         private TabPage tabpagehvCheckpoints;
-        private TabPage tabpagehvReplica;
         private TabPage tabpagehvResources;
         private TabPage tabpagehvSecurity;
         private TabPage tabpagehvPerformance;
@@ -1372,5 +1404,9 @@
         private ToolStripMenuItem every1MinuteToolStripMenuItem;
         private ToolStripMenuItem every5MinutesToolStripMenuItem;
         private ToolStripMenuItem every10MinutesToolStripMenuItem;
+        private TabPage tabPagehvCPU;
+        private TabPage tabPagehvMemory;
+        private TabPage tabPagehvReplication;
+        private TabPage tabPagehvDVD;
     }
 }
