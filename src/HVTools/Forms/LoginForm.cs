@@ -1656,18 +1656,62 @@ namespace HVTools.Forms
                     }
                     else
                     {
-                        MessageBox.Show($@"Failed to connect to {serverName}
+                        string errorMessage = connectionResult.Error ?? "Unknown error";
+                        string tips = "";
 
-Error: {connectionResult.Error}",
-                            @"Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        // Provide specific troubleshooting tips based on error type
+                        if (errorMessage.Contains("Access is denied"))
+                        {
+                            tips = "\n\nTips:\n• Use Connection Settings to specify credentials\n• Ensure you have admin rights on the target host\n• For clusters, use FQDN and Kerberos authentication";
+                        }
+                        else if (errorMessage.Contains("WinRM") || errorMessage.Contains("cannot connect"))
+                        {
+                            tips = "\n\nTips:\n• Ensure WinRM is enabled: Enable-PSRemoting -Force\n• Check firewall rules for TCP 5985/5986\n• Try using SSL with port 5986\n• For clusters, try FQDN with Kerberos";
+                        }
+                        else if (errorMessage.Contains("Hyper-V"))
+                        {
+                            tips = "\n\nTips:\n• Ensure Hyper-V role is installed\n• Ensure Hyper-V PowerShell module is available";
+                        }
+                        else if (errorMessage.Contains("Kerberos") || errorMessage.Contains("SPN") || errorMessage.Contains("authentication"))
+                        {
+                            tips = "\n\nTips:\n• Use the fully qualified domain name (FQDN)\n• Enable Kerberos in Connection Settings\n• Verify SPNs are registered for the host";
+                        }
+
+                        MessageBox.Show($"Failed to connect to {serverName}\n\nError: {errorMessage}{tips}",
+                            "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        UpdateStatusLabel("Connection failed");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Message($"Connection error: {ex.Message}", EventType.Error, 1002);
-                MessageBox.Show($@"Connection error: {ex.Message}", Globals.MsgBox.Error,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string message = ex.Message;
+                string tips = "";
+
+                // Provide specific troubleshooting tips based on error type
+                if (message.Contains("Access is denied"))
+                {
+                    tips = "\n\nTips:\n• Use Connection Settings to specify credentials\n• Ensure you have admin rights on the target host\n• For clusters, use FQDN and Kerberos authentication";
+                }
+                else if (message.Contains("WinRM") || message.Contains("cannot connect"))
+                {
+                    tips = "\n\nTips:\n• Ensure WinRM is enabled: Enable-PSRemoting -Force\n• Check firewall rules for TCP 5985/5986\n• Try using SSL with port 5986\n• For clusters, try FQDN with Kerberos";
+                }
+                else if (message.Contains("Hyper-V"))
+                {
+                    tips = "\n\nTips:\n• Ensure Hyper-V role is installed\n• Ensure Hyper-V PowerShell module is available";
+                }
+                else if (message.Contains("Kerberos") || message.Contains("SPN") || message.Contains("authentication"))
+                {
+                    tips = "\n\nTips:\n• Use the fully qualified domain name (FQDN)\n• Enable Kerberos in Connection Settings\n• Verify SPNs are registered for the host";
+                }
+
+                Message($"Connection error: {message}", EventType.Error, 1002);
+                MessageBox.Show($"Failed to connect:\n\n{message}{tips}", 
+                    "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                UpdateStatusLabel("Connection failed");
             }
             finally
             {

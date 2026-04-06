@@ -37,6 +37,7 @@
             buttonLoadVMsrefresh = new Button();
             labelOverviewHelpText = new Label();
             tabpagehvHosts = new TabPage();
+            buttonSummaryvHostsView = new Button();
             buttonLoadHostsrefresh = new Button();
             datagridviewhvHosts = new DataGridView();
             label1 = new Label();
@@ -119,7 +120,25 @@
             toolStripStatusLabelMainForm = new ToolStripStatusLabel();
             toolStripStatusLabelTextMainForm = new ToolStripStatusLabel();
             toolstripstatuslabelMain_CreatedBy = new Label();
-            buttonSummaryvHostsView = new Button();
+            viewToolStripMenuItem = new ToolStripMenuItem();
+            toolsToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            exportAllDataToolStripMenuItem = new ToolStripMenuItem();
+            exportCurrentTabToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            toolStripSeparator2 = new ToolStripSeparator();
+            connectionSettingsToolStripMenuItem = new ToolStripMenuItem();
+            refreshDataToolStripMenuItem = new ToolStripMenuItem();
+            clearCacheToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator3 = new ToolStripSeparator();
+            expandAllCollumsToolStripMenuItem = new ToolStripMenuItem();
+            autoSizeAllCollumsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator4 = new ToolStripSeparator();
+            autoRefreshToolStripMenuItem = new ToolStripMenuItem();
+            disabledMinuteToolStripMenuItem = new ToolStripMenuItem();
+            every1MinuteToolStripMenuItem = new ToolStripMenuItem();
+            every5MinutesToolStripMenuItem = new ToolStripMenuItem();
+            every10MinutesToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).BeginInit();
             tabcontrolMainForm.SuspendLayout();
             tabpagehvOverview.SuspendLayout();
@@ -252,6 +271,16 @@
             tabpagehvHosts.TabIndex = 3;
             tabpagehvHosts.Text = "hvHosts";
             tabpagehvHosts.UseVisualStyleBackColor = true;
+            // 
+            // buttonSummaryvHostsView
+            // 
+            buttonSummaryvHostsView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonSummaryvHostsView.Location = new Point(1406, 6);
+            buttonSummaryvHostsView.Name = "buttonSummaryvHostsView";
+            buttonSummaryvHostsView.Size = new Size(75, 23);
+            buttonSummaryvHostsView.TabIndex = 8;
+            buttonSummaryvHostsView.Text = "Summary";
+            buttonSummaryvHostsView.UseVisualStyleBackColor = true;
             // 
             // buttonLoadHostsrefresh
             // 
@@ -916,7 +945,8 @@
             // 
             // menuStripTopMainForm
             // 
-            menuStripTopMainForm.Items.AddRange(new ToolStripItem[] { menuToolStripMenuItem });
+            menuStripTopMainForm.BackColor = Color.White;
+            menuStripTopMainForm.Items.AddRange(new ToolStripItem[] { menuToolStripMenuItem, viewToolStripMenuItem, toolsToolStripMenuItem, helpToolStripMenuItem });
             menuStripTopMainForm.Location = new Point(0, 0);
             menuStripTopMainForm.Name = "menuStripTopMainForm";
             menuStripTopMainForm.Size = new Size(1645, 24);
@@ -925,10 +955,10 @@
             // 
             // menuToolStripMenuItem
             // 
-            menuToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { disconnectToolStripMenuItem, onlineToolStripMenuItem, logsToolStripMenuItem, downloadLastestReleaseFromGitHubToolStripMenuItem, changelogToolStripMenuItem, exportDataToolStripMenuItem, aboutToolStripMenuItem, exitToolStripMenuItem });
+            menuToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { connectionSettingsToolStripMenuItem, disconnectToolStripMenuItem, toolStripSeparator2, onlineToolStripMenuItem, logsToolStripMenuItem, downloadLastestReleaseFromGitHubToolStripMenuItem, changelogToolStripMenuItem, exportDataToolStripMenuItem, aboutToolStripMenuItem, toolStripSeparator1, exitToolStripMenuItem });
             menuToolStripMenuItem.Name = "menuToolStripMenuItem";
-            menuToolStripMenuItem.Size = new Size(50, 20);
-            menuToolStripMenuItem.Text = "Menu";
+            menuToolStripMenuItem.Size = new Size(37, 20);
+            menuToolStripMenuItem.Text = "File";
             // 
             // disconnectToolStripMenuItem
             // 
@@ -1002,6 +1032,7 @@
             // 
             // exportDataToolStripMenuItem
             // 
+            exportDataToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportAllDataToolStripMenuItem, exportCurrentTabToolStripMenuItem });
             exportDataToolStripMenuItem.Name = "exportDataToolStripMenuItem";
             exportDataToolStripMenuItem.Size = new Size(273, 22);
             exportDataToolStripMenuItem.Text = "Export data";
@@ -1009,6 +1040,7 @@
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.ShortcutKeys = Keys.F1;
             aboutToolStripMenuItem.Size = new Size(273, 22);
             aboutToolStripMenuItem.Text = "About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
@@ -1024,7 +1056,7 @@
             // 
             pictureboxSupportMe.BackColor = Color.Transparent;
             pictureboxSupportMe.Image = (Image)resources.GetObject("pictureboxSupportMe.Image");
-            pictureboxSupportMe.Location = new Point(61, 3);
+            pictureboxSupportMe.Location = new Point(186, 3);
             pictureboxSupportMe.Name = "pictureboxSupportMe";
             pictureboxSupportMe.Size = new Size(77, 21);
             pictureboxSupportMe.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1034,6 +1066,7 @@
             // 
             // statusStripMainForm
             // 
+            statusStripMainForm.BackColor = Color.White;
             statusStripMainForm.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelMainForm, toolStripStatusLabelTextMainForm });
             statusStripMainForm.Location = new Point(0, 884);
             statusStripMainForm.Name = "statusStripMainForm";
@@ -1066,20 +1099,124 @@
             toolstripstatuslabelMain_CreatedBy.TabIndex = 4;
             toolstripstatuslabelMain_CreatedBy.Text = "Created by: Michael Morten Sonne";
             // 
-            // buttonSummaryvHostsView
+            // viewToolStripMenuItem
             // 
-            buttonSummaryvHostsView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSummaryvHostsView.Location = new Point(1406, 6);
-            buttonSummaryvHostsView.Name = "buttonSummaryvHostsView";
-            buttonSummaryvHostsView.Size = new Size(75, 23);
-            buttonSummaryvHostsView.TabIndex = 8;
-            buttonSummaryvHostsView.Text = "Summary";
-            buttonSummaryvHostsView.UseVisualStyleBackColor = true;
+            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshDataToolStripMenuItem, clearCacheToolStripMenuItem, toolStripSeparator3, expandAllCollumsToolStripMenuItem, autoSizeAllCollumsToolStripMenuItem, toolStripSeparator4, autoRefreshToolStripMenuItem });
+            viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            viewToolStripMenuItem.Size = new Size(44, 20);
+            viewToolStripMenuItem.Text = "View";
+            // 
+            // toolsToolStripMenuItem
+            // 
+            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            toolsToolStripMenuItem.Size = new Size(47, 20);
+            toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // helpToolStripMenuItem
+            // 
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(44, 20);
+            helpToolStripMenuItem.Text = "Help";
+            // 
+            // exportAllDataToolStripMenuItem
+            // 
+            exportAllDataToolStripMenuItem.Name = "exportAllDataToolStripMenuItem";
+            exportAllDataToolStripMenuItem.Size = new Size(180, 22);
+            exportAllDataToolStripMenuItem.Text = "Export all data";
+            // 
+            // exportCurrentTabToolStripMenuItem
+            // 
+            exportCurrentTabToolStripMenuItem.Name = "exportCurrentTabToolStripMenuItem";
+            exportCurrentTabToolStripMenuItem.Size = new Size(180, 22);
+            exportCurrentTabToolStripMenuItem.Text = "Export current tab";
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(270, 6);
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(270, 6);
+            // 
+            // connectionSettingsToolStripMenuItem
+            // 
+            connectionSettingsToolStripMenuItem.Name = "connectionSettingsToolStripMenuItem";
+            connectionSettingsToolStripMenuItem.Size = new Size(273, 22);
+            connectionSettingsToolStripMenuItem.Text = "Connection settings";
+            // 
+            // refreshDataToolStripMenuItem
+            // 
+            refreshDataToolStripMenuItem.Name = "refreshDataToolStripMenuItem";
+            refreshDataToolStripMenuItem.ShortcutKeys = Keys.F5;
+            refreshDataToolStripMenuItem.Size = new Size(184, 22);
+            refreshDataToolStripMenuItem.Text = "Refresh data";
+            // 
+            // clearCacheToolStripMenuItem
+            // 
+            clearCacheToolStripMenuItem.Name = "clearCacheToolStripMenuItem";
+            clearCacheToolStripMenuItem.Size = new Size(184, 22);
+            clearCacheToolStripMenuItem.Text = "Clear cache";
+            // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(181, 6);
+            // 
+            // expandAllCollumsToolStripMenuItem
+            // 
+            expandAllCollumsToolStripMenuItem.Name = "expandAllCollumsToolStripMenuItem";
+            expandAllCollumsToolStripMenuItem.Size = new Size(184, 22);
+            expandAllCollumsToolStripMenuItem.Text = "Expand all Collums";
+            // 
+            // autoSizeAllCollumsToolStripMenuItem
+            // 
+            autoSizeAllCollumsToolStripMenuItem.Name = "autoSizeAllCollumsToolStripMenuItem";
+            autoSizeAllCollumsToolStripMenuItem.Size = new Size(184, 22);
+            autoSizeAllCollumsToolStripMenuItem.Text = "Auto size all Collums";
+            // 
+            // toolStripSeparator4
+            // 
+            toolStripSeparator4.Name = "toolStripSeparator4";
+            toolStripSeparator4.Size = new Size(181, 6);
+            // 
+            // autoRefreshToolStripMenuItem
+            // 
+            autoRefreshToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { disabledMinuteToolStripMenuItem, every1MinuteToolStripMenuItem, every5MinutesToolStripMenuItem, every10MinutesToolStripMenuItem });
+            autoRefreshToolStripMenuItem.Name = "autoRefreshToolStripMenuItem";
+            autoRefreshToolStripMenuItem.Size = new Size(184, 22);
+            autoRefreshToolStripMenuItem.Text = "Auto refresh";
+            // 
+            // disabledMinuteToolStripMenuItem
+            // 
+            disabledMinuteToolStripMenuItem.Name = "disabledMinuteToolStripMenuItem";
+            disabledMinuteToolStripMenuItem.Size = new Size(180, 22);
+            disabledMinuteToolStripMenuItem.Text = "Disabled";
+            // 
+            // every1MinuteToolStripMenuItem
+            // 
+            every1MinuteToolStripMenuItem.Name = "every1MinuteToolStripMenuItem";
+            every1MinuteToolStripMenuItem.Size = new Size(180, 22);
+            every1MinuteToolStripMenuItem.Text = "Every 1 minute";
+            // 
+            // every5MinutesToolStripMenuItem
+            // 
+            every5MinutesToolStripMenuItem.Name = "every5MinutesToolStripMenuItem";
+            every5MinutesToolStripMenuItem.Size = new Size(180, 22);
+            every5MinutesToolStripMenuItem.Text = "Every 5 minutes";
+            // 
+            // every10MinutesToolStripMenuItem
+            // 
+            every10MinutesToolStripMenuItem.Name = "every10MinutesToolStripMenuItem";
+            every10MinutesToolStripMenuItem.Size = new Size(180, 22);
+            every10MinutesToolStripMenuItem.Text = "Every 10 minutes";
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(1645, 906);
             Controls.Add(pictureboxSupportMe);
             Controls.Add(toolstripstatuslabelMain_CreatedBy);
@@ -1224,5 +1361,24 @@
         private ComboBox comboBoxClusterNodeSelector;
         private Label labelClusterNodeSelector;
         private Button buttonSummaryvHostsView;
+        private ToolStripMenuItem connectionSettingsToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripMenuItem exportAllDataToolStripMenuItem;
+        private ToolStripMenuItem exportCurrentTabToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem viewToolStripMenuItem;
+        private ToolStripMenuItem refreshDataToolStripMenuItem;
+        private ToolStripMenuItem toolsToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem clearCacheToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem expandAllCollumsToolStripMenuItem;
+        private ToolStripMenuItem autoSizeAllCollumsToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator4;
+        private ToolStripMenuItem autoRefreshToolStripMenuItem;
+        private ToolStripMenuItem disabledMinuteToolStripMenuItem;
+        private ToolStripMenuItem every1MinuteToolStripMenuItem;
+        private ToolStripMenuItem every5MinutesToolStripMenuItem;
+        private ToolStripMenuItem every10MinutesToolStripMenuItem;
     }
 }

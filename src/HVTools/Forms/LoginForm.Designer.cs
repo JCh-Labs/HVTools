@@ -228,6 +228,7 @@
             // 
             // statusStripLoginForm
             // 
+            statusStripLoginForm.BackColor = Color.White;
             statusStripLoginForm.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelLoginForm, toolStripStatusLabelTextLoginForm });
             statusStripLoginForm.Location = new Point(0, 454);
             statusStripLoginForm.Name = "statusStripLoginForm";
@@ -264,7 +265,7 @@
             // 
             // menuStripLoginForm
             // 
-            menuStripLoginForm.BackColor = SystemColors.Control;
+            menuStripLoginForm.BackColor = Color.White;
             menuStripLoginForm.Items.AddRange(new ToolStripItem[] { menuToolStripMenuItem });
             menuStripLoginForm.Location = new Point(0, 0);
             menuStripLoginForm.Name = "menuStripLoginForm";
@@ -282,14 +283,14 @@
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(180, 22);
+            aboutToolStripMenuItem.Size = new Size(109, 22);
             aboutToolStripMenuItem.Text = "About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Size = new Size(109, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -297,27 +298,27 @@
             // 
             onlineToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { myWebpageToolStripMenuItem, myBlogToolStripMenuItem, guideToolStripMenuItem });
             onlineToolStripMenuItem.Name = "onlineToolStripMenuItem";
-            onlineToolStripMenuItem.Size = new Size(180, 22);
+            onlineToolStripMenuItem.Size = new Size(109, 22);
             onlineToolStripMenuItem.Text = "Online";
             // 
             // myWebpageToolStripMenuItem
             // 
             myWebpageToolStripMenuItem.Name = "myWebpageToolStripMenuItem";
-            myWebpageToolStripMenuItem.Size = new Size(180, 22);
+            myWebpageToolStripMenuItem.Size = new Size(142, 22);
             myWebpageToolStripMenuItem.Text = "My webpage";
             myWebpageToolStripMenuItem.Click += myWebpageToolStripMenuItem_Click;
             // 
             // myBlogToolStripMenuItem
             // 
             myBlogToolStripMenuItem.Name = "myBlogToolStripMenuItem";
-            myBlogToolStripMenuItem.Size = new Size(180, 22);
+            myBlogToolStripMenuItem.Size = new Size(142, 22);
             myBlogToolStripMenuItem.Text = "My blog";
             myBlogToolStripMenuItem.Click += myBlogToolStripMenuItem_Click;
             // 
             // guideToolStripMenuItem
             // 
             guideToolStripMenuItem.Name = "guideToolStripMenuItem";
-            guideToolStripMenuItem.Size = new Size(180, 22);
+            guideToolStripMenuItem.Size = new Size(142, 22);
             guideToolStripMenuItem.Text = "Guide";
             guideToolStripMenuItem.Click += guideToolStripMenuItem_Click;
             // 
@@ -325,6 +326,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(432, 476);
             Controls.Add(pictureboxSupportMe);
             Controls.Add(statusStripLoginForm);
