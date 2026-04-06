@@ -21,6 +21,12 @@ namespace HVTools.Forms
         private bool _isLoadingNodeData;
         private string? _currentlyDisplayedNodeName; // Track which node's data is displayed
 
+        // Search functionality fields
+        private List<DataGridViewRow> _searchResults = new List<DataGridViewRow>();
+        private int _currentSearchIndex = -1;
+        private Color _originalRowBackColor = Color.White;
+        private Color _searchHighlightColor = Color.LightYellow;
+
         /// <summary>
         /// Initializes a new instance of the MainForm class and sets up the user interface and session state.
         /// </summary>
@@ -6411,5 +6417,449 @@ Unused Resources:
                     MessageBoxIcon.Error);
             }
         }
+
+        #region Search Functionality
+
+        /// <summary>
+        /// Handles keyboard shortcuts including Ctrl+F for search
+        /// </summary>
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Ctrl+F - Show search panel
+            if (e.Control && e.KeyCode == Keys.F)
+            {
+                e.SuppressKeyPress = true;
+                e.Handled = true;
+                ShowSearchPanel();
+            }
+            // Escape - Hide search panel
+            else if (e.KeyCode == Keys.Escape && panelSearch.Visible)
+            {
+                e.SuppressKeyPress = true;
+                e.Handled = true;
+                HideSearchPanel();
+            }
+        }
+
+        /// <summary>
+        /// Shows the search panel and sets focus to the search textbox
+        /// </summary>
+        private void ShowSearchPanel()
+        {
+            try
+            {
+                // Check if we have a visible DataGridView on the current tab
+                DataGridView? activeGrid = GetActiveDataGridView();
+                if (activeGrid == null)
+                {
+                    MessageBox.Show(@"No data grid available on this tab to search.",
+                        @"Search",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                Message("User opened search panel",
+                    EventType.Information, 8000);
+
+                // Show the search panel
+                panelSearch.Visible = true;
+
+                // Adjust tab control position to accommodate search panel
+                tabcontrolMainForm.Location = new Point(tabcontrolMainForm.Location.X, 62);
+                tabcontrolMainForm.Height = ClientSize.Height - 62 - statusStripMainForm.Height;
+
+                // Clear previous search
+                textBoxSearch.Clear();
+                ClearSearch();
+
+                // Focus the search textbox
+                textBoxSearch.Focus();
+            }
+            catch (Exception ex)
+            {
+                Message($"Error showing search panel: {ex.Message}",
+                    EventType.Error, 8001);
+            }
+        }
+
+        /// <summary>
+        /// Hides the search panel and clears search results
+        /// </summary>
+        private void HideSearchPanel()
+        {
+            try
+            {
+                Message("User closed search panel",
+                    EventType.Information, 8002);
+
+                // Clear search highlighting
+                ClearSearch();
+
+                // Hide the search panel
+                panelSearch.Visible = false;
+
+                // Restore tab control position
+                tabcontrolMainForm.Location = new Point(tabcontrolMainForm.Location.X, 27);
+                tabcontrolMainForm.Height = ClientSize.Height - 27 - statusStripMainForm.Height;
+            }
+            catch (Exception ex)
+            {
+                Message($"Error hiding search panel: {ex.Message}",
+                    EventType.Error, 8003);
+            }
+        }
+
+        /// <summary>
+        /// Gets the active DataGridView from the currently selected tab
+        /// </summary>
+        private DataGridView? GetActiveDataGridView()
+        {
+            if (tabcontrolMainForm.SelectedTab == null)
+                return null;
+
+            // Find DataGridView in the current tab
+            foreach (Control control in tabcontrolMainForm.SelectedTab.Controls)
+            {
+                if (control is DataGridView dgv)
+                    return dgv;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Handles text changes in the search textbox
+        /// </summary>
+        private void TextBoxSearch_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                // Only perform search if all controls are initialized
+                if (textBoxSearch != null && checkBoxFilterResults != null)
+                {
+                    PerformSearch();
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error during search: {ex.Message}",
+                    EventType.Error, 8004);
+            }
+        }
+
+        /// <summary>
+        /// Handles keyboard navigation in the search textbox
+        /// </summary>
+        private void TextBoxSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+
+                if (e.Shift)
+                {
+                    // Shift+Enter - Previous result
+                    NavigateToPreviousResult();
+                }
+                else
+                {
+                    // Enter - Next result
+                    NavigateToNextResult();
+                }
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                HideSearchPanel();
+            }
+        }
+
+        /// <summary>
+        /// Performs search in the active DataGridView
+        /// </summary>
+        private void PerformSearch()
+        {
+            // Ensure all search controls are initialized
+            if (textBoxSearch == null || checkBoxFilterResults == null || labelSearchResults == null)
+            {
+                return;
+            }
+
+            string searchText = textBoxSearch.Text.Trim();
+            if (string.IsNullOrEmpty(searchText))
+            {
+                ClearSearch();
+                labelSearchResults.Text = "";
+                return;
+            }
+
+            DataGridView? activeGrid = GetActiveDataGridView();
+            if (activeGrid == null || activeGrid.Rows.Count == 0)
+            {
+                labelSearchResults.Text = @"No data";
+                return;
+            }
+
+            bool filterMode = checkBoxFilterResults.Checked;
+
+            // Suspend layout for better performance
+            activeGrid.SuspendLayout();
+
+            try
+            {
+                // CRITICAL: Clear current cell and selection BEFORE changing visibility
+                // This prevents "Row associated with the currency manager's position cannot be made invisible" error
+                activeGrid.ClearSelection();
+                activeGrid.CurrentCell = null;
+
+                // Clear previous highlighting only (not visibility)
+                ClearSearchHighlighting();
+
+                // Search through all rows and cells
+                _searchResults.Clear();
+                foreach (DataGridViewRow row in activeGrid.Rows)
+                {
+                    if (row.IsNewRow)
+                        continue;
+
+                    bool matchFound = false;
+                    foreach (DataGridViewCell cell in row.Cells)
+                    {
+                        if (cell.Value != null &&
+                            cell.Value.ToString()!.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                        {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+
+                    if (matchFound)
+                    {
+                        _searchResults.Add(row);
+                    }
+
+                    // OPTIMIZATION: Only change visibility if filter mode is enabled AND the state needs to change
+                    // This prevents unnecessary layout recalculations
+                    if (filterMode)
+                    {
+                        // Only set visibility if it needs to change
+                        if (row.Visible != matchFound)
+                        {
+                            row.Visible = matchFound;
+                        }
+                    }
+                    else
+                    {
+                        // When filter is off, only restore visibility if row is currently hidden
+                        // This avoids setting Visible=true on rows that are already visible
+                        if (!row.Visible)
+                        {
+                            row.Visible = true;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                // Resume layout and refresh the grid
+                activeGrid.ResumeLayout();
+                activeGrid.Refresh();
+            }
+
+            // Update results label
+            if (_searchResults.Count > 0)
+            {
+                _currentSearchIndex = 0;
+                HighlightCurrentResult();
+                UpdateSearchResultsLabel();
+
+                Message($"Search found {_searchResults.Count} result(s) for '{searchText}'",
+                    EventType.Information, 8005);
+            }
+            else
+            {
+                labelSearchResults.Text = "No results";
+                _currentSearchIndex = -1;
+
+                Message($"Search found no results for '{searchText}'",
+                    EventType.Information, 8006);
+            }
+        }
+
+        /// <summary>
+        /// Navigates to the previous search result
+        /// </summary>
+        private void NavigateToPreviousResult()
+        {
+            if (_searchResults.Count == 0)
+                return;
+
+            _currentSearchIndex--;
+            if (_currentSearchIndex < 0)
+                _currentSearchIndex = _searchResults.Count - 1;
+
+            HighlightCurrentResult();
+            UpdateSearchResultsLabel();
+        }
+
+        /// <summary>
+        /// Navigates to the next search result
+        /// </summary>
+        private void NavigateToNextResult()
+        {
+            if (_searchResults.Count == 0)
+                return;
+
+            _currentSearchIndex++;
+            if (_currentSearchIndex >= _searchResults.Count)
+                _currentSearchIndex = 0;
+
+            HighlightCurrentResult();
+            UpdateSearchResultsLabel();
+        }
+
+        /// <summary>
+        /// Highlights the current search result in the grid
+        /// </summary>
+        private void HighlightCurrentResult()
+        {
+            if (_currentSearchIndex < 0 || _currentSearchIndex >= _searchResults.Count)
+                return;
+
+            DataGridView? activeGrid = GetActiveDataGridView();
+            if (activeGrid == null)
+                return;
+
+            // Clear all highlights first
+            foreach (DataGridViewRow row in activeGrid.Rows)
+            {
+                row.DefaultCellStyle.BackColor = row.Index % 2 == 0 ? Color.AliceBlue : Color.White;
+            }
+
+            // Highlight current result
+            DataGridViewRow currentRow = _searchResults[_currentSearchIndex];
+            currentRow.DefaultCellStyle.BackColor = _searchHighlightColor;
+
+            // Scroll to make it visible
+            activeGrid.FirstDisplayedScrollingRowIndex = currentRow.Index;
+
+            // Select the row
+            activeGrid.ClearSelection();
+            currentRow.Selected = true;
+        }
+
+        /// <summary>
+        /// Updates the search results label showing current position
+        /// </summary>
+        private void UpdateSearchResultsLabel()
+        {
+            // Only update if label is initialized
+            if (labelSearchResults == null)
+                return;
+
+            if (_searchResults.Count > 0)
+            {
+                labelSearchResults.Text = $"{_currentSearchIndex + 1} of {_searchResults.Count}";
+            }
+            else
+            {
+                labelSearchResults.Text = "";
+            }
+        }
+
+        /// <summary>
+        /// Clears all search highlighting and results
+        /// </summary>
+        private void ClearSearch()
+        {
+            DataGridView? activeGrid = GetActiveDataGridView();
+            if (activeGrid != null)
+            {
+                // Restore original row colors and visibility
+                foreach (DataGridViewRow row in activeGrid.Rows)
+                {
+                    row.DefaultCellStyle.BackColor = row.Index % 2 == 0 ? Color.AliceBlue : Color.White;
+                    row.Visible = true;  // Always restore visibility when clearing search
+                }
+            }
+
+            _searchResults.Clear();
+            _currentSearchIndex = -1;
+
+            // Only update label if it's initialized
+            if (labelSearchResults != null)
+            {
+                labelSearchResults.Text = "";
+            }
+        }
+
+        /// <summary>
+        /// Clears only the search highlighting without changing row visibility
+        /// Used when performing a new search while filter mode is active
+        /// </summary>
+        private void ClearSearchHighlighting()
+        {
+            DataGridView? activeGrid = GetActiveDataGridView();
+            if (activeGrid != null)
+            {
+                // Restore original row colors only (keep visibility as-is)
+                foreach (DataGridViewRow row in activeGrid.Rows)
+                {
+                    row.DefaultCellStyle.BackColor = row.Index % 2 == 0 ? Color.AliceBlue : Color.White;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles previous button click
+        /// </summary>
+        private void ButtonSearchPrevious_Click(object sender, EventArgs e)
+        {
+            NavigateToPreviousResult();
+        }
+
+        /// <summary>
+        /// Handles next button click
+        /// </summary>
+        private void ButtonSearchNext_Click(object sender, EventArgs e)
+        {
+            NavigateToNextResult();
+        }
+
+        /// <summary>
+        /// Handles close search button click
+        /// </summary>
+        private void ButtonCloseSearch_Click(object sender, EventArgs e)
+        {
+            HideSearchPanel();
+        }
+
+        /// <summary>
+        /// Handles filter checkbox state change
+        /// </summary>
+        private void CheckBoxFilterResults_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                // Reapply the current search with the new filter mode
+                if (checkBoxFilterResults != null && !string.IsNullOrEmpty(textBoxSearch.Text))
+                {
+                    PerformSearch();
+                }
+
+                if (checkBoxFilterResults != null)
+                {
+                    Message($"Search filter mode {(checkBoxFilterResults.Checked ? "enabled" : "disabled")}",
+                        EventType.Information, 8007);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error toggling search filter: {ex.Message}",
+                    EventType.Error, 8008);
+            }
+        }
+
+        #endregion
     }
 }

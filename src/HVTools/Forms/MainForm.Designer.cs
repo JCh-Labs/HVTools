@@ -103,6 +103,14 @@
             buttonSummaryHealthOverviewView = new Button();
             buttonLoadHealthOverview = new Button();
             labelHealthOverviewText = new Label();
+            panelSearch = new Panel();
+            buttonCloseSearch = new Button();
+            checkBoxFilterResults = new CheckBox();
+            labelSearchResults = new Label();
+            buttonSearchNext = new Button();
+            buttonSearchPrevious = new Button();
+            labelSearchIcon = new Label();
+            textBoxSearch = new TextBox();
             menuStripTopMainForm = new MenuStrip();
             menuToolStripMenuItem = new ToolStripMenuItem();
             disconnectToolStripMenuItem = new ToolStripMenuItem();
@@ -161,6 +169,7 @@
             ((System.ComponentModel.ISupportInitialize)datagridviewVMGroups).BeginInit();
             tabpageHealthOverview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewHealthOverview).BeginInit();
+            panelSearch.SuspendLayout();
             menuStripTopMainForm.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).BeginInit();
             statusStripMainForm.SuspendLayout();
@@ -975,6 +984,105 @@
             labelHealthOverviewText.TabIndex = 5;
             labelHealthOverviewText.Text = "This view provides provides overview over core ressoruces and allocation in Hyper-V/at host level, for information about VMs and other key data.\r\n";
             // 
+            // panelSearch
+            // 
+            panelSearch.BackColor = Color.WhiteSmoke;
+            panelSearch.BorderStyle = BorderStyle.FixedSingle;
+            panelSearch.Controls.Add(buttonCloseSearch);
+            panelSearch.Controls.Add(checkBoxFilterResults);
+            panelSearch.Controls.Add(labelSearchResults);
+            panelSearch.Controls.Add(buttonSearchNext);
+            panelSearch.Controls.Add(buttonSearchPrevious);
+            panelSearch.Controls.Add(labelSearchIcon);
+            panelSearch.Controls.Add(textBoxSearch);
+            panelSearch.Dock = DockStyle.Top;
+            panelSearch.Location = new Point(0, 24);
+            panelSearch.Name = "panelSearch";
+            panelSearch.Size = new Size(1645, 35);
+            panelSearch.TabIndex = 5;
+            panelSearch.Visible = false;
+            // 
+            // buttonCloseSearch
+            // 
+            buttonCloseSearch.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonCloseSearch.FlatAppearance.BorderSize = 0;
+            buttonCloseSearch.FlatStyle = FlatStyle.Flat;
+            buttonCloseSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            buttonCloseSearch.ForeColor = Color.FromArgb(64, 64, 64);
+            buttonCloseSearch.Location = new Point(1615, 4);
+            buttonCloseSearch.Name = "buttonCloseSearch";
+            buttonCloseSearch.Size = new Size(25, 25);
+            buttonCloseSearch.TabIndex = 5;
+            buttonCloseSearch.Text = "✕";
+            buttonCloseSearch.UseVisualStyleBackColor = true;
+            buttonCloseSearch.Click += ButtonCloseSearch_Click;
+            // 
+            // checkBoxFilterResults
+            // 
+            checkBoxFilterResults.AutoSize = true;
+            checkBoxFilterResults.Font = new Font("Segoe UI", 9F);
+            checkBoxFilterResults.ForeColor = Color.FromArgb(64, 64, 64);
+            checkBoxFilterResults.Location = new Point(414, 8);
+            checkBoxFilterResults.Name = "checkBoxFilterResults";
+            checkBoxFilterResults.Size = new Size(118, 19);
+            checkBoxFilterResults.TabIndex = 6;
+            checkBoxFilterResults.Text = "Show only results";
+            checkBoxFilterResults.UseVisualStyleBackColor = true;
+            checkBoxFilterResults.CheckedChanged += CheckBoxFilterResults_CheckedChanged;
+            // 
+            // labelSearchResults
+            // 
+            labelSearchResults.AutoSize = true;
+            labelSearchResults.Font = new Font("Segoe UI", 9F);
+            labelSearchResults.ForeColor = Color.FromArgb(64, 64, 64);
+            labelSearchResults.Location = new Point(418, 9);
+            labelSearchResults.Name = "labelSearchResults";
+            labelSearchResults.Size = new Size(0, 15);
+            labelSearchResults.TabIndex = 4;
+            // 
+            // buttonSearchNext
+            // 
+            buttonSearchNext.FlatStyle = FlatStyle.Flat;
+            buttonSearchNext.Location = new Point(378, 5);
+            buttonSearchNext.Name = "buttonSearchNext";
+            buttonSearchNext.Size = new Size(30, 24);
+            buttonSearchNext.TabIndex = 3;
+            buttonSearchNext.Text = "▼";
+            buttonSearchNext.UseVisualStyleBackColor = true;
+            buttonSearchNext.Click += ButtonSearchNext_Click;
+            // 
+            // buttonSearchPrevious
+            // 
+            buttonSearchPrevious.FlatStyle = FlatStyle.Flat;
+            buttonSearchPrevious.Location = new Point(345, 5);
+            buttonSearchPrevious.Name = "buttonSearchPrevious";
+            buttonSearchPrevious.Size = new Size(30, 24);
+            buttonSearchPrevious.TabIndex = 2;
+            buttonSearchPrevious.Text = "▲";
+            buttonSearchPrevious.UseVisualStyleBackColor = true;
+            buttonSearchPrevious.Click += ButtonSearchPrevious_Click;
+            // 
+            // labelSearchIcon
+            // 
+            labelSearchIcon.AutoSize = true;
+            labelSearchIcon.Font = new Font("Segoe UI", 10F);
+            labelSearchIcon.ForeColor = Color.FromArgb(64, 64, 64);
+            labelSearchIcon.Location = new Point(8, 8);
+            labelSearchIcon.Name = "labelSearchIcon";
+            labelSearchIcon.Size = new Size(28, 19);
+            labelSearchIcon.TabIndex = 1;
+            labelSearchIcon.Text = "🔍";
+            // 
+            // textBoxSearch
+            // 
+            textBoxSearch.Location = new Point(35, 6);
+            textBoxSearch.Name = "textBoxSearch";
+            textBoxSearch.PlaceholderText = "Search in table...";
+            textBoxSearch.Size = new Size(300, 23);
+            textBoxSearch.TabIndex = 0;
+            textBoxSearch.TextChanged += TextBoxSearch_TextChanged;
+            textBoxSearch.KeyDown += TextBoxSearch_KeyDown;
+            // 
             // menuStripTopMainForm
             // 
             menuStripTopMainForm.BackColor = Color.White;
@@ -1195,7 +1303,7 @@
             // 
             pictureboxSupportMe.BackColor = Color.Transparent;
             pictureboxSupportMe.Image = (Image)resources.GetObject("pictureboxSupportMe.Image");
-            pictureboxSupportMe.Location = new Point(186, 3);
+            pictureboxSupportMe.Location = new Point(186, 2);
             pictureboxSupportMe.Name = "pictureboxSupportMe";
             pictureboxSupportMe.Size = new Size(77, 21);
             pictureboxSupportMe.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1244,18 +1352,21 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1645, 906);
+            Controls.Add(panelSearch);
             Controls.Add(pictureboxSupportMe);
             Controls.Add(toolstripstatuslabelMain_CreatedBy);
             Controls.Add(statusStripMainForm);
             Controls.Add(menuStripTopMainForm);
             Controls.Add(tabcontrolMainForm);
             Icon = (Icon)resources.GetObject("$this.Icon");
+            KeyPreview = true;
             MainMenuStrip = menuStripTopMainForm;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "HVTools";
             FormClosing += MainForm_FormClosing;
             Load += MainForm_Load;
+            KeyDown += MainForm_KeyDown;
             ((System.ComponentModel.ISupportInitialize)datagridviewVMOverView).EndInit();
             tabcontrolMainForm.ResumeLayout(false);
             tabpagehvOverview.ResumeLayout(false);
@@ -1285,6 +1396,8 @@
             tabpageHealthOverview.ResumeLayout(false);
             tabpageHealthOverview.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)datagridviewHealthOverview).EndInit();
+            panelSearch.ResumeLayout(false);
+            panelSearch.PerformLayout();
             menuStripTopMainForm.ResumeLayout(false);
             menuStripTopMainForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureboxSupportMe).EndInit();
@@ -1398,6 +1511,14 @@
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem expandAllCollumsToolStripMenuItem;
         private ToolStripMenuItem autoSizeAllCollumsToolStripMenuItem;
+        private Panel panelSearch;
+        private TextBox textBoxSearch;
+        private Button buttonSearchPrevious;
+        private Button buttonSearchNext;
+        private Label labelSearchResults;
+        private Button buttonCloseSearch;
+        private Label labelSearchIcon;
+        private CheckBox checkBoxFilterResults;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripMenuItem autoRefreshToolStripMenuItem;
         private ToolStripMenuItem disabledMinuteToolStripMenuItem;
