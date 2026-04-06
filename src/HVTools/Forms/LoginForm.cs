@@ -19,6 +19,7 @@ namespace HVTools.Forms
         private string _lastServerChecked = string.Empty;
         private readonly bool _isInitializing;
         private bool _isConnecting; // Prevent double login attempts
+        private ConnectionSettings _currentConnectionSettings = ConnectionSettings.GetDefault();
 
         public class LoginResult
         {
@@ -787,7 +788,6 @@ namespace HVTools.Forms
         private ConnectionTestResult TestRemoteHyperV(string serverName, PSCredential? credential)
         {
             Runspace? tempRunspace = null;
-            PSObject? tempSession = null;
 
             try
             {
@@ -814,7 +814,7 @@ namespace HVTools.Forms
                 Message($"Network connectivity test successful",
                     EventType.Information, 1103);
 
-                // Test PowerShell remoting
+                // Test PowerShell remoting with advanced connection settings
                 tempRunspace = RunspaceFactory.CreateRunspace();
                 tempRunspace.Open();
 
@@ -825,229 +825,269 @@ namespace HVTools.Forms
                 {
                     ps.Runspace = tempRunspace;
 
-                    // Build New-PSSession command
-                    ps.AddCommand("New-PSSession")
-                      .AddParameter("ComputerName", serverName)
-                      .AddParameter("ErrorAction", "Stop");
+                    // Create WSManConnectionInfo with user-configured settings
+                    int port = _currentConnectionSettings.Port;
+                    if (port <= 0)
+                    {
+                        // Auto-select port based on SSL setting
+                        port = _currentConnectionSettings.UseSSL ? 5986 : 5985;
+                    }
 
+                    Message($"Creating PowerShell session to '{serverName}' (SSL: {_currentConnectionSettings.UseSSL}, Port: {port}, Auth: {_currentConnectionSettings.AuthenticationMechanism}, Timeout: {_currentConnectionSettings.TimeoutSeconds}s)...",
+                        EventType.Information, 1113);
+
+                    var connectionInfo = new WSManConnectionInfo
+                    {
+                        ComputerName = serverName,
+                        Port = port,
+                        Scheme = _currentConnectionSettings.UseSSL ? "https" : "http",
+                        AuthenticationMechanism = (AuthenticationMechanism)Enum.Parse(
+                            typeof(AuthenticationMechanism),
+                            _currentConnectionSettings.AuthenticationMechanism,
+                            true),
+                        OperationTimeout = TimeSpan.FromSeconds(_currentConnectionSettings.TimeoutSeconds).Milliseconds,
+                        OpenTimeout = TimeSpan.FromSeconds(_currentConnectionSettings.TimeoutSeconds).Milliseconds
+                    };
+
+                    // Apply certificate validation settings
+                    if (_currentConnectionSettings.UseSSL)
+                    {
+                        connectionInfo.SkipCACheck = _currentConnectionSettings.SkipCACheck;
+                        connectionInfo.SkipCNCheck = _currentConnectionSettings.SkipCNCheck;
+
+                        Message($"SSL certificate validation - SkipCACheck: {_currentConnectionSettings.SkipCACheck}, SkipCNCheck: {_currentConnectionSettings.SkipCNCheck}",
+                            EventType.Information, 1114);
+                    }
+
+                    // Set credentials if provided
                     if (credential != null)
                     {
-                        ps.AddParameter("Credential", credential);
+                        connectionInfo.Credential = credential;
+                        Message($"Using explicit credentials for connection",
+                            EventType.Information, 1115);
+                    }
+                    else
+                    {
+                        Message($"Using current user credentials for connection",
+                            EventType.Information, 1116);
                     }
 
-                    Message($"Creating PowerShell session to '{serverName}'...",
-                        EventType.Information, 1022);
-
-                    var sessionResult = ps.Invoke();
-
-                    if (ps.HadErrors)
+                    // Create the remote runspace using the configured connection info
+                    Runspace remoteRunspace;
+                    try
                     {
-                        var error = ps.Streams.Error[0];
-                        string errorMsg = error.Exception?.Message ?? error.ToString();
+                        remoteRunspace = RunspaceFactory.CreateRunspace(connectionInfo);
+                        remoteRunspace.Open();
 
-                        Message($"PowerShell session creation failed: {errorMsg}",
-                            EventType.Error, 1023);
+                        Message($"Remote runspace opened successfully to '{serverName}'",
+                            EventType.Information, 1117);
+
+                        Message($"PowerShell session created successfully to '{serverName}'",
+                            EventType.Information, 1025);
+                    }
+                    catch (Exception ex)
+                    {
+                        Message($"Failed to open remote runspace: {ex.Message}",
+                            EventType.Error, 1118);
 
                         return new ConnectionTestResult
                         {
                             Success = false,
-                            Error = $"Failed to create PowerShell session: {errorMsg}"
+                            Error = $"Failed to create PowerShell session: {ex.Message}"
                         };
                     }
-
-                    if (sessionResult == null || sessionResult.Count == 0)
-                    {
-                        Message($"PowerShell session creation returned no results",
-                            EventType.Error, 1024);
-
-                        return new ConnectionTestResult
-                        {
-                            Success = false,
-                            Error = $"Failed to create PowerShell session to '{serverName}'"
-                        };
-                    }
-
-                    tempSession = sessionResult[0];
-                    Message($"PowerShell session created successfully to '{serverName}'",
-                        EventType.Information, 1025);
 
                     // Enhanced Hyper-V availability and information gathering
-                    ps.Commands.Clear();
-                    ps.AddCommand("Invoke-Command")
-                      .AddParameter("Session", tempSession)
-                      .AddParameter("ScriptBlock", ScriptBlock.Create(@"
-                        $result = @{
-                            Available = $false
-                            VMCount = 0
-                            Error = $null
-                            HostName = $null
-                            FQDN = $null
-                            LogicalProcessors = 0
-                            MemoryGB = 0
-                            HyperVVersion = 'Unknown'
-                            IsCluster = $false
-                            ClusterName = $null
-                        }
-
-                        try {
-                            # Check for Hyper-V module
-                            $module = Get-Module -ListAvailable -Name Hyper-V -ErrorAction SilentlyContinue
-                            if (-not $module) {
-                                $result.Error = 'Hyper-V module not found'
-                                return $result
+                    // Execute commands directly on the remote runspace
+                    using (PowerShell remotePs = PowerShell.Create())
+                    {
+                        remotePs.Runspace = remoteRunspace;
+                        remotePs.AddScript(@"
+                            $result = @{
+                                Available = $false
+                                VMCount = 0
+                                Error = $null
+                                HostName = $null
+                                FQDN = $null
+                                LogicalProcessors = 0
+                                MemoryGB = 0
+                                HyperVVersion = 'Unknown'
+                                IsCluster = $false
+                                ClusterName = $null
                             }
 
-                            # Import Hyper-V module
-                            Import-Module Hyper-V -Force -ErrorAction SilentlyContinue
-
-                            # Get VM count
-                            $vms = Get-VM -ErrorAction SilentlyContinue
-                            $result.VMCount = ($vms | Measure-Object).Count
-
-                            # Get VMHost information
-                            $vmHost = Get-VMHost -ErrorAction SilentlyContinue
-                            if ($vmHost) {
-                                $result.HostName = $vmHost.Name
-                                $result.FQDN = $vmHost.FullyQualifiedDomainName
-                                $result.LogicalProcessors = $vmHost.LogicalProcessorCount
-                                $result.MemoryGB = [math]::Round($vmHost.MemoryCapacity / 1GB, 2)
-                                
-                                # Try to get Hyper-V version
-                                if ($vmHost.HyperVVersion) {
-                                    $result.HyperVVersion = $vmHost.HyperVVersion
-                                } elseif ($vmHost.Version) {
-                                    $result.HyperVVersion = $vmHost.Version
-                                }
-                            }
-
-                            # Check for cluster - wrap in separate try/catch to handle missing FailoverClustering module
                             try {
-                                $cluster = Get-Cluster -ErrorAction Stop
-                                if ($cluster) {
-                                    $result.IsCluster = $true
-                                    $result.ClusterName = $cluster.Name
+                                # Check for Hyper-V module
+                                $module = Get-Module -ListAvailable -Name Hyper-V -ErrorAction SilentlyContinue
+                                if (-not $module) {
+                                    $result.Error = 'Hyper-V module not found'
+                                    return $result
                                 }
+
+                                # Import Hyper-V module
+                                Import-Module Hyper-V -Force -ErrorAction SilentlyContinue
+
+                                # Get VM count
+                                $vms = Get-VM -ErrorAction SilentlyContinue
+                                $result.VMCount = ($vms | Measure-Object).Count
+
+                                # Get VMHost information
+                                $vmHost = Get-VMHost -ErrorAction SilentlyContinue
+                                if ($vmHost) {
+                                    $result.HostName = $vmHost.Name
+                                    $result.FQDN = $vmHost.FullyQualifiedDomainName
+                                    $result.LogicalProcessors = $vmHost.LogicalProcessorCount
+                                    $result.MemoryGB = [math]::Round($vmHost.MemoryCapacity / 1GB, 2)
+
+                                    # Try to get Hyper-V version
+                                    if ($vmHost.HyperVVersion) {
+                                        $result.HyperVVersion = $vmHost.HyperVVersion
+                                    } elseif ($vmHost.Version) {
+                                        $result.HyperVVersion = $vmHost.Version
+                                    }
+                                }
+
+                                # Check for cluster - wrap in separate try/catch to handle missing FailoverClustering module
+                                try {
+                                    $cluster = Get-Cluster -ErrorAction Stop
+                                    if ($cluster) {
+                                        $result.IsCluster = $true
+                                        $result.ClusterName = $cluster.Name
+                                    }
+                                }
+                                catch {
+                                    # Cluster cmdlet not available or host not in cluster - this is normal for standalone hosts
+                                    $result.IsCluster = $false
+                                    $result.ClusterName = $null
+                                }
+
+                                $result.Available = $true
                             }
                             catch {
-                                # Cluster cmdlet not available or host not in cluster - this is normal for standalone hosts
-                                $result.IsCluster = $false
-                                $result.ClusterName = $null
+                                $result.Error = $_.Exception.Message
                             }
 
-                            $result.Available = $true
-                        }
-                        catch {
-                            $result.Error = $_.Exception.Message
-                        }
+                            return $result
+                        ");
 
-                        return $result
-                    "));
+                        Message($"Retrieving Hyper-V information from '{serverName}'...",
+                            EventType.Information, 1026);
 
-                    Message($"Retrieving Hyper-V information from '{serverName}'...",
-                        EventType.Information, 1026);
+                        var hyperVResult = remotePs.Invoke();
 
-                    var hyperVResult = ps.Invoke();
-
-                    if (ps.HadErrors)
-                    {
-                        var error = ps.Streams.Error[0];
-                        string errorMsg = error.Exception?.Message ?? error.ToString();
-
-                        Message($"Hyper-V information retrieval failed: {errorMsg}",
-                            EventType.Error, 1027);
-
-                        return new ConnectionTestResult
+                        if (remotePs.HadErrors)
                         {
-                            Success = false,
-                            Error = $"Failed to retrieve Hyper-V information from '{serverName}': {errorMsg}"
-                        };
-                    }
+                            var error = remotePs.Streams.Error[0];
+                            string errorMsg = error.Exception?.Message ?? error.ToString();
 
-                    if (hyperVResult != null && hyperVResult.Count > 0)
-                    {
-                        var result = hyperVResult[0];
-                        var hashtable = (System.Collections.Hashtable)result.BaseObject;
+                            Message($"Hyper-V information retrieval failed: {errorMsg}",
+                                EventType.Error, 1027);
 
-                        bool available = (bool)hashtable["Available"]!;
-
-                        if (!available)
-                        {
-                            string error = hashtable["Error"]?.ToString() ?? "Unknown error";
-
-                            Message($"Hyper-V not available on '{serverName}': {error}",
-                                EventType.Warning, 1028);
+                            // Close the remote runspace before returning
+                            try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
 
                             return new ConnectionTestResult
                             {
                                 Success = false,
-                                Error = $"Hyper-V module not available or accessible on '{serverName}'. {error}"
+                                Error = $"Failed to retrieve Hyper-V information from '{serverName}': {errorMsg}"
                             };
                         }
 
-                        // Extract all information
-                        int vmCount = Convert.ToInt32(hashtable["VMCount"] ?? 0);
-                        string hostName = hashtable["HostName"]?.ToString() ?? serverName;
-                        string fqdn = hashtable["FQDN"]?.ToString() ?? hostName;
-                        int logicalProcessors = Convert.ToInt32(hashtable["LogicalProcessors"] ?? 0);
-                        double memoryGb = Convert.ToDouble(hashtable["MemoryGB"] ?? 0);
-                        string hyperVVersion = hashtable["HyperVVersion"]?.ToString() ?? "Unknown";
-                        bool isCluster = Convert.ToBoolean(hashtable["IsCluster"] ?? false);
-                        string clusterName = hashtable["ClusterName"]?.ToString()!;
+                        if (hyperVResult != null && hyperVResult.Count > 0)
+                            {
+                                var result = hyperVResult[0];
+                                var hashtable = (System.Collections.Hashtable)result.BaseObject;
 
-                        Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
-                            EventType.Information, 1105);
+                                bool available = (bool)hashtable["Available"]!;
 
-                        Message($"Hyper-V version: {hyperVVersion}",
-                            EventType.Information, 1106);
+                                if (!available)
+                                {
+                                    string error = hashtable["Error"]?.ToString() ?? "Unknown error";
 
-                        Message($"Found {vmCount} virtual machines",
-                            EventType.Information, 1107);
+                                    Message($"Hyper-V not available on '{serverName}': {error}",
+                                        EventType.Warning, 1028);
 
-                        if (isCluster)
-                        {
-                            Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
-                                EventType.Information, 1108);
-                        }
-                        else
-                        {
-                            Message($"Connected to standalone Hyper-V host: '{hostName}'",
-                                EventType.Information, 1109);
-                        }
+                                    // Close the remote runspace before returning
+                                    try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
 
-                        Message($"Remote Hyper-V connection successful",
-                            EventType.Information, 1008);
+                                    return new ConnectionTestResult
+                                    {
+                                        Success = false,
+                                        Error = $"Hyper-V module not available or accessible on '{serverName}'. {error}"
+                                    };
+                                }
 
-                        return new ConnectionTestResult
-                        {
-                            Success = true,
-                            VmCount = vmCount,
-                            IsLocal = false,
-                            HostName = hostName,
-                            FullyQualifiedDomainName = fqdn,
-                            HyperVVersion = hyperVVersion,
-                            LogicalProcessorCount = logicalProcessors,
-                            TotalMemoryGb = memoryGb,
-                            IsCluster = isCluster,
-                            ClusterName = clusterName
-                        };
-                    }
+                                // Extract all information
+                                int vmCount = Convert.ToInt32(hashtable["VMCount"] ?? 0);
+                                string hostName = hashtable["HostName"]?.ToString() ?? serverName;
+                                string fqdn = hashtable["FQDN"]?.ToString() ?? hostName;
+                                int logicalProcessors = Convert.ToInt32(hashtable["LogicalProcessors"] ?? 0);
+                                double memoryGb = Convert.ToDouble(hashtable["MemoryGB"] ?? 0);
+                                string hyperVVersion = hashtable["HyperVVersion"]?.ToString() ?? "Unknown";
+                                bool isCluster = Convert.ToBoolean(hashtable["IsCluster"] ?? false);
+                                string clusterName = hashtable["ClusterName"]?.ToString()!;
 
-                    Message($"No results returned from Hyper-V information query on '{serverName}'",
-                        EventType.Error, 1029);
+                                Message($"Host information retrieved - Name: '{hostName}', FQDN: '{fqdn}', Processors: {logicalProcessors}, Memory: {memoryGb} GB",
+                                    EventType.Information, 1105);
 
-                    return new ConnectionTestResult
-                    {
-                        Success = false,
-                        Error = $"No response from Hyper-V information query on '{serverName}'"
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                Message($"Remote connection test exception: {ex.GetType().Name} - {ex.Message}",
-                    EventType.Error, 1009);
-                Message($"Stack trace: {ex.StackTrace}",
-                    EventType.Error, 1009);
+                                Message($"Hyper-V version: {hyperVVersion}",
+                                    EventType.Information, 1106);
+
+                                Message($"Found {vmCount} virtual machines",
+                                    EventType.Information, 1107);
+
+                                if (isCluster)
+                                {
+                                    Message($"Connected to Hyper-V cluster: '{clusterName}' (Node: '{hostName}')",
+                                        EventType.Information, 1108);
+                                }
+                                else
+                                {
+                                    Message($"Connected to standalone Hyper-V host: '{hostName}'",
+                                        EventType.Information, 1109);
+                                }
+
+                                Message($"Remote Hyper-V connection successful",
+                                    EventType.Information, 1008);
+
+                                // Close the remote runspace after successful test
+                                try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
+
+                                return new ConnectionTestResult
+                                {
+                                    Success = true,
+                                    VmCount = vmCount,
+                                    IsLocal = false,
+                                    HostName = hostName,
+                                    FullyQualifiedDomainName = fqdn,
+                                    HyperVVersion = hyperVVersion,
+                                    LogicalProcessorCount = logicalProcessors,
+                                    TotalMemoryGb = memoryGb,
+                                    IsCluster = isCluster,
+                                    ClusterName = clusterName
+                                };
+                            }
+
+                                        Message($"No results returned from Hyper-V information query on '{serverName}'",
+                                            EventType.Error, 1029);
+
+                                                    // Close the remote runspace before returning
+                                                    try { remoteRunspace.Close(); remoteRunspace.Dispose(); } catch { /* ignore */ }
+
+                                                    return new ConnectionTestResult
+                                                    {
+                                                        Success = false,
+                                                        Error = $"No response from Hyper-V information query on '{serverName}'"
+                                                    };
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Message($"Remote connection test exception: {ex.GetType().Name} - {ex.Message}",
+                                                EventType.Error, 1009);
+                                            Message($"Stack trace: {ex.StackTrace}",
+                                                EventType.Error, 1009);
 
                 return new ConnectionTestResult
                 {
@@ -1057,32 +1097,6 @@ namespace HVTools.Forms
             }
             finally
             {
-                // Clean up the temporary session
-                if (tempSession != null && tempRunspace != null)
-                {
-                    try
-                    {
-                        Message($"Cleaning up temporary PowerShell session...",
-                            EventType.Information, 1110);
-
-                        using (PowerShell ps = PowerShell.Create())
-                        {
-                            ps.Runspace = tempRunspace;
-                            ps.AddCommand("Remove-PSSession")
-                              .AddParameter("Session", tempSession);
-                            ps.Invoke();
-                        }
-
-                        Message($"Temporary session cleaned up successfully",
-                            EventType.Information, 1111);
-                    }
-                    catch (Exception ex)
-                    {
-                        Message($"Error cleaning up temporary session: {ex.Message}",
-                            EventType.Warning, 1112);
-                    }
-                }
-
                 // Clean up the temporary runspace
                 if (tempRunspace != null)
                 {
@@ -1561,7 +1575,8 @@ namespace HVTools.Forms
                         connectionResult.TotalMemoryGb,
                         connectionResult.IsCluster,
                         connectionResult.ClusterName,
-                        connectionResult.FullyQualifiedDomainName
+                        connectionResult.FullyQualifiedDomainName,
+                        _currentConnectionSettings
                     );
 
                     Message($"Login successful for '{serverName}' as '{connectedUser}'",
@@ -1936,6 +1951,25 @@ namespace HVTools.Forms
 
                 // Log the error message
                 Message("Failed to open the URL: " + ex.Message, EventType.Error, 1095);
+            }
+        }
+
+        private void connectionSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Message("User opened Connection Settings dialog", EventType.Information, 2003);
+
+            using (ConnectionSettingsDialog dialog = new ConnectionSettingsDialog(_currentConnectionSettings))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    _currentConnectionSettings = dialog.Settings;
+                    UpdateStatusLabel("Connection settings updated");
+                    Message("Connection settings updated by user", EventType.Information, 2004);
+                }
+                else
+                {
+                    Message("Connection settings dialog cancelled", EventType.Information, 2005);
+                }
             }
         }
     }

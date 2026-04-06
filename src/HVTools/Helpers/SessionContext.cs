@@ -15,7 +15,7 @@ namespace HVTools.Helpers
         public static string? ConnectionType { get; set; }
         public static int VmCount { get; set; }
         public static bool IsLocal { get; set; }
-        
+
         // Enhanced properties
         public static string? HostName { get; set; }
         public static string? HyperVVersion { get; set; }
@@ -26,6 +26,9 @@ namespace HVTools.Helpers
         public static string? FullyQualifiedDomainName { get; set; }
         public static DateTime ConnectedAt { get; set; }
 
+        // Connection settings
+        public static ConnectionSettings? CurrentConnectionSettings { get; set; }
+
         /// <summary>
         /// Initialize the session context with login information
         /// </summary>
@@ -33,7 +36,7 @@ namespace HVTools.Helpers
             string connectedUser, string connectionType, int vmCount, bool isLocal,
             string? hostName = null, string? hyperVVersion = null, int logicalProcessorCount = 0,
             double totalMemoryGb = 0, bool isCluster = false, string? clusterName = null,
-            string? fullyQualifiedDomainName = null)
+            string? fullyQualifiedDomainName = null, ConnectionSettings? connectionSettings = null)
         {
             ServerName = serverName;
             UseWindowsAuth = useWindowsAuth;
@@ -51,15 +54,22 @@ namespace HVTools.Helpers
             FullyQualifiedDomainName = fullyQualifiedDomainName ?? serverName;
             ConnectedAt = DateTime.Now;
 
+            // Store connection settings (clone to avoid reference issues)
+            CurrentConnectionSettings = connectionSettings?.Clone() ?? ConnectionSettings.GetDefault();
+
             string clusterInfo = isCluster ? $", Cluster: '{clusterName}'" : "";
-            FileLogger.Message($"Session initialized for '{serverName}' as '{connectedUser}' ({connectionType}){clusterInfo}", 
+            string sslInfo = CurrentConnectionSettings.UseSSL ? "SSL/HTTPS" : "HTTP";
+            FileLogger.Message($"Session initialized for '{serverName}' as '{connectedUser}' ({connectionType}, {sslInfo}, Port: {CurrentConnectionSettings.Port}){clusterInfo}", 
                 FileLogger.EventType.Information, 2000);
-                
+
             if (!string.IsNullOrEmpty(hyperVVersion))
             {
                 FileLogger.Message($"Hyper-V Version: {hyperVVersion}, Processors: {logicalProcessorCount}, Memory: {totalMemoryGb:F2} GB", 
                     FileLogger.EventType.Information, 2002);
             }
+
+            FileLogger.Message($"Connection Settings - SSL: {CurrentConnectionSettings.UseSSL}, Auth: {CurrentConnectionSettings.AuthenticationMechanism}, Timeout: {CurrentConnectionSettings.TimeoutSeconds}s",
+                FileLogger.EventType.Information, 2003);
         }
 
         /// <summary>
@@ -68,7 +78,7 @@ namespace HVTools.Helpers
         public static void Clear()
         {
             FileLogger.Message("Session context cleared", FileLogger.EventType.Information, 2001);
-            
+
             ServerName = null;
             UseWindowsAuth = false;
             Credentials = null;
@@ -84,6 +94,7 @@ namespace HVTools.Helpers
             ClusterName = null;
             FullyQualifiedDomainName = null;
             ConnectedAt = DateTime.MinValue;
+            CurrentConnectionSettings = null;
         }
 
         /// <summary>
