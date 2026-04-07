@@ -28,6 +28,7 @@ namespace HVTools.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DisclaimersForm));
             richTextBoxDisclaimers = new RichTextBox();
             buttonClose = new Button();
             linkLabelLicense = new LinkLabel();
@@ -42,17 +43,17 @@ namespace HVTools.Forms
             richTextBoxDisclaimers.BackColor = Color.White;
             richTextBoxDisclaimers.BorderStyle = BorderStyle.FixedSingle;
             richTextBoxDisclaimers.Font = new Font("Consolas", 9F);
-            richTextBoxDisclaimers.Location = new Point(12, 45);
+            richTextBoxDisclaimers.Location = new Point(1, 40);
             richTextBoxDisclaimers.Name = "richTextBoxDisclaimers";
             richTextBoxDisclaimers.ReadOnly = true;
-            richTextBoxDisclaimers.Size = new Size(760, 485);
+            richTextBoxDisclaimers.Size = new Size(464, 492);
             richTextBoxDisclaimers.TabIndex = 0;
             richTextBoxDisclaimers.Text = "";
             // 
             // buttonClose
             // 
             buttonClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            buttonClose.Location = new Point(665, 10);
+            buttonClose.Location = new Point(346, 10);
             buttonClose.Name = "buttonClose";
             buttonClose.Size = new Size(95, 30);
             buttonClose.TabIndex = 1;
@@ -76,7 +77,7 @@ namespace HVTools.Forms
             // 
             labelTitle.AutoSize = true;
             labelTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            labelTitle.Location = new Point(12, 12);
+            labelTitle.Location = new Point(8, 9);
             labelTitle.Name = "labelTitle";
             labelTitle.Size = new Size(284, 21);
             labelTitle.TabIndex = 3;
@@ -89,9 +90,9 @@ namespace HVTools.Forms
             panelBottom.Controls.Add(linkLabelLicense);
             panelBottom.Controls.Add(buttonClose);
             panelBottom.Dock = DockStyle.Bottom;
-            panelBottom.Location = new Point(0, 536);
+            panelBottom.Location = new Point(0, 534);
             panelBottom.Name = "panelBottom";
-            panelBottom.Size = new Size(784, 50);
+            panelBottom.Size = new Size(465, 50);
             panelBottom.TabIndex = 4;
             // 
             // DisclaimersForm
@@ -99,12 +100,16 @@ namespace HVTools.Forms
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(784, 586);
+            ClientSize = new Size(465, 584);
             Controls.Add(panelBottom);
             Controls.Add(labelTitle);
             Controls.Add(richTextBoxDisclaimers);
-            MinimumSize = new Size(600, 400);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "DisclaimersForm";
+            ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
             Text = "Disclaimers & Legal Information";
             panelBottom.ResumeLayout(false);

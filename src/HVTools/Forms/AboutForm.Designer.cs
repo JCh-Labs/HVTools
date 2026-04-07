@@ -232,17 +232,6 @@
             linkLabelWebsite.Text = "Website";
             linkLabelWebsite.LinkClicked += linkLabelWebsite_LinkClicked;
             // 
-            // linkLabelDisclaimers
-            // 
-            linkLabelDisclaimers.AutoSize = true;
-            linkLabelDisclaimers.Location = new Point(440, 322);
-            linkLabelDisclaimers.Name = "linkLabelDisclaimers";
-            linkLabelDisclaimers.Size = new Size(71, 15);
-            linkLabelDisclaimers.TabIndex = 8;
-            linkLabelDisclaimers.TabStop = true;
-            linkLabelDisclaimers.Text = "Disclaimers";
-            linkLabelDisclaimers.LinkClicked += linkLabelDisclaimers_LinkClicked;
-            // 
             // labelInspiredBy
             // 
             labelInspiredBy.AutoSize = true;
@@ -252,6 +241,17 @@
             labelInspiredBy.Size = new Size(173, 15);
             labelInspiredBy.TabIndex = 7;
             labelInspiredBy.Text = "Inspired by RVTools for VMware";
+            // 
+            // linkLabelDisclaimers
+            // 
+            linkLabelDisclaimers.AutoSize = true;
+            linkLabelDisclaimers.Location = new Point(440, 322);
+            linkLabelDisclaimers.Name = "linkLabelDisclaimers";
+            linkLabelDisclaimers.Size = new Size(67, 15);
+            linkLabelDisclaimers.TabIndex = 8;
+            linkLabelDisclaimers.TabStop = true;
+            linkLabelDisclaimers.Text = "Disclaimers";
+            linkLabelDisclaimers.LinkClicked += linkLabelDisclaimers_LinkClicked;
             // 
             // AboutForm
             // 
@@ -270,6 +270,7 @@
             Controls.Add(linkLabelBlog);
             Controls.Add(tableLayoutPanel);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(4, 3, 4, 3);
             MaximizeBox = false;
             MinimizeBox = false;
