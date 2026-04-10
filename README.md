@@ -587,7 +587,7 @@ This project is licensed under the **MIT License** - see the LICENSE file for de
 
 See [LICENSE](LICENSE) for more information.
 
-Freeware - Free for personal and commercial use.
+Freeware - Free for personal and commercial use - support is welcome 🙏
 
 ## 👨‍💻 Author
 
@@ -602,11 +602,10 @@ If **HVTools** helps you document and manage your Hyper-V environment, please co
 
 Special thanks to:
 - **PowerShell Community** for excellent Hyper-V cmdlets and documentation
-- **RVTools** (by RobWare) for inspiration - the gold standard for VMware inventory tools
+- **I spired by RVTools** (https://www.robware.net/rvtools/) by Rob de Veij for inspiration - the gold standard for VMware inventory tools
 - **Microsoft Hyper-V Team** for the robust management APIs
 - **Contributors** who help improve this project
 - **Early adopters** who provided valuable feedback
-- **Inspired by RVTools** (https://www.robware.net/rvtools/) by Rob de Veij
 
 ## ⭐ Star This Project
 
