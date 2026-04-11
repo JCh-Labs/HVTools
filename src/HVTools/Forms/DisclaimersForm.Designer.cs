@@ -32,7 +32,6 @@ namespace HVTools.Forms
             richTextBoxDisclaimers = new RichTextBox();
             buttonClose = new Button();
             linkLabelLicense = new LinkLabel();
-            labelTitle = new Label();
             panelBottom = new Panel();
             panelBottom.SuspendLayout();
             SuspendLayout();
@@ -43,10 +42,10 @@ namespace HVTools.Forms
             richTextBoxDisclaimers.BackColor = Color.White;
             richTextBoxDisclaimers.BorderStyle = BorderStyle.FixedSingle;
             richTextBoxDisclaimers.Font = new Font("Consolas", 9F);
-            richTextBoxDisclaimers.Location = new Point(1, 40);
+            richTextBoxDisclaimers.Location = new Point(1, 1);
             richTextBoxDisclaimers.Name = "richTextBoxDisclaimers";
             richTextBoxDisclaimers.ReadOnly = true;
-            richTextBoxDisclaimers.Size = new Size(464, 492);
+            richTextBoxDisclaimers.Size = new Size(464, 531);
             richTextBoxDisclaimers.TabIndex = 0;
             richTextBoxDisclaimers.Text = "";
             // 
@@ -73,16 +72,6 @@ namespace HVTools.Forms
             linkLabelLicense.Text = "View Full License on GitHub ↗";
             linkLabelLicense.LinkClicked += linkLabelLicense_LinkClicked;
             // 
-            // labelTitle
-            // 
-            labelTitle.AutoSize = true;
-            labelTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            labelTitle.Location = new Point(8, 9);
-            labelTitle.Name = "labelTitle";
-            labelTitle.Size = new Size(284, 21);
-            labelTitle.TabIndex = 3;
-            labelTitle.Text = "⚖️ Disclaimers && Legal Information";
-            // 
             // panelBottom
             // 
             panelBottom.BackColor = Color.White;
@@ -102,7 +91,6 @@ namespace HVTools.Forms
             BackColor = Color.White;
             ClientSize = new Size(465, 584);
             Controls.Add(panelBottom);
-            Controls.Add(labelTitle);
             Controls.Add(richTextBoxDisclaimers);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -111,11 +99,10 @@ namespace HVTools.Forms
             Name = "DisclaimersForm";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
-            Text = "Disclaimers & Legal Information";
+            Text = "Disclaimers and Legal Information";
             panelBottom.ResumeLayout(false);
             panelBottom.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -123,7 +110,6 @@ namespace HVTools.Forms
         private RichTextBox richTextBoxDisclaimers;
         private Button buttonClose;
         private LinkLabel linkLabelLicense;
-        private Label labelTitle;
         private Panel panelBottom;
     }
 }
