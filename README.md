@@ -608,6 +608,14 @@ Special thanks to:
 - **Early adopters** who provided valuable feedback
 - **Inspired by RVTools** (https://www.robware.net/rvtools/) by Rob de Veij
 
+And for the people who have tested and shared there take on my tool - thanks for that, it means a lot to me and I really appreciate it,
+
+[Romain Serre - LinkedIn](https://www.linkedin.com/posts/romainserre_hyperv-audit-microsoft-activity-7447537833021485057-hAJo/)
+
+[Florian Burnel - LinkedIn](https://www.linkedin.com/posts/florian-burnel_hypev-opensource-virtualisation-activity-7448429798495956992-6Wb-/)
+
+[HVTools : www.it-connect.fr](https://www.it-connect.fr/hvtools-un-outil-dinventaire-open-source-pour-hyper-v/)
+
 ## ⭐ Star This Project
 
 If this tool helps you, please consider giving it a star! ⭐
