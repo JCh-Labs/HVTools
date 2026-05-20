@@ -592,10 +592,6 @@ Freeware - Free for personal and commercial use - support is welcome 🙏
 Made with ❤️ **Michael Morten Sonne**
 - LinkedIn: [Connect with me](https://linkedin.com/in/michaelmsonne)
 
-## Star This Project
-
-If **HVTools** helps you document and manage your Hyper-V environment, please consider giving it a star!
-
 # 🙏 Credits / Acknowledgments
 
 Special thanks to:
@@ -615,7 +611,7 @@ And for the people who have tested and shared there take on my tool - thanks for
 
 ## ⭐ Star This Project
 
-If this tool helps you, please consider giving it a star! ⭐
+If **HVTools** helps you document and manage your Hyper-V environment, or this tool helps you, please consider giving it a star! ⭐
 
 # Sponsors
 ## Advanced Installer
