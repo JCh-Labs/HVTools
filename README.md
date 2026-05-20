@@ -437,7 +437,6 @@ Outline the file contents of the repository. It helps users navigate the codebas
 # 📸 Screenshots
 
 ### Login Screen
-<!-- TODO: Add login screen screenshot -->
 ![Login Screen - Connect to local or remote Hyper-V hosts with flexible authentication](landingpage/assets/images/screenshot-login.png)
 
 *Connect to local or remote Hyper-V hosts with flexible authentication options.*
@@ -464,13 +463,11 @@ Outline the file contents of the repository. It helps users navigate the codebas
 *Cluster health, node status, and Highly Available VM distribution across nodes.*
 
 ### Virtual Disks
-<!-- TODO: Add virtual disks screenshot -->
 ![Virtual Disks - Complete disk inventory with space efficiency analysis](landingpage/assets/images/screenshot-virtual-disks.png)
 
 *Complete virtual disk inventory with space efficiency analysis and optimization recommendations.*
 
 ### VM Checkpoints
-<!-- TODO: Add checkpoints screenshot -->
 ![VM Checkpoints - Checkpoint management with age tracking](landingpage/assets/images/screenshot-checkpoints.png)
 
 *Checkpoint management with age tracking and storage consumption monitoring.*
