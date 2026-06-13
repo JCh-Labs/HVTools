@@ -958,6 +958,7 @@
             buttonExportHealthOverview.TabIndex = 8;
             buttonExportHealthOverview.Text = "&Export Health Overview";
             buttonExportHealthOverview.UseVisualStyleBackColor = true;
+            buttonExportHealthOverview.Click += buttonExportHealthOverview_Click;
             // 
             // buttonSummaryHealthOverviewView
             // 
@@ -1193,12 +1194,14 @@
             exportAllDataToolStripMenuItem.Name = "exportAllDataToolStripMenuItem";
             exportAllDataToolStripMenuItem.Size = new Size(168, 22);
             exportAllDataToolStripMenuItem.Text = "Export all data";
-            // 
+            exportAllDataToolStripMenuItem.Click += exportAllDataToolStripMenuItem_Click;
+             // 
             // exportCurrentTabToolStripMenuItem
             // 
             exportCurrentTabToolStripMenuItem.Name = "exportCurrentTabToolStripMenuItem";
             exportCurrentTabToolStripMenuItem.Size = new Size(168, 22);
             exportCurrentTabToolStripMenuItem.Text = "Export current tab";
+            exportCurrentTabToolStripMenuItem.Click += exportCurrentTabToolStripMenuItem_Click;
             // 
             // aboutToolStripMenuItem
             // 

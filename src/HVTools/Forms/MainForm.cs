@@ -7,6 +7,12 @@ using System.Management.Automation.Runspaces;
 using HVTools.Helpers;
 using static HVTools.Helpers.FileLogger;
 
+using System.Linq;
+using System.Text;
+using ClosedXML.Excel;
+
+
+
 namespace HVTools.Forms
 {
     public partial class MainForm : Form
@@ -6450,6 +6456,651 @@ Unused Resources:
                     MessageBoxIcon.Error);
             }
         }
+
+        /// <summary>
+        /// Handles the Click event for the "Export current tab" menu item.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An EventArgs object containing the event data.</param>
+        private void exportCurrentTabToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Message("User requested export of current tab", EventType.Information, 9001);
+
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show(
+                        @"Please connect to a Hyper-V server first.",
+                        @"Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                CommitAllPendingGridEdits();
+
+                var targets = GetCurrentTabExportTargets()
+                    .Where(t => t.Grid != null && t.Grid.Rows.Count > 0)
+                    .ToList();
+
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show(
+                        @"No exportable data found in the current tab.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                // ✅ Choix format utilisateur
+                var result = MessageBox.Show(
+                    "Do you want to export as a single Excel file?\n\nYes = Excel\nNo = CSV",
+                    "Export format",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Cancel)
+                {
+                    return;
+                }
+
+                bool exportAsExcel = (result == DialogResult.Yes);
+
+                string? folderPath = PromptForFolder("Choose folder for current tab export");
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    Message("Current tab export cancelled by user", EventType.Information, 9002);
+                    return;
+                }
+
+                if (exportAsExcel)
+                {
+                    string filePath = Path.Combine(
+                        folderPath,
+                        $"Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+                    );
+
+                    ExportTargetsToExcel(targets, filePath);
+
+                    MessageBox.Show(
+                        $@"Current tab exported to Excel successfully:
+                        {filePath}",
+                        @"Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    ExportTargetsToFolder(targets, folderPath, true);
+
+                    MessageBox.Show(
+                        $@"Current tab exported to CSV files successfully:
+                        {folderPath}",
+                        @"Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error exporting current tab: {ex.Message}", EventType.Error, 9003);
+
+                MessageBox.Show(
+                    $@"Error exporting current tab:
+                    {ex.Message}",
+                    @"Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event for the "Export all data" menu item.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An EventArgs object containing the event data.</param>
+        private void exportAllDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Message("User requested export of all data", EventType.Information, 9010);
+
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show(
+                        @"Please connect to a Hyper-V server first.",
+                        @"Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                CommitAllPendingGridEdits();
+
+                var targets = GetAllExportTargets()
+                    .Where(t => t.Grid != null && t.Grid.Rows.Count > 0)
+                    .ToList();
+
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show(
+                        @"No exportable data found.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                // ✅ Choix format utilisateur
+                var result = MessageBox.Show(
+                    "Do you want to export as a single Excel file?\n\nYes = Excel\nNo = CSV",
+                    "Export format",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Cancel)
+                {
+                    return;
+                }
+
+                bool exportAsExcel = (result == DialogResult.Yes);
+
+                string? folderPath = PromptForFolder("Choose folder for full export");
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    Message("Full export cancelled by user", EventType.Information, 9011);
+                    return;
+                }
+
+                if (exportAsExcel)
+                {
+                    string filePath = Path.Combine(
+                        folderPath,
+                        $"Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+                    );
+
+                    ExportTargetsToExcel(targets, filePath);
+
+                    MessageBox.Show(
+                        $@"All data exported to Excel successfully:
+                        {filePath}",
+                        @"Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    ExportTargetsToFolder(targets, folderPath, true);
+
+                    MessageBox.Show(
+                        $@"All data exported to CSV files successfully:
+                        {folderPath}",
+                        @"Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error exporting all data: {ex.Message}", EventType.Error, 9012);
+
+                MessageBox.Show(
+                    $@"Error exporting all data:
+                    {ex.Message}",
+                    @"Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event for the "Export Health Overview" button.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An EventArgs object containing the event data.</param>
+        private void buttonExportHealthOverview_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Message("User requested export of Health Overview", EventType.Information, 9020);
+
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show(
+                        @"Please connect to a Hyper-V server first.",
+                        @"Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                if (datagridviewHealthOverview == null || datagridviewHealthOverview.Rows.Count == 0)
+                {
+                    MessageBox.Show(
+                        @"No Health Overview data available. Please load the overview first.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                string? folderPath = PromptForFolder("Choose folder for Health Overview export");
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    Message("Health Overview export cancelled by user", EventType.Information, 9021);
+                    return;
+                }
+
+                // ✅ Nouvelle logique unifiée
+                var targets = new List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)>
+                {
+                    ("HealthOverview", datagridviewHealthOverview, false, false)
+                };
+
+                ExportTargetsToFolder(targets, folderPath, true);
+
+                MessageBox.Show(
+                    $@"Health Overview exported successfully to:
+                    {folderPath}",
+                    @"Export Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Message($"Error exporting Health Overview: {ex.Message}", EventType.Error, 9022);
+
+                MessageBox.Show(
+                    $@"Error exporting Health Overview:
+                    {ex.Message}",
+                    @"Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Gets all export targets available in the form.
+        /// </summary>
+        /// <returns>
+        /// A list of export targets, each containing a logical export name, the related DataGridView,
+        /// and export options.
+        /// </returns>
+        private List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)> GetAllExportTargets()
+        {
+            return new List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)>
+            {
+                ("vInfo", datagridviewVMOverView, true, true),
+                ("vVMGroup", datagridviewVMGroups, false, false),
+                ("vHosts", datagridviewhvHosts, false, false),
+                ("vClusterNodes", datagridviewClusterNodes, false, false),
+                ("vClusterVMs", datagridviewClusterVMs, false, false),
+                ("vDisks", datagridviewvDiskOverView, false, false),
+                ("vCheckpoint", datagridviewCheckpointOverView, false, false),
+                ("HealthOverview", datagridviewHealthOverview, false, false)
+            };
+        }
+
+        /// <summary>
+        /// Gets the export targets for the currently selected tab.
+        /// </summary>
+        /// <returns>
+        /// A list of export targets, each containing a logical export name and the related DataGridView.
+        /// </returns>
+        private List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)> GetCurrentTabExportTargets()
+        {
+            var targets = new List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)>();
+
+            var currentTab = tabcontrolMainForm.SelectedTab;
+            if (currentTab == null)
+                return targets;
+
+            if (currentTab == tabpagehvOverview)
+            {
+                // vInfo – reuse existing Export checkbox behavior
+                targets.Add(("vInfo", datagridviewVMOverView, true, true));
+            }
+            else if (currentTab == tabPagehvDisks)
+            {
+                targets.Add(("vDisks", datagridviewvDiskOverView, false, false));
+            }
+            else if (currentTab == tabpagehvCheckpoints)
+            {
+                targets.Add(("vCheckpoint", datagridviewCheckpointOverView, false, false));
+            }
+            else if (currentTab == tabpagehvHosts)
+            {
+                targets.Add(("vHosts", datagridviewhvHosts, false, false));
+            }
+            else if (currentTab == tabpagehvClusters)
+            {
+                // This tab contains 2 grids
+                targets.Add(("vClusterNodes", datagridviewClusterNodes, false, false));
+                targets.Add(("vClusterVMs", datagridviewClusterVMs, false, false));
+            }
+            else if (currentTab == tabpageVMGroups)
+            {
+                targets.Add(("vVMGroup", datagridviewVMGroups, false, false));
+            }
+            else if (currentTab == tabpageHealthOverview)
+            {
+                targets.Add(("HealthOverview", datagridviewHealthOverview, false, false));
+            }
+
+            return targets;
+        }
+
+        /// <summary>
+        /// Gets exportable row data from a DataGridView.
+        /// </summary>
+        /// <param name="grid">The DataGridView to read.</param>
+        /// <param name="skipExportColumn">
+        /// If true, skips any column identified as the Export checkbox column.
+        /// </param>
+        /// <param name="onlyCheckedRows">
+        /// If true, only exports rows where the Export checkbox is checked.
+        /// </param>
+        /// <returns>
+        /// A list of dictionaries representing the exported rows.
+        /// Each dictionary contains column header/value pairs.
+        /// </returns>
+        private List<Dictionary<string, string>> GetGridData(DataGridView grid, bool skipExportColumn, bool onlyCheckedRows)
+        {
+            var data = new List<Dictionary<string, string>>();
+
+            if (grid == null || grid.Rows.Count == 0)
+                return data;
+
+            int exportColumnIndex = -1;
+
+            if (skipExportColumn || onlyCheckedRows)
+            {
+                for (int i = 0; i < grid.Columns.Count; i++)
+                {
+                    var col = grid.Columns[i];
+                    if (col.Name == "Export" ||
+                        col.DataPropertyName == "Export" ||
+                        col.HeaderText == @"☑" ||
+                        col.HeaderText == @"☐")
+                    {
+                        exportColumnIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                if (row.IsNewRow)
+                    continue;
+
+                bool isSelectedForExport = true;
+
+                if (onlyCheckedRows && exportColumnIndex >= 0 && exportColumnIndex < row.Cells.Count)
+                {
+                    var cell = row.Cells[exportColumnIndex];
+                    isSelectedForExport = false;
+
+                    if (cell.Value != null)
+                    {
+                        if (cell.Value is bool boolValue)
+                            isSelectedForExport = boolValue;
+                        else if (cell.Value is int intValue)
+                            isSelectedForExport = intValue != 0;
+                        else if (bool.TryParse(cell.Value.ToString(), out bool parsedValue))
+                            isSelectedForExport = parsedValue;
+                    }
+                }
+
+                if (!isSelectedForExport)
+                    continue;
+
+                var rowData = new Dictionary<string, string>();
+
+                foreach (DataGridViewColumn column in grid.Columns)
+                {
+                    bool isExportColumn =
+                        column.Name == "Export" ||
+                        column.DataPropertyName == "Export" ||
+                        column.HeaderText == @"☑" ||
+                        column.HeaderText == @"☐";
+
+                    if (skipExportColumn && isExportColumn)
+                        continue;
+
+                    string header = string.IsNullOrWhiteSpace(column.HeaderText)
+                        ? column.Name
+                        : column.HeaderText;
+
+                    string value = row.Cells[column.Index].Value?.ToString() ?? "";
+                    rowData[header] = value;
+                }
+
+                data.Add(rowData);
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Escapes a string for safe CSV output.
+        /// </summary>
+        /// <param name="value">The value to escape.</param>
+        /// <returns>A CSV-safe string.</returns>
+        private string EscapeCsv(string value)
+        {
+            if (value.Contains(';') || value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
+            {
+                value = value.Replace("\"", "\"\"");
+                return $"\"{value}\"";
+            }
+
+            return value;
+        }
+
+
+        /// <summary>
+        /// Exports row data to a CSV file.
+        /// </summary>
+        /// <param name="filePath">The destination file path.</param>
+        /// <param name="rows">The row data to export.</param>
+        private void ExportGridDataToCsv(string filePath, List<Dictionary<string, string>> rows)
+        {
+            if (rows == null || rows.Count == 0)
+                return;
+
+            // Use the first row as header source
+            var headers = rows[0].Keys.ToList();
+
+            using (var writer = new StreamWriter(filePath, false, new UTF8Encoding(true)))
+            {
+                // Header row
+                writer.WriteLine(string.Join(";", headers.Select(EscapeCsv)));
+
+                // Data rows
+                foreach (var row in rows)
+                {
+                    var values = headers.Select(header =>
+                    {
+                        row.TryGetValue(header, out string? value);
+                        return EscapeCsv(value ?? "");
+                    });
+
+                    writer.WriteLine(string.Join(";", values));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sanitizes a string so it can be safely used as a file name.
+        /// </summary>
+        /// <param name="fileName">The file name to sanitize.</param>
+        /// <returns>A file-system-safe file name.</returns>
+        private string SanitizeFileName(string fileName)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c, '_');
+            }
+
+            return fileName.Trim();
+        }
+
+        /// <summary>
+        /// Prompts the user to choose a folder for export.
+        /// </summary>
+        /// <param name="description">The description shown in the folder selection dialog.</param>
+        /// <returns>
+        /// The selected folder path, or null if the user cancels the dialog.
+        /// </returns>
+        private string? PromptForFolder(string description)
+        {
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = description;
+                folderDialog.ShowNewFolderButton = true;
+
+                return folderDialog.ShowDialog() == DialogResult.OK
+                    ? folderDialog.SelectedPath
+                    : null;
+            }
+        }
+
+        /// <summary>
+        /// Commits pending edits in DataGridView controls before export.
+        /// </summary>
+        private void CommitAllPendingGridEdits()
+        {
+            try
+            {
+                // Commit checkbox edits in vInfo
+                if (datagridviewVMOverView != null)
+                {
+                    datagridviewVMOverView.EndEdit();
+                    datagridviewVMOverView.CurrentCell = null;
+                }
+
+                // Commit generally on the form
+                this.Validate();
+                Application.DoEvents();
+            }
+            catch (Exception ex)
+            {
+                Message($"Error committing pending grid edits: {ex.Message}", EventType.Warning, 9030);
+            }
+        }
+
+        /// <summary>
+        /// Exports a list of DataGridView targets to CSV files in the specified folder.
+        /// </summary>
+        /// <param name="targets">
+        /// The list of export targets, each containing a logical export name, the source DataGridView,
+        /// and export options.
+        /// </param>
+        /// <param name="folderPath">The destination folder path.</param>
+        /// <param name="includeTimestamp">
+        /// If true, appends a timestamp to each generated file name.
+        /// </param>
+        private void ExportTargetsToFolder(
+            List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)> targets,
+            string folderPath,
+            bool includeTimestamp)
+        {
+            Cursor = Cursors.WaitCursor;
+
+            try
+            {
+                Directory.CreateDirectory(folderPath);
+
+                string timestamp = includeTimestamp ? DateTime.Now.ToString("yyyyMMdd_HHmmss") : "";
+
+                foreach (var target in targets)
+                {
+                    var rows = GetGridData(target.Grid, target.SkipExportColumn, target.OnlyCheckedRows);
+
+                    // Skip empty result sets
+                    if (rows.Count == 0)
+                    {
+                        Message($"Skipping export of '{target.ExportName}' because no rows were selected/found.",
+                            EventType.Information, 9031);
+                        continue;
+                    }
+
+                    string safeName = SanitizeFileName(target.ExportName);
+                    string fileName = string.IsNullOrWhiteSpace(timestamp)
+                        ? $"{safeName}.csv"
+                        : $"{safeName}_{timestamp}.csv";
+
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    ExportGridDataToCsv(filePath, rows);
+
+                    Message($"Exported '{target.ExportName}' to '{filePath}'",
+                        EventType.Information, 9032);
+                }
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Exports multiple DataGridView targets into a single Excel workbook with multiple sheets.
+        /// </summary>
+        /// <param name="targets">List of export targets</param>
+        /// <param name="filePath">Destination Excel file</param>
+        private void ExportTargetsToExcel(
+            List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)> targets,
+            string filePath)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                foreach (var target in targets)
+                {
+                    var rows = GetGridData(target.Grid, target.SkipExportColumn, target.OnlyCheckedRows);
+
+                    if (rows.Count == 0)
+                        continue;
+
+                    // Excel sheet name max 31 chars
+                    string sheetName = SanitizeFileName(target.ExportName);
+                    if (sheetName.Length > 31)
+                        sheetName = sheetName.Substring(0, 31);
+
+                    var worksheet = workbook.Worksheets.Add(sheetName);
+
+                    var headers = rows[0].Keys.ToList();
+
+                    // Headers
+                    for (int col = 0; col < headers.Count; col++)
+                    {
+                        worksheet.Cell(1, col + 1).Value = headers[col];
+                    }
+
+                    // Data
+                    for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+                    {
+                        for (int colIndex = 0; colIndex < headers.Count; colIndex++)
+                        {
+                            rows[rowIndex].TryGetValue(headers[colIndex], out string? value);
+                            worksheet.Cell(rowIndex + 2, colIndex + 1).Value = value ?? "";
+                        }
+                    }
+
+                    // Auto resize
+                    worksheet.Columns().AdjustToContents();
+                }
+
+                workbook.SaveAs(filePath);
+            }
+        }
+
+
 
         #region Search Functionality
 
