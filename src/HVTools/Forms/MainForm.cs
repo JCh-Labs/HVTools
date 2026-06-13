@@ -31,18 +31,79 @@ namespace HVTools.Forms
         private List<DataGridViewRow> _searchResults = new List<DataGridViewRow>();
         private int _currentSearchIndex = -1;
         private Color _originalRowBackColor = Color.White;
-        private Color _searchHighlightColor = Color.LightYellow;
+        
+        //export
+        private bool _isSilentExportMode;
+
+        //autres
+        private Color _searchHighlightColor = Color.Yellow;
 
         /// <summary>
         /// Initializes a new instance of the MainForm class and sets up the user interface and session state.
         /// </summary>
-        /// <remarks>This constructor prepares the form for use by initializing its components and
-        /// session. Use this constructor when creating a new MainForm instance for display or interaction.</remarks>
+        /// <remarks>
+        /// This constructor prepares the form for use by initializing its components and session.
+        /// It also adds placeholder messages to tabs that are not yet implemented.
+        /// </remarks>
         public MainForm()
         {
             InitializeComponent();
+            InitializeNotImplementedTabs();
             InitializeSession();
         }
+
+        /// <summary>
+        /// Adds a standard placeholder message to tabs that are visible in the GUI
+        /// but are not yet implemented.
+        /// </summary>
+        private void InitializeNotImplementedTabs()
+        {
+            AddNotImplementedPlaceholder(tabPagehvCPU);
+            AddNotImplementedPlaceholder(tabPagehvMemory);
+            AddNotImplementedPlaceholder(tabpagehvNetworking);
+            AddNotImplementedPlaceholder(tabPagehvDVD);
+            AddNotImplementedPlaceholder(tabpagehvStorage);
+            AddNotImplementedPlaceholder(tabPagehvReplication);
+            AddNotImplementedPlaceholder(tabpagehvResources);
+            AddNotImplementedPlaceholder(tabpageManageNetwork);
+            AddNotImplementedPlaceholder(tabpagehvSecurity);
+            AddNotImplementedPlaceholder(tabpagehvPerformance);
+            AddNotImplementedPlaceholder(tabpagehvCompliance);
+            AddNotImplementedPlaceholder(tabpagehvInventory);
+            AddNotImplementedPlaceholder(tabpageCreateVM);
+        }
+
+        /// <summary>
+        /// Adds a standard "not implemented" label to the specified tab page.
+        /// </summary>
+        /// <param name="tabPage">The target tab page.</param>
+        private void AddNotImplementedPlaceholder(TabPage tabPage)
+        {
+            if (tabPage == null)
+                return;
+
+            // Avoid adding duplicate placeholder controls
+            foreach (Control control in tabPage.Controls)
+            {
+                if (control is Label existingLabel && existingLabel.Name == "labelNotImplemented")
+                    return;
+            }
+
+            Label labelNotImplemented = new Label
+            {
+                Name = "labelNotImplemented",
+                Text = "Not implemented yet",
+                AutoSize = false,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.DimGray,
+                BackColor = Color.White
+            };
+
+            tabPage.Controls.Add(labelNotImplemented);
+        }
+
 
         /// <summary>
         /// Sets up the session context for the main form, including establishing remote PowerShell sessions if necessary,
@@ -651,11 +712,8 @@ namespace HVTools.Forms
 
         /// <summary>
         /// Loads and displays an overview of virtual machines (VMs) from the current server or cluster context.
+        /// In silent export mode, interactive message boxes are suppressed and the grid is still initialized even if empty.
         /// </summary>
-        /// <remarks>This method retrieves VM information based on the session context, using cluster node
-        /// iteration if connected to a cluster, or a standard retrieval for standalone or local sessions. The results
-        /// are presented in the VM overview grid. If no VMs are found, an informational message is shown. Errors
-        /// encountered during the operation are reported to the user.</remarks>
         private void LoadVmOverview()
         {
             try
@@ -670,7 +728,6 @@ namespace HVTools.Forms
                 {
                     Message("Using cluster node iteration to retrieve VMs from all nodes...",
                         EventType.Information, 2171);
-
                     results = GetClusterVMs();
                 }
                 else
@@ -679,43 +736,60 @@ namespace HVTools.Forms
                     results = ExecutePowerShellCommand("Get-VM");
                 }
 
-                if (results.Count == 0)
+                if (results == null)
                 {
-                    MessageBox.Show(@"No VMs found.", @"Information",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
+                    results = new Collection<PSObject>();
                 }
 
-                Message($"Retrieved {results.Count} VMs, processing...",
-                    EventType.Information, 2172);
+                if (results.Count == 0)
+                {
+                    if (!_isSilentExportMode)
+                    {
+                        MessageBox.Show(@"No VMs found.", @"Information",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        Message("Silent export mode: no VMs found.",
+                            EventType.Information, 2174);
+                    }
+                }
+                else
+                {
+                    Message($"Retrieved {results.Count} VMs, processing...",
+                        EventType.Information, 2172);
+                }
 
-                // Update the DataGridView
+                // Always update the DataGridView, even if empty, so export still has the grid structure
                 UpdateVmOverviewDataGridView(results);
 
-                Message($"VM overview loaded successfully with {results.Count} VMs",
+                Message($"VM overview loaded successfully with {results.Count} VM(s)",
                     EventType.Information, 2173);
             }
             catch (Exception ex)
             {
                 Message($"Error loading VM overview: {ex.Message}",
                     EventType.Error, 2006);
-                MessageBox.Show($@"Error loading VM overview: {ex.Message}", @"Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (!_isSilentExportMode)
+                {
+                    MessageBox.Show($@"Error loading VM overview: {ex.Message}", @"Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
         /// <summary>
-        /// Updates the VM Overview DataGridView with PowerShell results
+        /// Updates the VM Overview DataGridView with PowerShell results.
+        /// The grid structure is always created, even when no VM is returned.
         /// </summary>
         private void UpdateVmOverviewDataGridView(Collection<PSObject> results)
         {
             try
             {
-                if (results.Count == 0)
+                if (results == null)
                 {
-                    Message("No VM results to display",
-                        EventType.Warning, 2187);
-                    return;
+                    results = new Collection<PSObject>();
                 }
 
                 // Determine if this is cluster collection data
@@ -731,6 +805,7 @@ namespace HVTools.Forms
 
                 // Create DataTable with enhanced columns
                 var dataTable = new DataTable();
+
                 // Add checkbox column for export selection (first column)
                 dataTable.Columns.Add("Export", typeof(bool));
                 dataTable.Columns.Add("VM Name");
@@ -764,8 +839,10 @@ namespace HVTools.Forms
                 foreach (var vm in results)
                 {
                     var row = dataTable.NewRow();
+
                     // Set checkbox to checked by default for all VMs
                     row["Export"] = true;
+
                     var vmName = vm.Properties["Name"]?.Value?.ToString() ?? "";
                     row["VM Name"] = vmName;
 
@@ -783,7 +860,6 @@ namespace HVTools.Forms
                     }
                     else
                     {
-                        // If property doesn't exist, assume enabled
                         row["Enabled"] = "Yes";
                     }
 
@@ -805,8 +881,8 @@ namespace HVTools.Forms
 
                     // Check if this VM has pre-collected detailed properties (from cluster collection)
                     bool hasDetailedProperties = vm.Properties["TotalDiskSizeGB"] != null &&
-                                                  vm.Properties["NetworkAdapterCount"] != null &&
-                                                  vm.Properties["CheckpointCount"] != null;
+                                                 vm.Properties["NetworkAdapterCount"] != null &&
+                                                 vm.Properties["CheckpointCount"] != null;
 
                     if (hasDetailedProperties && isClusterCollection)
                     {
@@ -860,32 +936,28 @@ namespace HVTools.Forms
                         {
                             row["Uptime"] = FormatTimeSpan(ts);
                         }
+                        else if (TimeSpan.TryParse(uptime.ToString(), out TimeSpan parsedTs))
+                        {
+                            row["Uptime"] = FormatTimeSpan(parsedTs);
+                        }
                         else
                         {
-                            // Try to parse string representation
-                            if (TimeSpan.TryParse(uptime.ToString(), out TimeSpan parsedTs))
-                            {
-                                row["Uptime"] = FormatTimeSpan(parsedTs);
-                            }
-                            else
-                            {
-                                row["Uptime"] = "";
-                            }
+                            row["Uptime"] = "";
                         }
                     }
                     else
                     {
-                            row["Uptime"] = "";
-                        }
+                        row["Uptime"] = "";
+                    }
 
-                        // Format heartbeat status for user-friendly display
-                        var rawHeartbeat = vm.Properties["Heartbeat"]?.Value?.ToString();
-                        row["Heartbeat"] = FormatHeartbeat(rawHeartbeat);
+                    // Format heartbeat status for user-friendly display
+                    var rawHeartbeat = vm.Properties["Heartbeat"]?.Value?.ToString();
+                    row["Heartbeat"] = FormatHeartbeat(rawHeartbeat);
 
                     row["Auto Start"] = vm.Properties["AutomaticStartAction"]?.Value?.ToString() ?? "";
                     row["Auto Stop"] = vm.Properties["AutomaticStopAction"]?.Value?.ToString() ?? "";
 
-                    // Get VM groups - always need to query this as it's not node-specific
+                    // Get VM groups
                     if (!string.IsNullOrEmpty(vmName))
                     {
                         var groups = VmGroups.GetVmGroups(vmName, cmd => ExecutePowerShellCommand(cmd));
@@ -907,19 +979,9 @@ namespace HVTools.Forms
                     var isClustered = vm.Properties["IsClustered"]?.Value;
                     row["Is Clustered"] = isClustered != null && (bool)isClustered ? "Yes" : "No";
 
-                    // Is Deleted property
                     var isDeleted = vm.Properties["IsDeleted"]?.Value;
-                    if (isDeleted != null)
-                    {
-                        row["Is Deleted"] = (bool)isDeleted ? "Yes" : "No";
-                    }
-                    else
-                    {
-                        // If property doesn't exist, assume not deleted
-                        row["Is Deleted"] = "No";
-                    }
+                    row["Is Deleted"] = isDeleted != null && (bool)isDeleted ? "Yes" : "No";
 
-                    // Owner Node (for cluster VMs)
                     var ownerNode = vm.Properties["ComputerName"]?.Value?.ToString();
                     row["Owner Node"] = !string.IsNullOrEmpty(ownerNode) ? ownerNode : SessionContext.ServerName;
 
@@ -928,7 +990,7 @@ namespace HVTools.Forms
                     dataTable.Rows.Add(row);
                 }
 
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewVMOverView.DataSource = dataTable;
 
                 // Configure DataGridView properties
@@ -954,10 +1016,8 @@ namespace HVTools.Forms
 
                 if (exportColumnIndex >= 0)
                 {
-                    // Remove the auto-generated column
                     datagridviewVMOverView.Columns.RemoveAt(exportColumnIndex);
 
-                    // Create a proper checkbox column with all required properties
                     DataGridViewCheckBoxColumn checkboxColumn = new DataGridViewCheckBoxColumn
                     {
                         Name = "Export",
@@ -974,12 +1034,7 @@ namespace HVTools.Forms
                         Resizable = DataGridViewTriState.False
                     };
 
-                    // Insert at the beginning
                     datagridviewVMOverView.Columns.Insert(0, checkboxColumn);
-#if DEBUG
-                    Message("Export checkbox column created and inserted successfully",
-                        EventType.Debug, 2174);
-#endif
                 }
                 else
                 {
@@ -987,7 +1042,7 @@ namespace HVTools.Forms
                         EventType.Warning, 2175);
                 }
 
-                // Make all columns except "Export" read-only
+                // Make all columns except Export read-only
                 foreach (DataGridViewColumn column in datagridviewVMOverView.Columns)
                 {
                     if (column.Name != "Export" && column.DataPropertyName != "Export")
@@ -996,7 +1051,11 @@ namespace HVTools.Forms
                     }
                 }
 
-                // Color coding will be applied automatically via DataBindingComplete event
+                // Color coding only if rows exist
+                if (dataTable.Rows.Count > 0)
+                {
+                    ApplyColorCoding();
+                }
             }
             catch (Exception ex)
             {
@@ -1005,6 +1064,7 @@ namespace HVTools.Forms
                 throw;
             }
         }
+
 
         /// <summary>
         /// Gets VMs from all cluster nodes by iterating through each node
@@ -1068,7 +1128,7 @@ namespace HVTools.Forms
                         string getDetailedVMsScript = @"
                             $vmList = Get-VM -ErrorAction SilentlyContinue
                             foreach ($vm in $vmList) {
-# Get all detailed properties on this node where the VM exists
+                                # Get all detailed properties on this node where the VM exists
                                 $vmProcessor = Get-VMProcessor -VMName $vm.Name -ErrorAction SilentlyContinue
                                 $vmMemory = Get-VMMemory -VMName $vm.Name -ErrorAction SilentlyContinue
                                 $vmNetworkAdapters = @(Get-VMNetworkAdapter -VMName $vm.Name -ErrorAction SilentlyContinue)
@@ -1076,7 +1136,7 @@ namespace HVTools.Forms
                                 $vmCheckpoints = @(Get-VMSnapshot -VMName $vm.Name -ErrorAction SilentlyContinue)
                                 $vmIntegrationServices = @(Get-VMIntegrationService -VMName $vm.Name -ErrorAction SilentlyContinue)
 
-# Calculate total disk size
+                                # Calculate total disk size
                                 $totalDiskSizeGB = 0
                                 foreach ($drive in $vmHardDrives) {
                                     if ($drive.Path -and (Test-Path $drive.Path -ErrorAction SilentlyContinue)) {
@@ -1087,7 +1147,7 @@ namespace HVTools.Forms
                                     }
                                 }
 
-# Format integration services
+                                # Format integration services
                                 $enabledServices = @()
                                 $totalServiceCount = 0
                                 foreach ($svc in $vmIntegrationServices) {
@@ -1106,7 +1166,7 @@ namespace HVTools.Forms
                                     }
                                 } else { 'No services' }
 
-# Create custom object with all details
+                                # Create custom object with all details
                                 [PSCustomObject]@{
                                     Name = $vm.Name
                                     VMId = $vm.VMId
@@ -2077,6 +2137,11 @@ namespace HVTools.Forms
                     return;
                 }
 
+                if (vmGroups == null)
+                {
+                    vmGroups = new List<VmGroupInfo>();
+                }
+
                 Message($"Updating VM Groups DataGridView with {vmGroups.Count} groups",
                     EventType.Information, 2068);
 
@@ -2085,14 +2150,7 @@ namespace HVTools.Forms
                 datagridviewVMGroups.Rows.Clear();
                 datagridviewVMGroups.Columns.Clear();
 
-                if (vmGroups.Count == 0)
-                {
-                    Message("No VM Groups to display",
-                        EventType.Information, 2069);
-                    return;
-                }
-
-                // Create DataTable
+                // Create DataTable structure even if there are no groups
                 var dataTable = new DataTable();
                 dataTable.Columns.Add("Group Name", typeof(string));
                 dataTable.Columns.Add("Group Type", typeof(string));
@@ -2100,28 +2158,28 @@ namespace HVTools.Forms
                 dataTable.Columns.Add("VM Members", typeof(string));
                 dataTable.Columns.Add("Computer Name", typeof(string));
 
-                // Add rows
+                // Add rows only if data exists
                 foreach (var group in vmGroups)
                 {
                     var row = dataTable.NewRow();
+
                     row["Group Name"] = group.Name;
                     row["Group Type"] = group.GroupTypeDisplay;
                     row["VM Count"] = group.VmCount.ToString();
 
-                    // Truncate long VM lists
                     string vmMembers = group.VmList;
                     if (!string.IsNullOrEmpty(vmMembers) && vmMembers.Length > 250)
                     {
                         vmMembers = vmMembers.Substring(0, 250) + "...";
                     }
-                    row["VM Members"] = vmMembers;
 
+                    row["VM Members"] = vmMembers;
                     row["Computer Name"] = group.ComputerName;
 
                     dataTable.Rows.Add(row);
                 }
 
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewVMGroups.DataSource = dataTable;
 
                 // Configure DataGridView properties
@@ -2133,10 +2191,18 @@ namespace HVTools.Forms
                 datagridviewVMGroups.AllowUserToDeleteRows = false;
                 datagridviewVMGroups.RowHeadersVisible = false;
 
-                // Enforce alphabetic sorting on "Group Name" column
-                if (datagridviewVMGroups.Columns.Contains("Group Name"))
+                // Enforce alphabetic sorting only when rows exist
+                if (dataTable.Rows.Count > 0 && datagridviewVMGroups.Columns.Contains("Group Name"))
                 {
-                    datagridviewVMGroups.Sort(datagridviewVMGroups.Columns["Group Name"]!, System.ComponentModel.ListSortDirection.Ascending);
+                    datagridviewVMGroups.Sort(
+                        datagridviewVMGroups.Columns["Group Name"]!,
+                        System.ComponentModel.ListSortDirection.Ascending);
+                }
+
+                if (dataTable.Rows.Count == 0)
+                {
+                    Message("No VM Groups to display",
+                        EventType.Information, 2069);
                 }
 
                 Message($"VM Groups DataGridView updated successfully with '{vmGroups.Count}' groups",
@@ -3317,6 +3383,10 @@ Management:
         /// <summary>
         /// Updates the hvHosts DataGridView with host details
         /// </summary>
+        /// <summary>
+        /// Updates the hvHosts DataGridView with host details.
+        /// The grid structure is always created, even when no host data is available.
+        /// </summary>
         private void UpdateHostsDataGridView(List<HostDetailsInfo> hostDetails)
         {
             try
@@ -3328,22 +3398,20 @@ Management:
                     return;
                 }
 
+                if (hostDetails == null)
+                {
+                    hostDetails = new List<HostDetailsInfo>();
+                }
+
                 // Clear existing data
                 datagridviewhvHosts.DataSource = null;
                 datagridviewhvHosts.Rows.Clear();
                 datagridviewhvHosts.Columns.Clear();
 
-                if (hostDetails.Count == 0)
-                {
-                    Message("No host details to display",
-                        EventType.Information, 4016);
-                    return;
-                }
-
                 Message($"Updating hvHosts DataGridView with {hostDetails.Count} host(s)",
                     EventType.Information, 4017);
 
-                // Create DataTable with ALL host detail fields
+                // Create DataTable with ALL host detail fields, even if no rows exist
                 var dataTable = new DataTable();
                 dataTable.Columns.Add("Host Name", typeof(string));
                 dataTable.Columns.Add("Cluster Name", typeof(string));
@@ -3387,7 +3455,7 @@ Management:
                 dataTable.Columns.Add("VHD Path", typeof(string));
                 dataTable.Columns.Add("VM Config Path", typeof(string));
 
-                // Add rows with ALL data
+                // Add rows only if data exists
                 foreach (var host in hostDetails)
                 {
                     var row = dataTable.NewRow();
@@ -3436,7 +3504,7 @@ Management:
                     dataTable.Rows.Add(row);
                 }
 
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewhvHosts.DataSource = dataTable;
 
                 // Configure DataGridView properties
@@ -3449,7 +3517,7 @@ Management:
                 datagridviewhvHosts.RowHeadersVisible = false;
                 datagridviewhvHosts.AllowUserToResizeRows = false;
 
-                // Apply alternating row colors
+                // Apply alternating row colors only if rows exist
                 foreach (DataGridViewRow row in datagridviewhvHosts.Rows)
                 {
                     if (row.Index % 2 == 0)
@@ -3470,6 +3538,12 @@ Management:
                 if (datagridviewhvHosts.Columns.Contains("Processor"))
                     datagridviewhvHosts.Columns["Processor"]?.MinimumWidth = 200;
 
+                if (dataTable.Rows.Count == 0)
+                {
+                    Message("No host details to display",
+                        EventType.Information, 4016);
+                }
+
                 Message($"hvHosts DataGridView updated successfully with {hostDetails.Count} host(s)",
                     EventType.Information, 4018);
             }
@@ -3481,7 +3555,8 @@ Management:
         }
 
         /// <summary>
-        /// Loads and displays cluster information in the hvClusters tab
+        /// Loads and displays cluster information in the hvClusters tab.
+        /// In silent export mode, interactive message boxes are suppressed.
         /// </summary>
         private void LoadClusterInformationView()
         {
@@ -3493,10 +3568,14 @@ Management:
                 // Check if there's an active Hyper-V connection
                 if (!SessionContext.IsSessionActive())
                 {
-                    MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
-                        @"Connection Required",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Exclamation);
+                    if (!_isSilentExportMode)
+                    {
+                        MessageBox.Show(@"No active Hyper-V connection. Please connect to a Hyper-V host first.",
+                            @"Connection Required",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Exclamation);
+                    }
+
                     return;
                 }
 
@@ -3512,13 +3591,25 @@ Management:
                     labelClusterNodes.Text = @"Cluster Nodes (0 total)";
                     labelClusterVMs.Text = @"Highly Available VMs (0 VMs)";
 
-                    MessageBox.Show($@"The connected host '{SessionContext.ServerName}' is not part of a cluster.
+                    // Keep empty grid structure for export even on standalone hosts
+                    UpdateClusterNodesDataGridView(new List<ClusterNodeInfo>());
+                    UpdateClusterVMsDataGridView(new List<ClusterGroupInfo>());
 
-" +
-                                  @"This is a standalone Hyper-V host.",
-                        @"Not a Cluster",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                    if (!_isSilentExportMode)
+                    {
+                        MessageBox.Show(
+                            $@"The connected host '{SessionContext.ServerName}' is not part of a cluster.
+        This is a standalone Hyper-V host.",
+                            @"Not a Cluster",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        Message($"Silent export mode: host '{SessionContext.ServerName}' is not part of a cluster.",
+                            EventType.Information, 4026);
+                    }
+
                     return;
                 }
 
@@ -3533,10 +3624,19 @@ Management:
 
                 if (clusterInfo == null)
                 {
-                    MessageBox.Show(@"Failed to retrieve cluster information.",
-                        @"Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    if (!_isSilentExportMode)
+                    {
+                        MessageBox.Show(@"Failed to retrieve cluster information.",
+                            @"Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        Message("Silent export mode: failed to retrieve cluster information.",
+                            EventType.Warning, 4027);
+                    }
+
                     return;
                 }
 
@@ -3556,7 +3656,8 @@ Management:
                 labelClusterVMs.Text = $@"Highly Available VMs ({clusterInfo.VirtualMachines.Count} VMs)";
                 UpdateClusterVMsDataGridView(clusterInfo.VirtualMachines);
 
-                toolStripStatusLabelTextMainForm.Text = $@"Cluster info loaded - {clusterInfo.Nodes.Count} nodes, {clusterInfo.VirtualMachines.Count} VMs";
+                toolStripStatusLabelTextMainForm.Text =
+                    $@"Cluster info loaded - {clusterInfo.Nodes.Count} nodes, {clusterInfo.VirtualMachines.Count} VMs";
 
                 Message($"Cluster information loaded successfully - {clusterInfo.Nodes.Count} nodes, {clusterInfo.VirtualMachines.Count} VMs",
                     EventType.Information, 4022);
@@ -3566,10 +3667,13 @@ Management:
                 string errorMsg = $"Error loading cluster information: {ex.Message}";
                 Message(errorMsg, EventType.Error, 4023);
 
-                MessageBox.Show(errorMsg,
-                    @"Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                if (!_isSilentExportMode)
+                {
+                    MessageBox.Show(errorMsg,
+                        @"Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
 
                 toolStripStatusLabelTextMainForm.Text = @"Error loading cluster information";
             }
@@ -3579,24 +3683,26 @@ Management:
             }
         }
 
+
         /// <summary>
-        /// Updates the Cluster Nodes DataGridView
+        /// Updates the Cluster Nodes DataGridView.
+        /// The grid structure is always created, even when no node data is available.
         /// </summary>
         private void UpdateClusterNodesDataGridView(List<ClusterNodeInfo> nodes)
         {
             try
             {
+                if (nodes == null)
+                {
+                    nodes = new List<ClusterNodeInfo>();
+                }
+
                 // Clear existing data
                 datagridviewClusterNodes.DataSource = null;
                 datagridviewClusterNodes.Rows.Clear();
                 datagridviewClusterNodes.Columns.Clear();
 
-                if (nodes.Count == 0)
-                {
-                    return;
-                }
-
-                // Create DataTable
+                // Create DataTable structure even if there are no rows
                 var dataTable = new DataTable();
                 dataTable.Columns.Add("Node Name", typeof(string));
                 dataTable.Columns.Add("State", typeof(string));
@@ -3605,7 +3711,7 @@ Management:
                 dataTable.Columns.Add("Drain Status", typeof(string));
                 dataTable.Columns.Add("Fault Domain", typeof(string));
 
-                // Add rows
+                // Add rows only if data exists
                 foreach (var node in nodes)
                 {
                     var row = dataTable.NewRow();
@@ -3615,12 +3721,12 @@ Management:
                     row["Dynamic Weight"] = node.DynamicWeight.ToString();
                     row["Drain Status"] = node.DrainStatus;
                     row["Fault Domain"] = string.IsNullOrEmpty(node.FaultDomain) ? "N/A" : node.FaultDomain;
-
                     dataTable.Rows.Add(row);
                 }
 
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewClusterNodes.DataSource = dataTable;
+
                 datagridviewClusterNodes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 datagridviewClusterNodes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 datagridviewClusterNodes.RowHeadersVisible = false;
@@ -3654,23 +3760,24 @@ Management:
         }
 
         /// <summary>
-        /// Updates the Cluster VMs DataGridView
+        /// Updates the Cluster VMs DataGridView.
+        /// The grid structure is always created, even when no clustered VM data is available.
         /// </summary>
         private void UpdateClusterVMsDataGridView(List<ClusterGroupInfo> virtualMachines)
         {
             try
             {
+                if (virtualMachines == null)
+                {
+                    virtualMachines = new List<ClusterGroupInfo>();
+                }
+
                 // Clear existing data
                 datagridviewClusterVMs.DataSource = null;
                 datagridviewClusterVMs.Rows.Clear();
                 datagridviewClusterVMs.Columns.Clear();
 
-                if (virtualMachines.Count == 0)
-                {
-                    return;
-                }
-
-                // Create DataTable
+                // Create DataTable structure even if there are no rows
                 var dataTable = new DataTable();
                 dataTable.Columns.Add("VM Name", typeof(string));
                 dataTable.Columns.Add("Owner Node", typeof(string));
@@ -3678,7 +3785,7 @@ Management:
                 dataTable.Columns.Add("Priority", typeof(string));
                 dataTable.Columns.Add("Preferred Owners", typeof(string));
 
-                // Add rows
+                // Add rows only if data exists
                 foreach (var vm in virtualMachines.OrderBy(v => v.OwnerNode).ThenBy(v => v.Name))
                 {
                     var row = dataTable.NewRow();
@@ -3687,12 +3794,12 @@ Management:
                     row["State"] = vm.State;
                     row["Priority"] = vm.Priority > 0 ? vm.Priority.ToString() : "Default";
                     row["Preferred Owners"] = string.IsNullOrEmpty(vm.PreferredOwners) ? "Any" : vm.PreferredOwners;
-
                     dataTable.Rows.Add(row);
                 }
 
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewClusterVMs.DataSource = dataTable;
+
                 datagridviewClusterVMs.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 datagridviewClusterVMs.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 datagridviewClusterVMs.RowHeadersVisible = false;
@@ -3718,7 +3825,6 @@ Management:
                     }
                 }
 
-                // Set VM Name column wider
                 if (datagridviewClusterVMs.Columns.Contains("VM Name"))
                     datagridviewClusterVMs.Columns["VM Name"]?.MinimumWidth = 200;
             }
@@ -3738,7 +3844,8 @@ Management:
         }
 
         /// <summary>
-        /// Updates the datagridviewvDiskOverView DataGridView with virtual disk details
+        /// Updates the datagridviewvDiskOverView DataGridView with virtual disk details.
+        /// The grid structure is always created, even when no disk data is available.
         /// </summary>
         private void UpdateVirtualDisksDataGridView(List<VirtualDiskInfo> diskDetails)
         {
@@ -3751,17 +3858,15 @@ Management:
                     return;
                 }
 
+                if (diskDetails == null)
+                {
+                    diskDetails = new List<VirtualDiskInfo>();
+                }
+
                 // Clear existing data
                 datagridviewvDiskOverView.DataSource = null;
                 datagridviewvDiskOverView.Rows.Clear();
                 datagridviewvDiskOverView.Columns.Clear();
-
-                if (diskDetails.Count == 0)
-                {
-                    Message("No virtual disk details to display",
-                        EventType.Information, 5037);
-                    return;
-                }
 
                 Message($"Updating datagridviewvDiskOverView with {diskDetails.Count} virtual disk(s)",
                     EventType.Information, 5038);
@@ -3779,8 +3884,8 @@ Management:
                 // Disk Information
                 dataTable.Columns.Add("Disk Name", typeof(string));
                 dataTable.Columns.Add("Disk Path", typeof(string));
-                dataTable.Columns.Add("Disk Type", typeof(string)); // Dynamic/Fixed/Differencing
-                dataTable.Columns.Add("Disk Format", typeof(string)); // VHD/VHDX
+                dataTable.Columns.Add("Disk Type", typeof(string));
+                dataTable.Columns.Add("Disk Format", typeof(string));
                 dataTable.Columns.Add("Max Size (GB)", typeof(string));
                 dataTable.Columns.Add("File Size (GB)", typeof(string));
                 dataTable.Columns.Add("Used Space (GB)", typeof(string));
@@ -3790,10 +3895,10 @@ Management:
                 dataTable.Columns.Add("Block Size", typeof(string));
 
                 // Controller Information
-                dataTable.Columns.Add("Controller Type", typeof(string)); // IDE/SCSI
+                dataTable.Columns.Add("Controller Type", typeof(string));
                 dataTable.Columns.Add("Controller #", typeof(string));
                 dataTable.Columns.Add("Controller Location", typeof(string));
-                dataTable.Columns.Add("Attachment Type", typeof(string)); // VHD/Physical
+                dataTable.Columns.Add("Attachment Type", typeof(string));
 
                 // Advanced Disk Properties
                 dataTable.Columns.Add("Shared", typeof(string));
@@ -3821,7 +3926,7 @@ Management:
                 // OS Information
                 dataTable.Columns.Add("Guest OS Type", typeof(string));
 
-                // Add rows with all disk data
+                // Add rows only if data exists
                 foreach (var disk in diskDetails)
                 {
                     var row = dataTable.NewRow();
@@ -3881,7 +3986,7 @@ Management:
                     dataTable.Rows.Add(row);
                 }
 
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewvDiskOverView.DataSource = dataTable;
 
                 // Configure DataGridView properties
@@ -3958,6 +4063,12 @@ Management:
                 if (datagridviewvDiskOverView.Columns.Contains("Disk Path"))
                     datagridviewvDiskOverView.Columns["Disk Path"]?.MinimumWidth = 300;
 
+                if (dataTable.Rows.Count == 0)
+                {
+                    Message("No virtual disk details to display",
+                        EventType.Information, 5037);
+                }
+
                 Message($"datagridviewvDiskOverView updated successfully with {diskDetails.Count} virtual disk(s)",
                     EventType.Information, 5039);
             }
@@ -3967,6 +4078,7 @@ Management:
                     EventType.Error, 5040);
             }
         }
+
 
         private void buttonLoadvDiskrefresh_Click(object sender, EventArgs e)
         {
@@ -4773,7 +4885,8 @@ Would you like to open the file location?",
         }
 
         /// <summary>
-        /// Loads VM checkpoints from all VMs and displays them in the DataGridView
+        /// Loads VM checkpoints from all VMs and displays them in the DataGridView.
+        /// In silent export mode, interactive message boxes are suppressed.
         /// </summary>
         private void LoadVmCheckpoints()
         {
@@ -4787,221 +4900,7 @@ Would you like to open the file location?",
                 datagridviewCheckpointOverView.Rows.Clear();
                 datagridviewCheckpointOverView.Columns.Clear();
 
-                // Get all checkpoints
-                string getCheckpointsScript = @"
-                    $ErrorActionPreference = 'SilentlyContinue'
-                    $vms = Get-VM
-                    
-                    if (-not $vms) {
-# No VMs found, return empty
-                        return
-                    }
-                    
-                    foreach ($vm in $vms) {
-                        try {
-                            $checkpoints = Get-VMSnapshot -VMName $vm.Name -ErrorAction SilentlyContinue
-                            
-                            if (-not $checkpoints) {
-# No checkpoints for this VM
-                                continue
-                            }
-                            
-                            foreach ($checkpoint in $checkpoints) {
-# Get checkpoint file size if available
-                                $sizeBytes = 0
-                                try {
-                                    if ($checkpoint.Path -and (Test-Path $checkpoint.Path -ErrorAction SilentlyContinue)) {
-                                        $files = Get-ChildItem -Path $checkpoint.Path -Recurse -File -ErrorAction SilentlyContinue
-                                        if ($files) {
-                                            $sum = ($files | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
-                                            if ($sum) {
-                                                $sizeBytes = $sum
-                                            }
-                                        }
-                                    }
-                                } catch {
-# Silently continue if size calculation fails
-                                    $sizeBytes = 0
-                                }
-                                
-# Count complex arrays
-                                $hardDrivesCount = if ($checkpoint.HardDrives) { @($checkpoint.HardDrives).Count } else { 0 }
-                                $networkAdaptersCount = if ($checkpoint.NetworkAdapters) { @($checkpoint.NetworkAdapters).Count } else { 0 }
-                                $dvdDrivesCount = if ($checkpoint.DVDDrives) { @($checkpoint.DVDDrives).Count } else { 0 }
-
-# Output the object with ALL detailed properties from Get-VMSnapshot
-                                [PSCustomObject]@{
-# VM Information
-                                    VMName = $vm.Name
-                                    VMId = $vm.VMId
-                                    VMState = $vm.State
-                                    VMGeneration = $vm.Generation
-                                    
-# Checkpoint Basic Information
-                                    CheckpointName = $checkpoint.Name
-                                    CheckpointId = $checkpoint.Id
-                                    CheckpointType = if ($checkpoint.PSObject.Properties['CheckpointType']) { $checkpoint.CheckpointType } else { $checkpoint.SnapshotType }
-                                    SnapshotType = $checkpoint.SnapshotType
-                                    IsAutomaticCheckpoint = if ($checkpoint.PSObject.Properties['IsAutomaticCheckpoint']) { $checkpoint.IsAutomaticCheckpoint } else { $false }
-                                    State = if ($checkpoint.PSObject.Properties['State']) { $checkpoint.State } else { 'Unknown' }
-                                    CreationTime = $checkpoint.CreationTime
-                                    
-# Hierarchy
-                                    ParentCheckpointName = $checkpoint.ParentSnapshotName
-                                    ParentCheckpointId = $checkpoint.ParentSnapshotId
-                                    
-# Storage
-                                    Path = $checkpoint.Path
-                                    SizeBytes = $sizeBytes
-                                    SizeOfSystemFiles = if ($checkpoint.PSObject.Properties['SizeOfSystemFiles']) { $checkpoint.SizeOfSystemFiles } else { 0 }
-                                    
-# Version
-                                    Version = if ($checkpoint.PSObject.Properties['Version']) { $checkpoint.Version } else { 'N/A' }
-                                    
-# Notes
-                                    Notes = $checkpoint.Notes
-                                    
-# Processor Configuration
-                                    ProcessorCount = if ($checkpoint.PSObject.Properties['ProcessorCount']) { $checkpoint.ProcessorCount } else { 0 }
-                                    
-# Memory Configuration
-                                    MemoryStartup = if ($checkpoint.PSObject.Properties['MemoryStartup']) { $checkpoint.MemoryStartup } else { 0 }
-                                    MemoryMinimum = if ($checkpoint.PSObject.Properties['MemoryMinimum']) { $checkpoint.MemoryMinimum } else { 0 }
-                                    MemoryMaximum = if ($checkpoint.PSObject.Properties['MemoryMaximum']) { $checkpoint.MemoryMaximum } else { 0 }
-                                    DynamicMemoryEnabled = if ($checkpoint.PSObject.Properties['DynamicMemoryEnabled']) { $checkpoint.DynamicMemoryEnabled } else { $false }
-                                    
-# Hardware Configuration
-                                    HardDrivesCount = $hardDrivesCount
-                                    NetworkAdaptersCount = $networkAdaptersCount
-                                    DVDDrivesCount = $dvdDrivesCount
-                                    
-# Advanced Properties
-                                    BatteryPassthroughEnabled = if ($checkpoint.PSObject.Properties['BatteryPassthroughEnabled']) { $checkpoint.BatteryPassthroughEnabled } else { $false }
-                                    IsClustered = if ($checkpoint.PSObject.Properties['IsClustered']) { $checkpoint.IsClustered } else { $false }
-                                    IsDeleted = if ($checkpoint.PSObject.Properties['IsDeleted']) { $checkpoint.IsDeleted } else { $false }
-                                    LockOnDisconnect = if ($checkpoint.PSObject.Properties['LockOnDisconnect']) { $checkpoint.LockOnDisconnect } else { 'Off' }
-                                    
-# Memory Mapped IO (Advanced)
-                                    LowMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['LowMemoryMappedIoSpace']) { $checkpoint.LowMemoryMappedIoSpace } else { 0 }
-                                    HighMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoSpace']) { $checkpoint.HighMemoryMappedIoSpace } else { 0 }
-                                    HighMemoryMappedIoBaseAddress = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoBaseAddress']) { $checkpoint.HighMemoryMappedIoBaseAddress } else { 0 }
-                                    GuestControlledCacheTypes = if ($checkpoint.PSObject.Properties['GuestControlledCacheTypes']) { $checkpoint.GuestControlledCacheTypes } else { $false }
-                                    
-# Host Information
-                                    ComputerName = $env:COMPUTERNAME
-                                }
-                            }
-                        } catch {
-# Skip VMs that error
-                            continue
-                        }
-                    }
-                ";
-
-                Collection<PSObject> results;
-
-                if (SessionContext.IsCluster && !SessionContext.IsLocal)
-                {
-                    Message("Getting checkpoints from cluster nodes...",
-                        EventType.Information, 6058);
-
-                    // Get cluster nodes
-                    string getNodesScript = @"
-                        Get-ClusterNode -ErrorAction Stop | Select-Object -ExpandProperty Name
-                    ";
-
-                    var nodesResult = ExecutePowerShellCommand(getNodesScript);
-
-                    if (nodesResult.Count == 0)
-                    {
-                        Message("No cluster nodes found, falling back to standard checkpoint retrieval",
-                            EventType.Warning, 6070);
-                        results = ExecutePowerShellCommand(getCheckpointsScript);
-                    }
-                    else
-                    {
-                        var allCheckpoints = new Collection<PSObject>();
-
-                        // Build list of cluster nodes
-                        var clusterNodes = new List<string>();
-                        foreach (var nodeObj in nodesResult)
-                        {
-                            string? nodeName = nodeObj.BaseObject?.ToString();
-                            if (!string.IsNullOrEmpty(nodeName))
-                            {
-                                // If the original connection used FQDN, construct FQDNs for cluster nodes
-                                if (SessionContext.ServerName!.Contains('.') && !nodeName.Contains('.'))
-                                {
-                                    string domain = SessionContext.ServerName.Substring(SessionContext.ServerName.IndexOf('.'));
-                                    nodeName = nodeName + domain;
-                                }
-                                clusterNodes.Add(nodeName);
-                            }
-                        }
-
-                        Message($"Found {clusterNodes.Count} cluster nodes: {string.Join(", ", clusterNodes)}",
-                            EventType.Information, 6071);
-
-                        // Get checkpoints from each node
-                        int nodeIndex = 0;
-                        foreach (var node in clusterNodes)
-                        {
-                            nodeIndex++;
-                            try
-                            {
-                                Message($"Getting checkpoints from cluster node {nodeIndex} of {clusterNodes.Count}: '{node}'",
-                                    EventType.Information, 6072);
-
-                                var nodeCheckpoints = ExecutePowerShellCommandOnNode(node, getCheckpointsScript);
-
-                                if (nodeCheckpoints.Count > 0)
-                                {
-                                    foreach (var checkpoint in nodeCheckpoints)
-                                    {
-                                        allCheckpoints.Add(checkpoint);
-                                    }
-                                    Message($"Added {nodeCheckpoints.Count} checkpoint(s) from cluster node: '{node}'",
-                                        EventType.Information, 6073);
-                                }
-                                else
-                                {
-                                    Message($"No checkpoints found on cluster node: {node}",
-                                        EventType.Information, 6074);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Message($"Failed to get checkpoints from cluster node {node}: {ex.Message}",
-                                    EventType.Warning, 6075);
-                                // Continue processing other nodes
-                            }
-                        }
-
-                        Message($"Total checkpoints collected from all cluster nodes: {allCheckpoints.Count}",
-                            EventType.Information, 6076);
-
-                        results = allCheckpoints;
-                    }
-                }
-                else
-                {
-                    // Standard retrieval for standalone or local
-                    results = ExecutePowerShellCommand(getCheckpointsScript);
-                }
-
-                if (results.Count == 0)
-                {
-                    MessageBox.Show(@"No VM checkpoints found.",
-                        @"Information",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                    return;
-                }
-
-                Message($"Retrieved {results.Count} checkpoints, processing...",
-                    EventType.Information, 6060);
-
-                // Create DataTable with comprehensive checkpoint columns
+                // Always prepare the structure, even if no checkpoint is returned
                 var dataTable = new DataTable();
 
                 // VM Information
@@ -5060,142 +4959,320 @@ Would you like to open the file location?",
                 dataTable.Columns.Add("Host", typeof(string));
                 dataTable.Columns.Add("Checkpoint ID", typeof(string));
 
-                foreach (var checkpoint in results)
+                Collection<PSObject> results;
+
+                string getCheckpointsScript = @"
+                    $ErrorActionPreference = 'SilentlyContinue'
+                    $vms = Get-VM
+                    if (-not $vms) {
+                        return
+                    }
+
+                    foreach ($vm in $vms) {
+                        try {
+                            $checkpoints = Get-VMSnapshot -VMName $vm.Name -ErrorAction SilentlyContinue
+                            if (-not $checkpoints) {
+                                continue
+                            }
+
+                            foreach ($checkpoint in $checkpoints) {
+                                $sizeBytes = 0
+                                try {
+                                    if ($checkpoint.Path -and (Test-Path $checkpoint.Path -ErrorAction SilentlyContinue)) {
+                                        $files = Get-ChildItem -Path $checkpoint.Path -Recurse -File -ErrorAction SilentlyContinue
+                                        if ($files) {
+                                            $sum = ($files | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
+                                            if ($sum) {
+                                                $sizeBytes = $sum
+                                            }
+                                        }
+                                    }
+                                } catch {
+                                    $sizeBytes = 0
+                                }
+
+                                $hardDrivesCount = if ($checkpoint.HardDrives) { @($checkpoint.HardDrives).Count } else { 0 }
+                                $networkAdaptersCount = if ($checkpoint.NetworkAdapters) { @($checkpoint.NetworkAdapters).Count } else { 0 }
+                                $dvdDrivesCount = if ($checkpoint.DVDDrives) { @($checkpoint.DVDDrives).Count } else { 0 }
+
+                                [PSCustomObject]@{
+                                    VMName = $vm.Name
+                                    VMId = $vm.VMId
+                                    VMState = $vm.State
+                                    VMGeneration = $vm.Generation
+
+                                    CheckpointName = $checkpoint.Name
+                                    CheckpointId = $checkpoint.Id
+                                    CheckpointType = if ($checkpoint.PSObject.Properties['CheckpointType']) { $checkpoint.CheckpointType } else { $checkpoint.SnapshotType }
+                                    SnapshotType = $checkpoint.SnapshotType
+                                    IsAutomaticCheckpoint = if ($checkpoint.PSObject.Properties['IsAutomaticCheckpoint']) { $checkpoint.IsAutomaticCheckpoint } else { $false }
+                                    State = if ($checkpoint.PSObject.Properties['State']) { $checkpoint.State } else { 'Unknown' }
+                                    CreationTime = $checkpoint.CreationTime
+
+                                    ParentCheckpointName = $checkpoint.ParentSnapshotName
+                                    ParentCheckpointId = $checkpoint.ParentSnapshotId
+
+                                    Path = $checkpoint.Path
+                                    SizeBytes = $sizeBytes
+                                    SizeOfSystemFiles = if ($checkpoint.PSObject.Properties['SizeOfSystemFiles']) { $checkpoint.SizeOfSystemFiles } else { 0 }
+
+                                    Version = if ($checkpoint.PSObject.Properties['Version']) { $checkpoint.Version } else { 'N/A' }
+
+                                    Notes = $checkpoint.Notes
+
+                                    ProcessorCount = if ($checkpoint.PSObject.Properties['ProcessorCount']) { $checkpoint.ProcessorCount } else { 0 }
+
+                                    MemoryStartup = if ($checkpoint.PSObject.Properties['MemoryStartup']) { $checkpoint.MemoryStartup } else { 0 }
+                                    MemoryMinimum = if ($checkpoint.PSObject.Properties['MemoryMinimum']) { $checkpoint.MemoryMinimum } else { 0 }
+                                    MemoryMaximum = if ($checkpoint.PSObject.Properties['MemoryMaximum']) { $checkpoint.MemoryMaximum } else { 0 }
+                                    DynamicMemoryEnabled = if ($checkpoint.PSObject.Properties['DynamicMemoryEnabled']) { $checkpoint.DynamicMemoryEnabled } else { $false }
+
+                                    HardDrivesCount = $hardDrivesCount
+                                    NetworkAdaptersCount = $networkAdaptersCount
+                                    DVDDrivesCount = $dvdDrivesCount
+
+                                    BatteryPassthroughEnabled = if ($checkpoint.PSObject.Properties['BatteryPassthroughEnabled']) { $checkpoint.BatteryPassthroughEnabled } else { $false }
+                                    IsClustered = if ($checkpoint.PSObject.Properties['IsClustered']) { $checkpoint.IsClustered } else { $false }
+                                    IsDeleted = if ($checkpoint.PSObject.Properties['IsDeleted']) { $checkpoint.IsDeleted } else { $false }
+                                    LockOnDisconnect = if ($checkpoint.PSObject.Properties['LockOnDisconnect']) { $checkpoint.LockOnDisconnect } else { 'Off' }
+
+                                    LowMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['LowMemoryMappedIoSpace']) { $checkpoint.LowMemoryMappedIoSpace } else { 0 }
+                                    HighMemoryMappedIoSpace = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoSpace']) { $checkpoint.HighMemoryMappedIoSpace } else { 0 }
+                                    HighMemoryMappedIoBaseAddress = if ($checkpoint.PSObject.Properties['HighMemoryMappedIoBaseAddress']) { $checkpoint.HighMemoryMappedIoBaseAddress } else { 0 }
+                                    GuestControlledCacheTypes = if ($checkpoint.PSObject.Properties['GuestControlledCacheTypes']) { $checkpoint.GuestControlledCacheTypes } else { $false }
+
+                                    ComputerName = $env:COMPUTERNAME
+                                }
+                            }
+                        } catch {
+                            continue
+                        }
+                    }
+                ";
+
+                if (SessionContext.IsCluster && !SessionContext.IsLocal)
                 {
-                    var row = dataTable.NewRow();
+                    Message("Getting checkpoints from cluster nodes...",
+                        EventType.Information, 6058);
 
-                    // VM Information
-                    row["VM Name"] = checkpoint.Properties["VMName"]?.Value?.ToString() ?? "";
-                    row["VM State"] = checkpoint.Properties["VMState"]?.Value?.ToString() ?? "";
-                    row["VM Generation"] = checkpoint.Properties["VMGeneration"]?.Value?.ToString() ?? "";
-                    row["VM ID"] = checkpoint.Properties["VMId"]?.Value?.ToString() ?? "";
+                    string getNodesScript = @"
+                        Get-ClusterNode -ErrorAction Stop | Select-Object -ExpandProperty Name
+                    ";
 
-                    // Checkpoint Basic Information
-                    row["Checkpoint Name"] = checkpoint.Properties["CheckpointName"]?.Value?.ToString() ?? "";
-                    row["Checkpoint Type"] = checkpoint.Properties["SnapshotType"]?.Value?.ToString() ?? "";
-                    row["State"] = checkpoint.Properties["State"]?.Value?.ToString() ?? "";
+                    var nodesResult = ExecutePowerShellCommand(getNodesScript);
 
-                    var isAutomatic = checkpoint.Properties["IsAutomaticCheckpoint"]?.Value;
-                    row["Is Automatic"] = (isAutomatic != null && (bool)isAutomatic) ? "Yes" : "No";
-
-                    // Creation Time and Age
-                    var creationTime = checkpoint.Properties["CreationTime"]?.Value;
-                    if (creationTime != null && creationTime is DateTime dt)
+                    if (nodesResult.Count == 0)
                     {
-                        row["Created"] = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                        row["Age (Days)"] = Math.Round((DateTime.Now - dt).TotalDays, 1).ToString(CultureInfo.CurrentCulture);
+                        Message("No cluster nodes found, falling back to standard checkpoint retrieval",
+                            EventType.Warning, 6070);
+
+                        results = ExecutePowerShellCommand(getCheckpointsScript);
                     }
                     else
                     {
-                        row["Created"] = "";
-                        row["Age (Days)"] = "";
+                        var allCheckpoints = new Collection<PSObject>();
+                        var clusterNodes = new List<string>();
+
+                        foreach (var nodeObj in nodesResult)
+                        {
+                            string? nodeName = nodeObj.BaseObject?.ToString();
+                            if (!string.IsNullOrEmpty(nodeName))
+                            {
+                                if (SessionContext.ServerName!.Contains('.') && !nodeName.Contains('.'))
+                                {
+                                    string domain = SessionContext.ServerName.Substring(SessionContext.ServerName.IndexOf('.'));
+                                    nodeName = nodeName + domain;
+                                }
+
+                                clusterNodes.Add(nodeName);
+                            }
+                        }
+
+                        Message($"Found {clusterNodes.Count} cluster nodes: {string.Join(", ", clusterNodes)}",
+                            EventType.Information, 6071);
+
+                        int nodeIndex = 0;
+                        foreach (var node in clusterNodes)
+                        {
+                            nodeIndex++;
+                            try
+                            {
+                                Message($"Getting checkpoints from cluster node {nodeIndex} of {clusterNodes.Count}: '{node}'",
+                                    EventType.Information, 6072);
+
+                                var nodeCheckpoints = ExecutePowerShellCommandOnNode(node, getCheckpointsScript);
+                                if (nodeCheckpoints.Count > 0)
+                                {
+                                    foreach (var checkpoint in nodeCheckpoints)
+                                    {
+                                        allCheckpoints.Add(checkpoint);
+                                    }
+
+                                    Message($"Added {nodeCheckpoints.Count} checkpoint(s) from cluster node: '{node}'",
+                                        EventType.Information, 6073);
+                                }
+                                else
+                                {
+                                    Message($"No checkpoints found on cluster node: {node}",
+                                        EventType.Information, 6074);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Message($"Failed to get checkpoints from cluster node {node}: {ex.Message}",
+                                    EventType.Warning, 6075);
+                            }
+                        }
+
+                        Message($"Total checkpoints collected from all cluster nodes: {allCheckpoints.Count}",
+                            EventType.Information, 6076);
+
+                        results = allCheckpoints;
                     }
-
-                    // Hierarchy
-                    row["Parent Checkpoint"] = checkpoint.Properties["ParentCheckpointName"]?.Value?.ToString() ?? "None";
-
-                    // Storage - Size Information
-                    var sizeBytes = checkpoint.Properties["SizeBytes"]?.Value;
-                    if (sizeBytes != null && long.TryParse(sizeBytes.ToString(), out long bytes))
-                    {
-                        row["Size (MB)"] = Math.Round(bytes / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
-                    }
-                    else
-                    {
-                        row["Size (MB)"] = "0";
-                    }
-
-                    var sizeOfSystemFiles = checkpoint.Properties["SizeOfSystemFiles"]?.Value;
-                    if (sizeOfSystemFiles != null && long.TryParse(sizeOfSystemFiles.ToString(), out long systemFilesBytes))
-                    {
-                        row["System Files (MB)"] = Math.Round(systemFilesBytes / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
-                    }
-                    else
-                    {
-                        row["System Files (MB)"] = "0";
-                    }
-
-                    row["Path"] = checkpoint.Properties["Path"]?.Value?.ToString() ?? "";
-
-                    // Version & Notes
-                    row["Version"] = checkpoint.Properties["Version"]?.Value?.ToString() ?? "N/A";
-                    row["Notes"] = checkpoint.Properties["Notes"]?.Value?.ToString() ?? "";
-
-                    // Processor Configuration
-                    row["Processor Count"] = checkpoint.Properties["ProcessorCount"]?.Value?.ToString() ?? "0";
-
-                    // Memory Configuration
-                    var memoryStartup = checkpoint.Properties["MemoryStartup"]?.Value;
-                    if (memoryStartup != null && long.TryParse(memoryStartup.ToString(), out long memStartupBytes))
-                    {
-                        row["Memory Startup (MB)"] = Math.Round(memStartupBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
-                    }
-                    else
-                    {
-                        row["Memory Startup (MB)"] = "0";
-                    }
-
-                    var memoryMinimum = checkpoint.Properties["MemoryMinimum"]?.Value;
-                    if (memoryMinimum != null && long.TryParse(memoryMinimum.ToString(), out long memMinBytes))
-                    {
-                        row["Memory Minimum (MB)"] = Math.Round(memMinBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
-                    }
-                    else
-                    {
-                        row["Memory Minimum (MB)"] = "0";
-                    }
-
-                    var memoryMaximum = checkpoint.Properties["MemoryMaximum"]?.Value;
-                    if (memoryMaximum != null && long.TryParse(memoryMaximum.ToString(), out long memMaxBytes))
-                    {
-                        row["Memory Maximum (MB)"] = Math.Round(memMaxBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
-                    }
-                    else
-                    {
-                        row["Memory Maximum (MB)"] = "0";
-                    }
-
-                    var dynamicMemory = checkpoint.Properties["DynamicMemoryEnabled"]?.Value;
-                    row["Dynamic Memory"] = (dynamicMemory != null && (bool)dynamicMemory) ? "Yes" : "No";
-
-                    // Hardware Configuration
-                    row["Hard Drives"] = checkpoint.Properties["HardDrivesCount"]?.Value?.ToString() ?? "0";
-                    row["Network Adapters"] = checkpoint.Properties["NetworkAdaptersCount"]?.Value?.ToString() ?? "0";
-                    row["DVD Drives"] = checkpoint.Properties["DVDDrivesCount"]?.Value?.ToString() ?? "0";
-
-                    // Advanced Properties
-                    var batteryPassthrough = checkpoint.Properties["BatteryPassthroughEnabled"]?.Value;
-                    row["Battery Passthrough"] = (batteryPassthrough != null && (bool)batteryPassthrough) ? "Yes" : "No";
-
-                    var isClustered = checkpoint.Properties["IsClustered"]?.Value;
-                    row["Is Clustered"] = (isClustered != null && (bool)isClustered) ? "Yes" : "No";
-
-                    var isDeleted = checkpoint.Properties["IsDeleted"]?.Value;
-                    row["Is Deleted"] = (isDeleted != null && (bool)isDeleted) ? "Yes" : "No";
-
-                    row["Lock On Disconnect"] = checkpoint.Properties["LockOnDisconnect"]?.Value?.ToString() ?? "Off";
-
-                    // Advanced Memory Mapped IO
-                    var lowMmio = checkpoint.Properties["LowMemoryMappedIoSpace"]?.Value;
-                    row["Low MMIO Space"] = lowMmio != null ? lowMmio.ToString() : "0";
-
-                    var highMmio = checkpoint.Properties["HighMemoryMappedIoSpace"]?.Value;
-                    row["High MMIO Space"] = highMmio != null ? highMmio.ToString() : "0";
-
-                    var highMmioBase = checkpoint.Properties["HighMemoryMappedIoBaseAddress"]?.Value;
-                    row["High MMIO Base Address"] = highMmioBase != null ? highMmioBase.ToString() : "0";
-
-                    var guestCache = checkpoint.Properties["GuestControlledCacheTypes"]?.Value;
-                    row["Guest Controlled Cache"] = (guestCache != null && (bool)guestCache) ? "Yes" : "No";
-
-                    // Host Information
-                    row["Host"] = checkpoint.Properties["ComputerName"]?.Value?.ToString() ?? SessionContext.ServerName;
-                    row["Checkpoint ID"] = checkpoint.Properties["CheckpointId"]?.Value?.ToString() ?? "";
-
-                    dataTable.Rows.Add(row);
+                }
+                else
+                {
+                    results = ExecutePowerShellCommand(getCheckpointsScript);
                 }
 
-                // Bind to DataGridView
+                if (results != null)
+                {
+                    foreach (var checkpoint in results)
+                    {
+                        var row = dataTable.NewRow();
+
+                        // VM Information
+                        row["VM Name"] = checkpoint.Properties["VMName"]?.Value?.ToString() ?? "";
+                        row["VM State"] = checkpoint.Properties["VMState"]?.Value?.ToString() ?? "";
+                        row["VM Generation"] = checkpoint.Properties["VMGeneration"]?.Value?.ToString() ?? "";
+                        row["VM ID"] = checkpoint.Properties["VMId"]?.Value?.ToString() ?? "";
+
+                        // Checkpoint Basic Information
+                        row["Checkpoint Name"] = checkpoint.Properties["CheckpointName"]?.Value?.ToString() ?? "";
+                        row["Checkpoint Type"] = checkpoint.Properties["SnapshotType"]?.Value?.ToString() ?? "";
+                        row["State"] = checkpoint.Properties["State"]?.Value?.ToString() ?? "";
+                        var isAutomatic = checkpoint.Properties["IsAutomaticCheckpoint"]?.Value;
+                        row["Is Automatic"] = (isAutomatic != null && (bool)isAutomatic) ? "Yes" : "No";
+
+                        // Creation Time and Age
+                        var creationTime = checkpoint.Properties["CreationTime"]?.Value;
+                        if (creationTime != null && creationTime is DateTime dt)
+                        {
+                            row["Created"] = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                            row["Age (Days)"] = Math.Round((DateTime.Now - dt).TotalDays, 1).ToString(CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            row["Created"] = "";
+                            row["Age (Days)"] = "";
+                        }
+
+                        // Hierarchy
+                        row["Parent Checkpoint"] = checkpoint.Properties["ParentCheckpointName"]?.Value?.ToString() ?? "None";
+
+                        // Storage
+                        var sizeBytes = checkpoint.Properties["SizeBytes"]?.Value;
+                        if (sizeBytes != null && long.TryParse(sizeBytes.ToString(), out long bytes))
+                        {
+                            row["Size (MB)"] = Math.Round(bytes / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            row["Size (MB)"] = "0";
+                        }
+
+                        var sizeOfSystemFiles = checkpoint.Properties["SizeOfSystemFiles"]?.Value;
+                        if (sizeOfSystemFiles != null && long.TryParse(sizeOfSystemFiles.ToString(), out long systemFilesBytes))
+                        {
+                            row["System Files (MB)"] = Math.Round(systemFilesBytes / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            row["System Files (MB)"] = "0";
+                        }
+
+                        row["Path"] = checkpoint.Properties["Path"]?.Value?.ToString() ?? "";
+
+                        // Version & Notes
+                        row["Version"] = checkpoint.Properties["Version"]?.Value?.ToString() ?? "N/A";
+                        row["Notes"] = checkpoint.Properties["Notes"]?.Value?.ToString() ?? "";
+
+                        // Processor Configuration
+                        row["Processor Count"] = checkpoint.Properties["ProcessorCount"]?.Value?.ToString() ?? "0";
+
+                        // Memory Configuration
+                        var memoryStartup = checkpoint.Properties["MemoryStartup"]?.Value;
+                        if (memoryStartup != null && long.TryParse(memoryStartup.ToString(), out long memStartupBytes))
+                        {
+                            row["Memory Startup (MB)"] = Math.Round(memStartupBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            row["Memory Startup (MB)"] = "0";
+                        }
+
+                        var memoryMinimum = checkpoint.Properties["MemoryMinimum"]?.Value;
+                        if (memoryMinimum != null && long.TryParse(memoryMinimum.ToString(), out long memMinBytes))
+                        {
+                            row["Memory Minimum (MB)"] = Math.Round(memMinBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            row["Memory Minimum (MB)"] = "0";
+                        }
+
+                        var memoryMaximum = checkpoint.Properties["MemoryMaximum"]?.Value;
+                        if (memoryMaximum != null && long.TryParse(memoryMaximum.ToString(), out long memMaxBytes))
+                        {
+                            row["Memory Maximum (MB)"] = Math.Round(memMaxBytes / (1024.0 * 1024.0), 0).ToString(CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            row["Memory Maximum (MB)"] = "0";
+                        }
+
+                        var dynamicMemory = checkpoint.Properties["DynamicMemoryEnabled"]?.Value;
+                        row["Dynamic Memory"] = (dynamicMemory != null && (bool)dynamicMemory) ? "Yes" : "No";
+
+                        // Hardware Configuration
+                        row["Hard Drives"] = checkpoint.Properties["HardDrivesCount"]?.Value?.ToString() ?? "0";
+                        row["Network Adapters"] = checkpoint.Properties["NetworkAdaptersCount"]?.Value?.ToString() ?? "0";
+                        row["DVD Drives"] = checkpoint.Properties["DVDDrivesCount"]?.Value?.ToString() ?? "0";
+
+                        // Advanced Properties
+                        var batteryPassthrough = checkpoint.Properties["BatteryPassthroughEnabled"]?.Value;
+                        row["Battery Passthrough"] = (batteryPassthrough != null && (bool)batteryPassthrough) ? "Yes" : "No";
+
+                        var isClustered = checkpoint.Properties["IsClustered"]?.Value;
+                        row["Is Clustered"] = (isClustered != null && (bool)isClustered) ? "Yes" : "No";
+
+                        var isDeleted = checkpoint.Properties["IsDeleted"]?.Value;
+                        row["Is Deleted"] = (isDeleted != null && (bool)isDeleted) ? "Yes" : "No";
+
+                        row["Lock On Disconnect"] = checkpoint.Properties["LockOnDisconnect"]?.Value?.ToString() ?? "Off";
+
+                        // Advanced Memory Mapped IO
+                        var lowMmio = checkpoint.Properties["LowMemoryMappedIoSpace"]?.Value;
+                        row["Low MMIO Space"] = lowMmio != null ? lowMmio.ToString() : "0";
+
+                        var highMmio = checkpoint.Properties["HighMemoryMappedIoSpace"]?.Value;
+                        row["High MMIO Space"] = highMmio != null ? highMmio.ToString() : "0";
+
+                        var highMmioBase = checkpoint.Properties["HighMemoryMappedIoBaseAddress"]?.Value;
+                        row["High MMIO Base Address"] = highMmioBase != null ? highMmioBase.ToString() : "0";
+
+                        var guestCache = checkpoint.Properties["GuestControlledCacheTypes"]?.Value;
+                        row["Guest Controlled Cache"] = (guestCache != null && (bool)guestCache) ? "Yes" : "No";
+
+                        // Host Information
+                        row["Host"] = checkpoint.Properties["ComputerName"]?.Value?.ToString() ?? SessionContext.ServerName;
+                        row["Checkpoint ID"] = checkpoint.Properties["CheckpointId"]?.Value?.ToString() ?? "";
+
+                        dataTable.Rows.Add(row);
+                    }
+                }
+
+                // Bind to DataGridView even if empty
                 datagridviewCheckpointOverView.DataSource = dataTable;
 
                 // Configure DataGridView properties
@@ -5207,22 +5284,25 @@ Would you like to open the file location?",
                 datagridviewCheckpointOverView.AllowUserToDeleteRows = false;
                 datagridviewCheckpointOverView.RowHeadersVisible = false;
 
-                // Add context menu for right-click
-                var contextMenu = new ContextMenuStrip();
-                var deleteMenuItem = new ToolStripMenuItem("Delete Checkpoint");
-                deleteMenuItem.Click += DeleteCheckpointMenuItem_Click;
-                contextMenu.Items.Add(deleteMenuItem);
+                // Add context menu only if missing
+                if (datagridviewCheckpointOverView.ContextMenuStrip == null)
+                {
+                    var contextMenu = new ContextMenuStrip();
 
-                var viewDetailsMenuItem = new ToolStripMenuItem("View Details");
-                viewDetailsMenuItem.Click += ViewCheckpointDetailsMenuItem_Click;
-                contextMenu.Items.Add(viewDetailsMenuItem);
+                    var deleteMenuItem = new ToolStripMenuItem("Delete Checkpoint");
+                    deleteMenuItem.Click += DeleteCheckpointMenuItem_Click;
+                    contextMenu.Items.Add(deleteMenuItem);
 
-                datagridviewCheckpointOverView.ContextMenuStrip = contextMenu;
+                    var viewDetailsMenuItem = new ToolStripMenuItem("View Details");
+                    viewDetailsMenuItem.Click += ViewCheckpointDetailsMenuItem_Click;
+                    contextMenu.Items.Add(viewDetailsMenuItem);
+
+                    datagridviewCheckpointOverView.ContextMenuStrip = contextMenu;
+                }
 
                 // Apply color coding
                 foreach (DataGridViewRow row in datagridviewCheckpointOverView.Rows)
                 {
-                    // Color code checkpoint type
                     var type = row.Cells["Checkpoint Type"].Value?.ToString();
                     if (type == "Standard")
                     {
@@ -5233,9 +5313,8 @@ Would you like to open the file location?",
                         row.Cells["Checkpoint Type"].Style.BackColor = Color.LightGreen;
                     }
 
-                    // Color code automatic checkpoints
-                    var isAutomatic = row.Cells["Is Automatic"].Value?.ToString();
-                    if (isAutomatic == "Yes")
+                    var isAutomaticText = row.Cells["Is Automatic"].Value?.ToString();
+                    if (isAutomaticText == "Yes")
                     {
                         row.Cells["Is Automatic"].Style.BackColor = Color.LightYellow;
                         row.Cells["Is Automatic"].Style.ForeColor = Color.DarkOrange;
@@ -5246,7 +5325,6 @@ Would you like to open the file location?",
                         row.Cells["Is Automatic"].Style.ForeColor = Color.DarkGreen;
                     }
 
-                    // Color code age - highlight old checkpoints
                     var ageStr = row.Cells["Age (Days)"].Value?.ToString();
                     if (!string.IsNullOrEmpty(ageStr) && double.TryParse(ageStr, out double age))
                     {
@@ -5262,18 +5340,16 @@ Would you like to open the file location?",
                         }
                     }
 
-                    // Color code VM state
-                    var state = row.Cells["VM State"].Value?.ToString();
-                    if (state == "Running")
+                    var vmState = row.Cells["VM State"].Value?.ToString();
+                    if (vmState == "Running")
                     {
                         row.Cells["VM State"].Style.BackColor = Color.LightGreen;
                     }
-                    else if (state == "Off")
+                    else if (vmState == "Off")
                     {
                         row.Cells["VM State"].Style.BackColor = Color.LightGray;
                     }
 
-                    // Color code checkpoint state
                     var checkpointState = row.Cells["State"].Value?.ToString();
                     if (checkpointState == "Off")
                     {
@@ -5284,7 +5360,6 @@ Would you like to open the file location?",
                         row.Cells["State"].Style.BackColor = Color.LightGreen;
                     }
 
-                    // Color code VM Generation
                     var generation = row.Cells["VM Generation"].Value?.ToString();
                     if (generation == "1")
                     {
@@ -5295,33 +5370,51 @@ Would you like to open the file location?",
                         row.Cells["VM Generation"].Style.BackColor = Color.LightCyan;
                     }
 
-                    // Color code Dynamic Memory
-                    var dynamicMemory = row.Cells["Dynamic Memory"].Value?.ToString();
-                    if (dynamicMemory == "Yes")
+                    var dynamicMemoryText = row.Cells["Dynamic Memory"].Value?.ToString();
+                    if (dynamicMemoryText == "Yes")
                     {
                         row.Cells["Dynamic Memory"].Style.BackColor = Color.LightBlue;
                     }
 
-                    // Color code Is Deleted
-                    var isDeleted = row.Cells["Is Deleted"].Value?.ToString();
-                    if (isDeleted == "Yes")
+                    var isDeletedText = row.Cells["Is Deleted"].Value?.ToString();
+                    if (isDeletedText == "Yes")
                     {
                         row.Cells["Is Deleted"].Style.BackColor = Color.LightCoral;
                         row.Cells["Is Deleted"].Style.ForeColor = Color.DarkRed;
                     }
                 }
 
-                Message($"VM checkpoints loaded successfully with {results.Count} checkpoint(s)",
+                if (dataTable.Rows.Count == 0)
+                {
+                    if (!_isSilentExportMode)
+                    {
+                        MessageBox.Show(@"No VM checkpoints found.",
+                            @"Information",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        Message("Silent export mode: no VM checkpoints found.",
+                            EventType.Information, 6063);
+                    }
+                }
+
+                Message($"VM checkpoints loaded successfully with {dataTable.Rows.Count} checkpoint(s)",
                     EventType.Information, 6061);
             }
             catch (Exception ex)
             {
                 Message($"Error loading VM checkpoints: {ex.Message}",
                     EventType.Error, 6062);
-                MessageBox.Show($@"Error loading VM checkpoints: {ex.Message}",
-                    @"Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+
+                if (!_isSilentExportMode)
+                {
+                    MessageBox.Show($@"Error loading VM checkpoints: {ex.Message}",
+                        @"Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -5892,7 +5985,8 @@ Notes:
         }
         
         /// <summary>
-        /// Updates the datagridviewHealthOverview DataGridView with host inventory details
+        /// Updates the datagridviewHealthOverview DataGridView with host inventory details.
+        /// The grid structure is always created, even when no inventory data is available.
         /// </summary>
         private void UpdateHealthOverviewDataGridView(HostHealthInfo inventory)
         {
@@ -5910,17 +6004,10 @@ Notes:
                 datagridviewHealthOverview.Rows.Clear();
                 datagridviewHealthOverview.Columns.Clear();
 
-                if (inventory == null)
-                {
-                    Message("No host inventory to display",
-                        EventType.Information, 7111);
-                    return;
-                }
-
-                Message($"Updating datagridviewHealthOverview with host inventory data",
+                Message("Updating datagridviewHealthOverview with host inventory data",
                     EventType.Information, 7112);
 
-                // Create DataTable with category and value columns for a property grid-like view
+                // Create DataTable structure even if inventory is null
                 var dataTable = new DataTable();
                 dataTable.Columns.Add("Category", typeof(string));
                 dataTable.Columns.Add("Property", typeof(string));
@@ -5929,174 +6016,187 @@ Notes:
                 dataTable.Columns.Add("Status", typeof(string));
                 dataTable.Columns.Add("Help", typeof(string));
 
-                // Host Information section - simplified to just hostname and cluster info
-                bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) &&
-                                 inventory.HostInfo.ClusterName != "N/A";
-
-                if (isCluster)
+                // Only populate rows if inventory exists
+                if (inventory != null)
                 {
-                    // Cluster mode - show cluster overview with node counts
-                    int nodeCount = inventory.HostInfo.ClusterNodeCount;
-                    int nodesOnline = inventory.HostInfo.ClusterNodesOnline;
-                    int nodesOffline = inventory.HostInfo.ClusterNodesOffline;
-                    int nodesPaused = inventory.HostInfo.ClusterNodesPaused;
+                    // Host Information section - simplified to just hostname and cluster info
+                    bool isCluster = !string.IsNullOrEmpty(inventory.HostInfo.ClusterName) &&
+                                     inventory.HostInfo.ClusterName != "N/A";
 
-                    // Determine cluster health status
-                    string clusterStatus = nodesOffline > 0 ? "Critical" : nodesPaused > 0 ? "Warning" : "Good";
-                    string nodeStatusText = $"{nodesOnline} online";
-                    if (nodesOffline > 0) nodeStatusText += $", {nodesOffline} offline";
-                    if (nodesPaused > 0) nodeStatusText += $", {nodesPaused} paused";
-
-                    // Build node list for details
-                    string nodeList = "";
-                    if (inventory.HostInfo.ClusterNodes.Count > 0)
+                    if (isCluster)
                     {
-                        var nodeNames = inventory.HostInfo.ClusterNodes
-                            .Select(n => n.IsCurrentNode ? $"➤ {n.Name} ({n.State})" : $"{n.Name} ({n.State})");
-                        nodeList = string.Join(" | ", nodeNames);
+                        // Cluster mode - show cluster overview with node counts
+                        int nodeCount = inventory.HostInfo.ClusterNodeCount;
+                        int nodesOnline = inventory.HostInfo.ClusterNodesOnline;
+                        int nodesOffline = inventory.HostInfo.ClusterNodesOffline;
+                        int nodesPaused = inventory.HostInfo.ClusterNodesPaused;
+
+                        // Determine cluster health status
+                        string clusterStatus = nodesOffline > 0 ? "Critical" : nodesPaused > 0 ? "Warning" : "Good";
+                        string nodeStatusText = $"{nodesOnline} online";
+                        if (nodesOffline > 0) nodeStatusText += $", {nodesOffline} offline";
+                        if (nodesPaused > 0) nodeStatusText += $", {nodesPaused} paused";
+
+                        // Build node list for details
+                        string nodeList = "";
+                        if (inventory.HostInfo.ClusterNodes.Count > 0)
+                        {
+                            var nodeNames = inventory.HostInfo.ClusterNodes
+                                .Select(n => n.IsCurrentNode ? $"➤ {n.Name} ({n.State})" : $"{n.Name} ({n.State})");
+                            nodeList = string.Join(" | ", nodeNames);
+                        }
+
+                        AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Name", inventory.HostInfo.ClusterName,
+                            $"{nodeCount} nodes: {nodeStatusText}",
+                            clusterStatus,
+                            "Failover cluster overview. ➤ indicates current connected node.");
+
+                        AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Nodes", nodeList,
+                            $"Current Node: {inventory.HostInfo.ComputerName}",
+                            HostHealth.GetNodeStateStatus(inventory.HostInfo.NodeState),
+                            "All cluster nodes and their states. Data shown is from the current connected node only.");
+                    }
+                    else
+                    {
+                        // Standalone mode - show hostname
+                        AddInventoryRow(dataTable, "🖥️ Host", "Hostname", inventory.HostInfo.ComputerName,
+                            $"Standalone Hyper-V Host | {inventory.HostInfo.HyperVVersion}", "",  
+                            "Standalone Hyper-V host server (not part of a cluster)");
                     }
 
-                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Name", inventory.HostInfo.ClusterName,
-                        $"{nodeCount} nodes: {nodeStatusText}",
-                        clusterStatus,
-                        "Failover cluster overview. ➤ indicates current connected node.");
+                    // Resource Allocation section
+                    double memoryAllocatedGb = inventory.ResourceAllocation.TotalVmMemoryMb / 1024.0;
+                    string cpuGuidance = inventory.ResourceAllocation.CpuOvercommitRatio > 4 ? "⚠️ High overcommit" :
+                                         inventory.ResourceAllocation.CpuOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
+                    string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" :
+                                         inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
 
-                    AddInventoryRow(dataTable, "🖥️ Cluster", "Cluster Nodes", nodeList,
-                        $"Current Node: {inventory.HostInfo.ComputerName}",
-                        HostHealth.GetNodeStateStatus(inventory.HostInfo.NodeState),
-                        "All cluster nodes and their states. Data shown is from the current connected node only.");
+                    string resourceContext = isCluster ? " (Current Node)" : "";
+
+                    AddInventoryRow(dataTable, "📊 Resource Allocation", $"Physical Resources{resourceContext}",
+                        $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGb:F1} GB RAM",
+                        $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}",
+                        "",
+                        isCluster ? "Physical resources on the current connected node only" : "Physical CPU cores and RAM available on this host");
+
+                    AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVmProcessors} vCPUs",
+                        $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1",
+                        HostHealth.GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"),
+                        "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
+
+                    AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGb:F1} GB",
+                        $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1",
+                        HostHealth.GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"),
+                        "Memory Overcommit = VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Enable Dynamic Memory on VMs or add physical RAM.");
+
+                    // Performance Data section
+                    if (inventory.PerformanceData.DataAvailable)
+                    {
+                        string cpuStatus = inventory.PerformanceData.CpuUsagePercent > 80 ? "⚠️ High" :
+                                           inventory.PerformanceData.CpuUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
+                        string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" :
+                                           inventory.PerformanceData.MemoryUsagePercent > 70 ? "⚡ Moderate" : "✅ Normal";
+
+                        AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%",
+                            $"{cpuStatus} usage level",
+                            HostHealth.GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
+                            "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
+
+                        AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%",
+                            $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB",
+                            HostHealth.GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
+                            "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
+                    }
+                    else
+                    {
+                        AddInventoryRow(dataTable, "⚡ Performance", "Performance Data", "Not Available",
+                            "Performance counters could not be retrieved", "Warning",
+                            "Performance counters could not be retrieved from the host");
+                    }
+
+                    // Workload Analysis section
+                    AddInventoryRow(dataTable, "🖥️ VM Workload", "Total VMs", inventory.WorkloadAnalysis.TotalVMs.ToString(),
+                        $"Running: {inventory.WorkloadAnalysis.RunningVMs} | Stopped: {inventory.WorkloadAnalysis.StoppedVMs}", "",  
+                        "Summary of all virtual machines on this host");
+
+                    if (inventory.WorkloadAnalysis.PausedVMs > 0 || inventory.WorkloadAnalysis.SavedVMs > 0)
+                    {
+                        AddInventoryRow(dataTable, "🖥️ VM Workload", "Other VM States",
+                            $"Paused: {inventory.WorkloadAnalysis.PausedVMs} | Saved: {inventory.WorkloadAnalysis.SavedVMs}",
+                            inventory.WorkloadAnalysis.PausedVMs > 0 ? "⚠️ Paused VMs may indicate issues" : "",
+                            inventory.WorkloadAnalysis.PausedVMs > 0 ? "Warning" : "Info",
+                            "VMs in paused or saved state. Paused VMs may indicate resource issues.");
+                    }
+
+                    AddInventoryRow(dataTable, "🖥️ VM Workload", "VM Generations",
+                        $"Gen 1: {inventory.WorkloadAnalysis.Generation1VMs} | Gen 2: {inventory.WorkloadAnalysis.Generation2VMs}",
+                        $"Replicated: {inventory.WorkloadAnalysis.ReplicatedVMs} | With Checkpoints: {inventory.WorkloadAnalysis.CheckpointedVMs}",
+                        inventory.WorkloadAnalysis.CheckpointedVMs > 5 ? "Warning" : "",
+                        "Gen2 VMs offer better performance and security. Consider upgrading Gen1 VMs when possible.");
+
+                    // Storage Information section
+                    foreach (var storage in inventory.StorageInfo)
+                    {
+                        string driveStatus = storage.UsedPercent > 90 ? "Critical" : storage.UsedPercent > 75 ? "Warning" : "Good";
+                        string storageGuidance = storage.UsedPercent > 90 ? "⚠️ Critical - Clean up space immediately" :
+                                                 storage.UsedPercent > 80 ? "⚡ High usage - Monitor closely" :
+                                                 storage.UsedPercent > 70 ? "⚡ Growing - Plan for expansion" : "✅ Healthy";
+
+                        AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter}",
+                            $"{storage.UsedGb:F1} GB / {storage.TotalGb:F1} GB ({storage.UsedPercent:F1}%)",
+                            $"{storageGuidance} - Free: {storage.FreeGb:F1} GB | VM Files: {storage.VmFileCount}",
+                            driveStatus,
+                            $"Storage usage on drive {storage.DriveLetter}. >90% usage can cause VM performance issues and prevent snapshots.");
+                    }
+
+                    // Network Information section
+                    foreach (var network in inventory.NetworkInfo)
+                    {
+                        string virtualSwitchStatus = network.VirtualSwitches == 0 ? "Warning" : "Good";
+                        string netGuidance = network.VirtualSwitches == 0 ? "⚠️ Unused adapter" : "✅ In use";
+
+                        AddInventoryRow(dataTable, "🌐 Network", network.Name, network.InterfaceDescription,
+                            $"{netGuidance} - Virtual Switches: {network.VirtualSwitches}",
+                            virtualSwitchStatus,
+                            "Physical network adapter. Unused adapters can be configured for VM networking or failover.");
+                    }
+
+                    // Idle Resources section
+                    int idleVmCount = inventory.IdleResources.IdleVmNames.Count;
+                    int unusedAdapterCount = inventory.IdleResources.UnusedNetworkAdapterNames.Count;
+
+                    if (idleVmCount > 0)
+                    {
+                        string idleVmList = idleVmCount <= 5
+                            ? string.Join(", ", inventory.IdleResources.IdleVmNames)
+                            : string.Join(", ", inventory.IdleResources.IdleVmNames.Take(5)) + $"... (+{idleVmCount - 5} more)";
+
+                        AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVmCount.ToString(),
+                            $"⚠️ VMs stopped for >30 days: {idleVmList}", "Warning",
+                            "VMs that have been powered off for over 30 days. These may be candidates for deletion to reclaim storage and licensing.");
+                    }
+
+                    if (unusedAdapterCount > 0)
+                    {
+                        string unusedAdapterList = string.Join(", ", inventory.IdleResources.UnusedNetworkAdapterNames);
+
+                        AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Network Adapters", unusedAdapterCount.ToString(),
+                            $"💡 Available for VM networking or teaming: {unusedAdapterList}", "Info",
+                            "Physical network adapters not assigned to virtual switches. Can be used for additional VM networks or NIC teaming.");
+                    }
+
+                    // Timestamp
+                    AddInventoryRow(dataTable, "📅 Collection Info", "Data Collected At", inventory.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"),
+                        "", "",  
+                        "Timestamp when this inventory data was collected");
                 }
                 else
                 {
-                    // Standalone mode - show hostname
-                    AddInventoryRow(dataTable, "🖥️ Host", "Hostname", inventory.HostInfo.ComputerName,
-                        $"Standalone Hyper-V Host | {inventory.HostInfo.HyperVVersion}", "",
-                        "Standalone Hyper-V host server (not part of a cluster)");
+                    Message("No host inventory to display",
+                        EventType.Information, 7111);
                 }
 
-                // Resource Allocation section
-                double memoryAllocatedGb = inventory.ResourceAllocation.TotalVmMemoryMb / 1024.0;
-                string cpuGuidance = inventory.ResourceAllocation.CpuOvercommitRatio > 4 ? "⚠️ High overcommit" :
-                                     inventory.ResourceAllocation.CpuOvercommitRatio > 2 ? "⚡ Moderate" : "✅ Good";
-                string memGuidance = inventory.ResourceAllocation.MemoryOvercommitRatio > 1.5 ? "⚠️ High overcommit" :
-                                     inventory.ResourceAllocation.MemoryOvercommitRatio > 1.2 ? "⚡ Moderate" : "✅ Good";
-
-                // Show resource context (note if cluster - data is from current node only)
-                string resourceContext = isCluster ? " (Current Node)" : "";
-                AddInventoryRow(dataTable, "📊 Resource Allocation", $"Physical Resources{resourceContext}",
-                    $"{inventory.HostInfo.PhysicalProcessors} cores | {inventory.HostInfo.TotalMemoryGb:F1} GB RAM",
-                    $"Logical CPUs: {inventory.HostInfo.LogicalProcessors} | Sockets: {inventory.HostInfo.ProcessorSockets}", "",
-                    isCluster ? "Physical resources on the current connected node only" : "Physical CPU cores and RAM available on this host");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Processors Allocated", $"{inventory.ResourceAllocation.TotalVmProcessors} vCPUs",
-                    $"{cpuGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.CpuOvercommitRatio:F2}:1",
-                    HostHealth.GetOvercommitStatus(inventory.ResourceAllocation.CpuOvercommitRatio, "cpu"),
-                    "CPU Overcommit = Total vCPUs ÷ Physical Cores. Ratio >4:1 may cause contention. Reduce VM CPU counts or add physical cores.");
-                AddInventoryRow(dataTable, "📊 Resource Allocation", "VM Memory Allocated", $"{memoryAllocatedGb:F1} GB",
-                    $"{memGuidance} - Overcommit Ratio: {inventory.ResourceAllocation.MemoryOvercommitRatio:F2}:1",
-                    HostHealth.GetOvercommitStatus(inventory.ResourceAllocation.MemoryOvercommitRatio, "memory"),
-                    "Memory Overcommit = VM Memory ÷ Physical Memory. Ratio >1.2:1 requires Dynamic Memory. Enable Dynamic Memory on VMs or add physical RAM.");
-
-                // Performance Data section
-                if (inventory.PerformanceData.DataAvailable)
-                {
-                    string cpuStatus = inventory.PerformanceData.CpuUsagePercent > 80 ? "⚠️ High" :
-                                       inventory.PerformanceData.CpuUsagePercent > 60 ? "⚡ Moderate" : "✅ Normal";
-                    string memStatus = inventory.PerformanceData.MemoryUsagePercent > 85 ? "⚠️ High" :
-                                       inventory.PerformanceData.MemoryUsagePercent > 70 ? "⚡ Moderate" : "✅ Normal";
-
-
-                    AddInventoryRow(dataTable, "⚡ Performance", "CPU Usage", $"{inventory.PerformanceData.CpuUsagePercent:F1}%",
-                        $"{cpuStatus} usage level",
-                        HostHealth.GetPerformanceStatus(inventory.PerformanceData.CpuUsagePercent, "cpu"),
-                        "Current CPU utilization. >80% sustained may indicate need for more CPU cores or VM CPU reduction.");
-                    AddInventoryRow(dataTable, "⚡ Performance", "Memory Usage", $"{inventory.PerformanceData.MemoryUsagePercent:F1}%",
-                        $"{memStatus} - Available: {inventory.PerformanceData.AvailableMemoryMb:F0} MB",
-                        HostHealth.GetPerformanceStatus(inventory.PerformanceData.MemoryUsagePercent, "memory"),
-                        "Current memory utilization. >85% may cause performance issues. Consider adding RAM or enabling Dynamic Memory.");
-                }
-                else
-                {
-                    AddInventoryRow(dataTable, "⚡ Performance", "Performance Data", "Not Available",
-                        "Performance counters could not be retrieved", "Warning",
-                        "Performance counters could not be retrieved from the host");
-                }
-
-                // Workload Analysis section - consolidated view
-                AddInventoryRow(dataTable, "🖥️ VM Workload", "Total VMs", inventory.WorkloadAnalysis.TotalVMs.ToString(),
-                    $"Running: {inventory.WorkloadAnalysis.RunningVMs} | Stopped: {inventory.WorkloadAnalysis.StoppedVMs}", "",
-                    "Summary of all virtual machines on this host");
-
-                // Only show Paused/Saved if there are any
-                if (inventory.WorkloadAnalysis.PausedVMs > 0 || inventory.WorkloadAnalysis.SavedVMs > 0)
-                {
-                    AddInventoryRow(dataTable, "🖥️ VM Workload", "Other VM States",
-                        $"Paused: {inventory.WorkloadAnalysis.PausedVMs} | Saved: {inventory.WorkloadAnalysis.SavedVMs}",
-                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "⚠️ Paused VMs may indicate issues" : "",
-                        inventory.WorkloadAnalysis.PausedVMs > 0 ? "Warning" : "Info",
-                        "VMs in paused or saved state. Paused VMs may indicate resource issues.");
-                }
-
-                AddInventoryRow(dataTable, "🖥️ VM Workload", "VM Generations",
-                    $"Gen 1: {inventory.WorkloadAnalysis.Generation1VMs} | Gen 2: {inventory.WorkloadAnalysis.Generation2VMs}",
-                    $"Replicated: {inventory.WorkloadAnalysis.ReplicatedVMs} | With Checkpoints: {inventory.WorkloadAnalysis.CheckpointedVMs}",
-                    inventory.WorkloadAnalysis.CheckpointedVMs > 5 ? "Warning" : "",
-                    "Gen2 VMs offer better performance and security. Consider upgrading Gen1 VMs when possible.");
-
-                // Storage Information section - consolidated per drive
-                foreach (var storage in inventory.StorageInfo)
-                {
-                    string driveStatus = storage.UsedPercent > 90 ? "Critical" : storage.UsedPercent > 75 ? "Warning" : "Good";
-                    string storageGuidance = storage.UsedPercent > 90 ? "⚠️ Critical - Clean up space immediately" :
-                                             storage.UsedPercent > 80 ? "⚡ High usage - Monitor closely" :
-                                             storage.UsedPercent > 70 ? "⚡ Growing - Plan for expansion" : "✅ Healthy";
-
-                    AddInventoryRow(dataTable, "💾 Storage", $"Drive {storage.DriveLetter}",
-                        $"{storage.UsedGb:F1} GB / {storage.TotalGb:F1} GB ({storage.UsedPercent:F1}%)",
-                        $"{storageGuidance} - Free: {storage.FreeGb:F1} GB | VM Files: {storage.VmFileCount}",
-                        driveStatus,
-                        $"Storage usage on drive {storage.DriveLetter}. >90% usage can cause VM performance issues and prevent snapshots.");
-                }
-
-                // Network Information section
-                foreach (var network in inventory.NetworkInfo)
-                {
-                    string virtualSwitchStatus = network.VirtualSwitches == 0 ? "Warning" : "Good";
-                    string netGuidance = network.VirtualSwitches == 0 ? "⚠️ Unused adapter" : "✅ In use";
-
-                    AddInventoryRow(dataTable, "🌐 Network", network.Name, network.InterfaceDescription,
-                        $"{netGuidance} - Virtual Switches: {network.VirtualSwitches}",
-                        virtualSwitchStatus,
-                        "Physical network adapter. Unused adapters can be configured for VM networking or failover.");
-                }
-
-                // Idle Resources section
-                int idleVmCount = inventory.IdleResources.IdleVmNames.Count;
-                int unusedAdapterCount = inventory.IdleResources.UnusedNetworkAdapterNames.Count;
-
-                if (idleVmCount > 0)
-                {
-                    string idleVmList = idleVmCount <= 5
-                        ? string.Join(", ", inventory.IdleResources.IdleVmNames)
-                        : string.Join(", ", inventory.IdleResources.IdleVmNames.Take(5)) + $"... (+{idleVmCount - 5} more)";
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Idle VMs", idleVmCount.ToString(),
-                        $"⚠️ VMs stopped for >30 days: {idleVmList}", "Warning",
-                        "VMs that have been powered off for over 30 days. These may be candidates for deletion to reclaim storage and licensing.");
-                }
-
-                if (unusedAdapterCount > 0)
-                {
-                    string unusedAdapterList = string.Join(", ", inventory.IdleResources.UnusedNetworkAdapterNames);
-                    AddInventoryRow(dataTable, "💤 Idle Resources", "Unused Network Adapters", unusedAdapterCount.ToString(),
-                        $"💡 Available for VM networking or teaming: {unusedAdapterList}", "Info",
-                        "Physical network adapters not assigned to virtual switches. Can be used for additional VM networks or NIC teaming.");
-                }
-
-                // Timestamp
-                AddInventoryRow(dataTable, "📅 Collection Info", "Data Collected At", inventory.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"),
-                    "", "",
-                    "Timestamp when this inventory data was collected");
-
-                // Bind to DataGridView
+                // Bind to DataGridView even if empty
                 datagridviewHealthOverview.DataSource = dataTable;
 
                 // Configure DataGridView properties
@@ -6123,12 +6223,16 @@ Notes:
                 if (datagridviewHealthOverview.Columns.Contains("Help"))
                     datagridviewHealthOverview.Columns["Help"]?.MinimumWidth = 350;
 
-                // Apply color coding based on Status column
-                ApplyHealthOverviewColorCoding();
-#if DEBUG
-                Message($"datagridviewHealthOverview updated successfully",
+                // Apply color coding only when rows exist
+                if (dataTable.Rows.Count > 0)
+                {
+                    ApplyHealthOverviewColorCoding();
+                }
+
+                #if DEBUG
+                Message("datagridviewHealthOverview updated successfully",
                     EventType.Information, 7113);
-#endif
+                #endif
             }
             catch (Exception ex)
             {
@@ -6136,6 +6240,7 @@ Notes:
                     EventType.Error, 7114);
             }
         }
+
 
         /// <summary>
         /// Adds a row to the inventory DataTable
@@ -6458,7 +6563,153 @@ Unused Resources:
         }
 
         /// <summary>
+        /// Starts silent export mode.
+        /// While enabled, load/refresh routines should avoid interactive message boxes.
+        /// </summary>
+        private void BeginSilentExportMode()
+        {
+            _isSilentExportMode = true;
+        }
+
+        /// <summary>
+        /// Ends silent export mode.
+        /// </summary>
+        private void EndSilentExportMode()
+        {
+            _isSilentExportMode = false;
+        }
+
+        // Export all data to Excel
+        private void exportAllToExcelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportAllDataInternal(true);
+        }
+
+        // Export all data to CSV
+        private void exportAllToCsvToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportAllDataInternal(false);
+        }
+
+        // Export current tab to Excel
+        private void exportCurrentToExcelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportCurrentTabInternal(true);
+        }
+
+        // Export current tab to CSV
+        private void exportCurrentToCsvToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportCurrentTabInternal(false);
+        }
+
+        /// <summary>
+        /// Exports all available targets to Excel or CSV.
+        /// This method asks for the output folder first, then forces all required views to load
+        /// before generating the export files.
+        /// </summary>
+        /// <param name="exportAsExcel">
+        /// True to export all targets into a single Excel workbook; false to export CSV files.
+        /// </param>
+        private void ExportAllDataInternal(bool exportAsExcel)
+        {
+            try
+            {
+                Message(
+                    $"User requested export of all data to {(exportAsExcel ? "Excel" : "CSV")}",
+                    EventType.Information,
+                    9010);
+
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show(
+                        @"Please connect to a Hyper-V server first.",
+                        @"Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Ask user for target folder first
+                string? folderPath = PromptForFolder("Choose export folder");
+
+                if (string.IsNullOrWhiteSpace(folderPath))
+                    return;
+
+                // Commit any pending edits before collecting rows
+                CommitAllPendingGridEdits();
+
+                // Collect all export targets
+                var targets = GetAllExportTargets()
+                    .Where(t => t.Grid != null)
+                    .ToList();
+
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show(
+                        @"No data to export.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Force-load all target views before export
+                BeginSilentExportMode();
+                try
+                {
+                    EnsureExportTargetsLoaded(targets);
+                }
+                finally
+                {
+                    EndSilentExportMode();
+                }
+
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+
+                if (exportAsExcel)
+                {
+                    string filePath = Path.Combine(folderPath, $"HVTools_export_all_{timestamp}.xlsx");
+
+                    ExportTargetsToExcel(targets, filePath);
+
+                    MessageBox.Show(
+                        $@"All data exported to Excel successfully:
+                        {filePath}",
+                        @"Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    ExportTargetsToFolder(targets, folderPath, true);
+
+                    MessageBox.Show(
+                        $@"All data exported to CSV successfully:
+                        {folderPath}",
+                        @"Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message($"Error exporting all data: {ex.Message}", EventType.Error, 9012);
+
+                MessageBox.Show(
+                    $@"Error exporting all data:
+                    {ex.Message}",
+                    @"Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+
+        /// <summary>
         /// Handles the Click event for the "Export current tab" menu item.
+        /// This version exports directly to Excel, without intermediate format popup,
+        /// and asks for the destination folder before loading/exporting data.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">An EventArgs object containing the event data.</param>
@@ -6478,36 +6729,7 @@ Unused Resources:
                     return;
                 }
 
-                CommitAllPendingGridEdits();
-
-                var targets = GetCurrentTabExportTargets()
-                    .Where(t => t.Grid != null && t.Grid.Rows.Count > 0)
-                    .ToList();
-
-                if (targets.Count == 0)
-                {
-                    MessageBox.Show(
-                        @"No exportable data found in the current tab.",
-                        @"No Data",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                    return;
-                }
-
-                // ✅ Choix format utilisateur
-                var result = MessageBox.Show(
-                    "Do you want to export as a single Excel file?\n\nYes = Excel\nNo = CSV",
-                    "Export format",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.Cancel)
-                {
-                    return;
-                }
-
-                bool exportAsExcel = (result == DialogResult.Yes);
-
+                // Ask destination FIRST
                 string? folderPath = PromptForFolder("Choose folder for current tab export");
                 if (string.IsNullOrWhiteSpace(folderPath))
                 {
@@ -6515,12 +6737,127 @@ Unused Resources:
                     return;
                 }
 
+                CommitAllPendingGridEdits();
+
+                var targets = GetCurrentTabExportTargets()
+                    .Where(t => t.Grid != null)
+                    .ToList();
+
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show(
+                        @"No exportable target found in the current tab.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                BeginSilentExportMode();
+                try
+                {
+                    EnsureExportTargetsLoaded(targets);
+                }
+                finally
+                {
+                    EndSilentExportMode();
+                }
+
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+                string filePath = Path.Combine(
+                    folderPath,
+                    $"HVTools_export_currenttab_{timestamp}.xlsx"
+                );
+
+                ExportTargetsToExcel(targets, filePath);
+
+                MessageBox.Show(
+                    $@"Current tab exported to Excel successfully:
+                    {filePath}",
+                    @"Export Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Message($"Error exporting current tab: {ex.Message}", EventType.Error, 9003);
+
+                MessageBox.Show(
+                    $@"Error exporting current tab:
+                    {ex.Message}",
+                    @"Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Exports only the current tab targets to Excel or CSV.
+        /// This method asks for the output folder first, then forces the current target view(s) to load
+        /// before generating the export file(s).
+        /// </summary>
+        /// <param name="exportAsExcel">
+        /// True to export current tab targets into a single Excel workbook; false to export CSV files.
+        /// </param>
+        private void ExportCurrentTabInternal(bool exportAsExcel)
+        {
+            try
+            {
+                Message(
+                    $"User requested export of current tab to {(exportAsExcel ? "Excel" : "CSV")}",
+                    EventType.Information,
+                    9001);
+
+                if (!SessionContext.IsSessionActive())
+                {
+                    MessageBox.Show(
+                        @"Please connect to a Hyper-V server first.",
+                        @"Connection Required",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Ask user for target folder first
+                string? folderPath = PromptForFolder("Choose export folder");
+
+                if (string.IsNullOrWhiteSpace(folderPath))
+                    return;
+
+                // Commit any pending edits before collecting rows
+                CommitAllPendingGridEdits();
+
+                // Collect current tab targets only
+                var targets = GetCurrentTabExportTargets()
+                    .Where(t => t.Grid != null)
+                    .ToList();
+
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show(
+                        @"No data to export.",
+                        @"No Data",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Force-load all current tab target views before export
+                BeginSilentExportMode();
+                try
+                {
+                    EnsureExportTargetsLoaded(targets);
+                }
+                finally
+                {
+                    EndSilentExportMode();
+                }
+
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+
                 if (exportAsExcel)
                 {
-                    string filePath = Path.Combine(
-                        folderPath,
-                        $"Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
-                    );
+                    string filePath = Path.Combine(folderPath, $"HVTools_export_current_{timestamp}.xlsx");
 
                     ExportTargetsToExcel(targets, filePath);
 
@@ -6536,7 +6873,7 @@ Unused Resources:
                     ExportTargetsToFolder(targets, folderPath, true);
 
                     MessageBox.Show(
-                        $@"Current tab exported to CSV files successfully:
+                        $@"Current tab exported to CSV successfully:
                         {folderPath}",
                         @"Export Complete",
                         MessageBoxButtons.OK,
@@ -6556,8 +6893,11 @@ Unused Resources:
             }
         }
 
+
         /// <summary>
         /// Handles the Click event for the "Export all data" menu item.
+        /// This version exports directly to Excel, without intermediate format popup,
+        /// and asks for the destination folder before loading/exporting data.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">An EventArgs object containing the event data.</param>
@@ -6577,36 +6917,7 @@ Unused Resources:
                     return;
                 }
 
-                CommitAllPendingGridEdits();
-
-                var targets = GetAllExportTargets()
-                    .Where(t => t.Grid != null && t.Grid.Rows.Count > 0)
-                    .ToList();
-
-                if (targets.Count == 0)
-                {
-                    MessageBox.Show(
-                        @"No exportable data found.",
-                        @"No Data",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                    return;
-                }
-
-                // ✅ Choix format utilisateur
-                var result = MessageBox.Show(
-                    "Do you want to export as a single Excel file?\n\nYes = Excel\nNo = CSV",
-                    "Export format",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.Cancel)
-                {
-                    return;
-                }
-
-                bool exportAsExcel = (result == DialogResult.Yes);
-
+                // Ask destination FIRST
                 string? folderPath = PromptForFolder("Choose folder for full export");
                 if (string.IsNullOrWhiteSpace(folderPath))
                 {
@@ -6614,33 +6925,46 @@ Unused Resources:
                     return;
                 }
 
-                if (exportAsExcel)
+                CommitAllPendingGridEdits();
+
+                var targets = GetAllExportTargets()
+                    .Where(t => t.Grid != null)
+                    .ToList();
+
+                if (targets.Count == 0)
                 {
-                    string filePath = Path.Combine(
-                        folderPath,
-                        $"Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
-                    );
-
-                    ExportTargetsToExcel(targets, filePath);
-
                     MessageBox.Show(
-                        $@"All data exported to Excel successfully:
-                        {filePath}",
-                        @"Export Complete",
+                        @"No exportable target found.",
+                        @"No Data",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
+                    return;
                 }
-                else
-                {
-                    ExportTargetsToFolder(targets, folderPath, true);
 
-                    MessageBox.Show(
-                        $@"All data exported to CSV files successfully:
-                        {folderPath}",
-                        @"Export Complete",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                BeginSilentExportMode();
+                try
+                {
+                    EnsureExportTargetsLoaded(targets);
                 }
+                finally
+                {
+                    EndSilentExportMode();
+                }
+
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+                string filePath = Path.Combine(
+                    folderPath,
+                    $"HVTools_export_all_{timestamp}.xlsx"
+                );
+
+                ExportTargetsToExcel(targets, filePath);
+
+                MessageBox.Show(
+                    $@"All data exported to Excel successfully:
+{filePath}",
+                    @"Export Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -6648,7 +6972,7 @@ Unused Resources:
 
                 MessageBox.Show(
                     $@"Error exporting all data:
-                    {ex.Message}",
+{ex.Message}",
                     @"Export Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -6725,22 +7049,42 @@ Unused Resources:
 
         /// <summary>
         /// Gets all export targets available in the form.
+        /// The order of the returned targets matches the GUI tab order
+        /// for all currently implemented/exportable views.
         /// </summary>
         /// <returns>
-        /// A list of export targets, each containing a logical export name, the related DataGridView,
-        /// and export options.
+        /// A list of export targets, each containing:
+        /// - ExportName: Logical name used for Excel sheet / CSV file
+        /// - Grid: Associated DataGridView containing the data
+        /// - SkipExportColumn: Indicates if the export checkbox column should be ignored
+        /// - OnlyCheckedRows: Indicates if only selected rows should be exported
         /// </returns>
         private List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)> GetAllExportTargets()
         {
             return new List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)>
             {
+                // GUI order - implemented tabs only
+
+                // vInfo
                 ("vInfo", datagridviewVMOverView, true, true),
-                ("vVMGroup", datagridviewVMGroups, false, false),
+
+                // vDisks
+                ("vDisks", datagridviewvDiskOverView, false, false),
+
+                // vCheckpoint
+                ("vCheckpoint", datagridviewCheckpointOverView, false, false),
+
+                // vHosts
                 ("vHosts", datagridviewhvHosts, false, false),
+
+                // vCluster (split into 2 export sheets)
                 ("vClusterNodes", datagridviewClusterNodes, false, false),
                 ("vClusterVMs", datagridviewClusterVMs, false, false),
-                ("vDisks", datagridviewvDiskOverView, false, false),
-                ("vCheckpoint", datagridviewCheckpointOverView, false, false),
+
+                // vVMGroup
+                ("vVMGroup", datagridviewVMGroups, false, false),
+
+                // Health Overview
                 ("HealthOverview", datagridviewHealthOverview, false, false)
             };
         }
@@ -6793,6 +7137,183 @@ Unused Resources:
 
             return targets;
         }
+
+        /// <summary>
+        /// Ensures that all export targets are loaded before export is executed.
+        /// This forces the same data retrieval logic that is normally triggered by the Load/refresh buttons.
+        /// During export, the active tab and status strip are updated to provide visual progress feedback.
+        /// </summary>
+        /// <param name="targets">The export targets that must be loaded before export.</param>
+        private void EnsureExportTargetsLoaded(
+            List<(string ExportName, DataGridView Grid, bool SkipExportColumn, bool OnlyCheckedRows)> targets)
+        {
+            var loadedSections = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            TabPage? originalTab = tabcontrolMainForm.SelectedTab;
+            string originalStatus = toolStripStatusLabelTextMainForm.Text;
+
+            try
+            {
+                foreach (var target in targets)
+                {
+                    string sectionKey = target.ExportName.StartsWith("vCluster", StringComparison.OrdinalIgnoreCase)
+                        ? "vCluster"
+                        : target.ExportName;
+
+                    if (loadedSections.Contains(sectionKey))
+                        continue;
+
+                    loadedSections.Add(sectionKey);
+
+                    try
+                    {
+                        TabPage? targetTab = null;
+                        string progressText = $"Loading {sectionKey}...";
+
+                        switch (sectionKey)
+                        {
+                            case "vInfo":
+                                targetTab = tabpagehvOverview;
+                                progressText = "Loading vInfo...";
+                                break;
+
+                            case "vVMGroup":
+                                targetTab = tabpageVMGroups;
+                                progressText = "Loading vVMGroup...";
+                                break;
+
+                            case "vHosts":
+                                targetTab = tabpagehvHosts;
+                                progressText = "Loading vHosts...";
+                                break;
+
+                            case "vCluster":
+                                targetTab = tabpagehvClusters;
+                                progressText = "Loading vCluster...";
+                                break;
+
+                            case "vDisks":
+                                targetTab = tabPagehvDisks;
+                                progressText = "Loading vDisks...";
+                                break;
+
+                            case "vCheckpoint":
+                                targetTab = tabpagehvCheckpoints;
+                                progressText = "Loading vCheckpoint...";
+                                break;
+
+                            case "HealthOverview":
+                                targetTab = tabpageHealthOverview;
+                                progressText = "Loading HealthOverview...";
+                                break;
+                        }
+
+                        if (targetTab != null)
+                        {
+                            tabcontrolMainForm.SelectedTab = targetTab;
+                        }
+
+                        toolStripStatusLabelTextMainForm.Text = progressText;
+                        Application.DoEvents();
+
+                        Message($"Ensuring export target is loaded: {sectionKey}", EventType.Information, 9033);
+
+                        switch (sectionKey)
+                        {
+                            case "vInfo":
+                                LoadVmOverview();
+                                break;
+
+                            case "vVMGroup":
+                                UpdateVmGroupsDataGridView();
+                                break;
+
+                            case "vHosts":
+                            {
+                                var hostDetails = HostDetails.GetHyperVHostDetails(
+                                    cmd => ExecutePowerShellCommand(cmd),
+                                    (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd));
+
+                                UpdateHostsDataGridView(hostDetails ?? new List<HostDetailsInfo>());
+                                break;
+                            }
+
+                            case "vCluster":
+                                LoadClusterInformationView();
+                                break;
+
+                            case "vDisks":
+                            {
+                                List<VirtualDiskInfo> diskDetails;
+
+                                if (SessionContext.IsCluster && !SessionContext.IsLocal)
+                                {
+                                    diskDetails = VirtualDisks.GetVirtualDiskDetails(
+                                        cmd => ExecutePowerShellCommand(cmd),
+                                        (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd));
+                                }
+                                else
+                                {
+                                    diskDetails = VirtualDisks.GetVirtualDiskDetails(
+                                        cmd => ExecutePowerShellCommand(cmd));
+                                }
+
+                                UpdateVirtualDisksDataGridView(diskDetails ?? new List<VirtualDiskInfo>());
+                                break;
+                            }
+
+                            case "vCheckpoint":
+                                LoadVmCheckpoints();
+                                break;
+
+                            case "HealthOverview":
+                            {
+                                var inventory = HostHealth.GetHyperVHostHealth(
+                                    cmd => ExecutePowerShellCommand(cmd),
+                                    (node, cmd) => ExecutePowerShellCommandOnNode(node, cmd),
+                                    includeDetailedVMs: true);
+
+                                if (inventory != null)
+                                {
+                                    _currentlyDisplayedNodeName = inventory.HostInfo.ComputerName;
+                                    UpdateHealthOverviewDataGridView(inventory);
+                                    UpdateClusterNodeSelector(inventory);
+                                }
+                                else
+                                {
+                                    datagridviewHealthOverview.DataSource = null;
+                                    datagridviewHealthOverview.Rows.Clear();
+                                    datagridviewHealthOverview.Columns.Clear();
+                                }
+
+                                break;
+                            }
+                        }
+
+                        Application.DoEvents();
+                    }
+                    catch (Exception ex)
+                    {
+                        Message(
+                            $"Error while ensuring export target '{sectionKey}' is loaded: {ex.Message}",
+                            EventType.Warning,
+                            9034);
+                    }
+                }
+            }
+            finally
+            {
+                if (originalTab != null)
+                {
+                    tabcontrolMainForm.SelectedTab = originalTab;
+                }
+
+                toolStripStatusLabelTextMainForm.Text = originalStatus;
+                Application.DoEvents();
+            }
+        }
+
+
 
         /// <summary>
         /// Gets exportable row data from a DataGridView.
@@ -6887,6 +7408,89 @@ Unused Resources:
         }
 
         /// <summary>
+        /// Gets exportable column headers from a DataGridView, even if the grid contains no rows.
+        /// </summary>
+        /// <param name="grid">The DataGridView to inspect.</param>
+        /// <param name="skipExportColumn">
+        /// If true, skips any column identified as the Export checkbox column.
+        /// </param>
+        /// <returns>A list of exportable headers.</returns>
+        private List<string> GetGridHeaders(DataGridView grid, bool skipExportColumn)
+        {
+            var headers = new List<string>();
+
+            if (grid == null || grid.Columns.Count == 0)
+                return headers;
+
+            foreach (DataGridViewColumn column in grid.Columns)
+            {
+                bool isExportColumn =
+                    column.Name == "Export" ||
+                    column.DataPropertyName == "Export" ||
+                    column.HeaderText == @"☑" ||
+                    column.HeaderText == @"☐";
+
+                if (skipExportColumn && isExportColumn)
+                    continue;
+
+                string header = string.IsNullOrWhiteSpace(column.HeaderText)
+                    ? column.Name
+                    : column.HeaderText;
+
+                headers.Add(header);
+            }
+
+            return headers;
+        }
+
+        /// <summary>
+        /// Gets export metadata for the current export session.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing metadata values for the export file.
+        /// </returns>
+        private Dictionary<string, string> GetExportMetadata()
+        {
+            string fullVersion = Application.ProductVersion;
+            string majorVersion = fullVersion;
+
+            if (!string.IsNullOrWhiteSpace(fullVersion))
+            {
+                var versionParts = fullVersion.Split('.');
+                if (versionParts.Length >= 2)
+                {
+                    majorVersion = $"{versionParts[0]}.{versionParts[1]}";
+                }
+            }
+
+            return new Dictionary<string, string>
+            {
+                ["HVTools major version"] = majorVersion,
+                ["HVTools version"] = fullVersion,
+                ["xlsx creation datetime"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                ["Server"] = SessionContext.ServerName ?? "N/A"
+            };
+        }
+
+        /// <summary>
+        /// Exports the vMetaData information to a CSV file.
+        /// </summary>
+        /// <param name="filePath">The destination metadata CSV file path.</param>
+        private void ExportMetadataToCsv(string filePath)
+        {
+            var metadata = GetExportMetadata();
+
+            using (var writer = new StreamWriter(filePath, false, new UTF8Encoding(true)))
+            {
+                // Header row
+                writer.WriteLine(string.Join(";", metadata.Keys.Select(EscapeCsv)));
+
+                // Value row
+                writer.WriteLine(string.Join(";", metadata.Values.Select(v => EscapeCsv(v ?? ""))));
+            }
+        }
+
+        /// <summary>
         /// Escapes a string for safe CSV output.
         /// </summary>
         /// <param name="value">The value to escape.</param>
@@ -6902,35 +7506,48 @@ Unused Resources:
             return value;
         }
 
-
         /// <summary>
         /// Exports row data to a CSV file.
+        /// If the row collection is empty, headers can still be written when provided.
         /// </summary>
         /// <param name="filePath">The destination file path.</param>
         /// <param name="rows">The row data to export.</param>
-        private void ExportGridDataToCsv(string filePath, List<Dictionary<string, string>> rows)
+        /// <param name="headers">
+        /// Optional explicit headers to use when rows are empty or when a custom header set is required.
+        /// </param>
+        private void ExportGridDataToCsv(
+            string filePath,
+            List<Dictionary<string, string>> rows,
+            List<string>? headers = null)
         {
-            if (rows == null || rows.Count == 0)
+            bool hasRows = rows != null && rows.Count > 0;
+            bool hasHeaders = headers != null && headers.Count > 0;
+
+            if (!hasRows && !hasHeaders)
                 return;
 
-            // Use the first row as header source
-            var headers = rows[0].Keys.ToList();
+            var effectiveHeaders = hasHeaders
+                ? headers!
+                : rows[0].Keys.ToList();
 
             using (var writer = new StreamWriter(filePath, false, new UTF8Encoding(true)))
             {
                 // Header row
-                writer.WriteLine(string.Join(";", headers.Select(EscapeCsv)));
+                writer.WriteLine(string.Join(";", effectiveHeaders.Select(EscapeCsv)));
 
                 // Data rows
-                foreach (var row in rows)
+                if (hasRows)
                 {
-                    var values = headers.Select(header =>
+                    foreach (var row in rows)
                     {
-                        row.TryGetValue(header, out string? value);
-                        return EscapeCsv(value ?? "");
-                    });
+                        var values = effectiveHeaders.Select(header =>
+                        {
+                            row.TryGetValue(header, out string? value);
+                            return EscapeCsv(value ?? "");
+                        });
 
-                    writer.WriteLine(string.Join(";", values));
+                        writer.WriteLine(string.Join(";", values));
+                    }
                 }
             }
         }
@@ -6996,6 +7613,8 @@ Unused Resources:
 
         /// <summary>
         /// Exports a list of DataGridView targets to CSV files in the specified folder.
+        /// Empty grids are also exported when headers are available.
+        /// A metadata CSV file is also generated at the end.
         /// </summary>
         /// <param name="targets">
         /// The list of export targets, each containing a logical export name, the source DataGridView,
@@ -7018,14 +7637,15 @@ Unused Resources:
 
                 string timestamp = includeTimestamp ? DateTime.Now.ToString("yyyyMMdd_HHmmss") : "";
 
+                // Export data targets first
                 foreach (var target in targets)
                 {
                     var rows = GetGridData(target.Grid, target.SkipExportColumn, target.OnlyCheckedRows);
+                    var headers = GetGridHeaders(target.Grid, target.SkipExportColumn);
 
-                    // Skip empty result sets
-                    if (rows.Count == 0)
+                    if (rows.Count == 0 && headers.Count == 0)
                     {
-                        Message($"Skipping export of '{target.ExportName}' because no rows were selected/found.",
+                        Message($"Skipping export of '{target.ExportName}' because no headers or rows were found.",
                             EventType.Information, 9031);
                         continue;
                     }
@@ -7037,11 +7657,22 @@ Unused Resources:
 
                     string filePath = Path.Combine(folderPath, fileName);
 
-                    ExportGridDataToCsv(filePath, rows);
+                    ExportGridDataToCsv(filePath, rows, headers);
 
                     Message($"Exported '{target.ExportName}' to '{filePath}'",
                         EventType.Information, 9032);
                 }
+
+                // Export metadata file last
+                string metadataFileName = string.IsNullOrWhiteSpace(timestamp)
+                    ? "vMetaData.csv"
+                    : $"vMetaData_{timestamp}.csv";
+
+                string metadataFilePath = Path.Combine(folderPath, metadataFileName);
+                ExportMetadataToCsv(metadataFilePath);
+
+                Message($"Exported metadata to '{metadataFilePath}'",
+                    EventType.Information, 9041);
             }
             finally
             {
@@ -7051,6 +7682,8 @@ Unused Resources:
 
         /// <summary>
         /// Exports multiple DataGridView targets into a single Excel workbook with multiple sheets.
+        /// Empty grids are also exported when headers are available.
+        /// A metadata sheet named vMetaData is added as the last worksheet.
         /// </summary>
         /// <param name="targets">List of export targets</param>
         /// <param name="filePath">Destination Excel file</param>
@@ -7060,47 +7693,78 @@ Unused Resources:
         {
             using (var workbook = new XLWorkbook())
             {
+                // -----------------------------------------------------------------
+                // Data worksheets FIRST
+                // -----------------------------------------------------------------
                 foreach (var target in targets)
                 {
                     var rows = GetGridData(target.Grid, target.SkipExportColumn, target.OnlyCheckedRows);
+                    var headers = GetGridHeaders(target.Grid, target.SkipExportColumn);
 
-                    if (rows.Count == 0)
+                    if (rows.Count == 0 && headers.Count == 0)
+                    {
+                        Message($"Skipping Excel export of '{target.ExportName}' because no headers or rows were found.",
+                            EventType.Information, 9040);
                         continue;
+                    }
 
-                    // Excel sheet name max 31 chars
                     string sheetName = SanitizeFileName(target.ExportName);
                     if (sheetName.Length > 31)
                         sheetName = sheetName.Substring(0, 31);
 
                     var worksheet = workbook.Worksheets.Add(sheetName);
 
-                    var headers = rows[0].Keys.ToList();
+                    var effectiveHeaders = headers.Count > 0
+                        ? headers
+                        : rows[0].Keys.ToList();
 
                     // Headers
-                    for (int col = 0; col < headers.Count; col++)
+                    for (int col = 0; col < effectiveHeaders.Count; col++)
                     {
-                        worksheet.Cell(1, col + 1).Value = headers[col];
+                        worksheet.Cell(1, col + 1).Value = effectiveHeaders[col];
                     }
 
                     // Data
-                    for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+                    if (rows.Count > 0)
                     {
-                        for (int colIndex = 0; colIndex < headers.Count; colIndex++)
+                        for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
                         {
-                            rows[rowIndex].TryGetValue(headers[colIndex], out string? value);
-                            worksheet.Cell(rowIndex + 2, colIndex + 1).Value = value ?? "";
+                            for (int colIndex = 0; colIndex < effectiveHeaders.Count; colIndex++)
+                            {
+                                rows[rowIndex].TryGetValue(effectiveHeaders[colIndex], out string? value);
+                                worksheet.Cell(rowIndex + 2, colIndex + 1).Value = value ?? "";
+                            }
                         }
                     }
 
-                    // Auto resize
                     worksheet.Columns().AdjustToContents();
                 }
+
+                // -----------------------------------------------------------------
+                // vMetaData worksheet LAST
+                // -----------------------------------------------------------------
+                var metadata = GetExportMetadata();
+                var metadataSheet = workbook.Worksheets.Add("vMetaData");
+
+                int metaCol = 1;
+                foreach (var key in metadata.Keys)
+                {
+                    metadataSheet.Cell(1, metaCol).Value = key;
+                    metaCol++;
+                }
+
+                metaCol = 1;
+                foreach (var value in metadata.Values)
+                {
+                    metadataSheet.Cell(2, metaCol).Value = value;
+                    metaCol++;
+                }
+
+                metadataSheet.Columns().AdjustToContents();
 
                 workbook.SaveAs(filePath);
             }
         }
-
-
 
         #region Search Functionality
 
