@@ -6607,6 +6607,7 @@ Unused Resources:
         /// Exports all available targets to Excel or CSV.
         /// This method asks for the output folder first, then forces all required views to load
         /// before generating the export files.
+        /// After export, the loaded data remains available in the GUI.
         /// </summary>
         /// <param name="exportAsExcel">
         /// True to export all targets into a single Excel workbook; false to export CSV files.
@@ -6636,7 +6637,7 @@ Unused Resources:
                 if (string.IsNullOrWhiteSpace(folderPath))
                     return;
 
-                // Commit any pending edits before collecting rows
+                // Commit any pending edits before loading/exporting
                 CommitAllPendingGridEdits();
 
                 // Collect all export targets
@@ -6655,6 +6656,7 @@ Unused Resources:
                 }
 
                 // Force-load all target views before export
+                // This also populates the GUI grids, so tabs remain loaded afterwards
                 BeginSilentExportMode();
                 try
                 {
@@ -6675,7 +6677,7 @@ Unused Resources:
 
                     MessageBox.Show(
                         $@"All data exported to Excel successfully:
-                        {filePath}",
+        {filePath}",
                         @"Export Complete",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -6686,7 +6688,7 @@ Unused Resources:
 
                     MessageBox.Show(
                         $@"All data exported to CSV successfully:
-                        {folderPath}",
+        {folderPath}",
                         @"Export Complete",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -6698,7 +6700,7 @@ Unused Resources:
 
                 MessageBox.Show(
                     $@"Error exporting all data:
-                    {ex.Message}",
+        {ex.Message}",
                     @"Export Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -6795,6 +6797,7 @@ Unused Resources:
         /// Exports only the current tab targets to Excel or CSV.
         /// This method asks for the output folder first, then forces the current target view(s) to load
         /// before generating the export file(s).
+        /// After export, the loaded data remains available in the GUI.
         /// </summary>
         /// <param name="exportAsExcel">
         /// True to export current tab targets into a single Excel workbook; false to export CSV files.
@@ -6824,7 +6827,7 @@ Unused Resources:
                 if (string.IsNullOrWhiteSpace(folderPath))
                     return;
 
-                // Commit any pending edits before collecting rows
+                // Commit any pending edits before loading/exporting
                 CommitAllPendingGridEdits();
 
                 // Collect current tab targets only
@@ -6842,7 +6845,8 @@ Unused Resources:
                     return;
                 }
 
-                // Force-load all current tab target views before export
+                // Force-load current tab target views before export
+                // This also populates the GUI grids, so the tab remains loaded afterwards
                 BeginSilentExportMode();
                 try
                 {
@@ -6863,7 +6867,7 @@ Unused Resources:
 
                     MessageBox.Show(
                         $@"Current tab exported to Excel successfully:
-                        {filePath}",
+        {filePath}",
                         @"Export Complete",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -6874,7 +6878,7 @@ Unused Resources:
 
                     MessageBox.Show(
                         $@"Current tab exported to CSV successfully:
-                        {folderPath}",
+        {folderPath}",
                         @"Export Complete",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -6886,7 +6890,7 @@ Unused Resources:
 
                 MessageBox.Show(
                     $@"Error exporting current tab:
-                    {ex.Message}",
+        {ex.Message}",
                     @"Export Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
